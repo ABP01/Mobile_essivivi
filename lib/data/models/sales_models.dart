@@ -9,6 +9,8 @@ class Commande {
   final String dateSouhaitee;
   final String createdAt;
   final String updatedAt;
+  final double? deliveryLatitude;
+  final double? deliveryLongitude;
 
   Commande({
     required this.id,
@@ -19,6 +21,8 @@ class Commande {
     required this.dateSouhaitee,
     required this.createdAt,
     required this.updatedAt,
+    this.deliveryLatitude,
+    this.deliveryLongitude,
   });
 
   factory Commande.fromJson(Map<String, dynamic> json) {
@@ -31,6 +35,8 @@ class Commande {
       dateSouhaitee: json['date_souhaitee'] as String,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
+      deliveryLatitude: json['delivery_latitude'] != null ? (json['delivery_latitude'] as num).toDouble() : null,
+      deliveryLongitude: json['delivery_longitude'] != null ? (json['delivery_longitude'] as num).toDouble() : null,
     );
   }
 
@@ -44,8 +50,13 @@ class Commande {
       'date_souhaitee': dateSouhaitee,
       'created_at': createdAt,
       'updated_at': updatedAt,
+      'delivery_latitude': deliveryLatitude,
+      'delivery_longitude': deliveryLongitude,
     };
   }
+
+  // Getter pour compatibilité
+  int? get agent => agentId;
 
   bool get isPending => statut == 'pending';
   bool get isValidated => statut == 'validated';

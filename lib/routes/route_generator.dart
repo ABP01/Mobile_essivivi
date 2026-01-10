@@ -108,17 +108,17 @@ class RouteGenerator {
         if (args is Map<String, dynamic>) {
           return MaterialPageRoute(
             builder: (_) => ShipmentDetailsScreen(
-              title: args['title'] ?? 'Shipment',
-              id: args['id'] ?? 'N/A',
-              status: args['status'] ?? 'Unknown',
+              shipmentData: args,
             ),
           );
         }
         return MaterialPageRoute(
-          builder: (_) => const ShipmentDetailsScreen(
-            title: 'Shipment',
-            id: 'N/A',
-            status: 'Unknown',
+          builder: (_) => ShipmentDetailsScreen(
+            shipmentData: {
+              'id': 'N/A',
+              'status': 'Unknown',
+              'title': 'Shipment',
+            },
           ),
         );
       

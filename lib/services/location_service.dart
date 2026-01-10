@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../repositories/logistics_repository.dart';
+import '../data/repositories/logistics_repository.dart';
 
 class LocationService {
   static final LocationService _instance = LocationService._internal();

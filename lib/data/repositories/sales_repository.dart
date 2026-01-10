@@ -29,6 +29,10 @@ class SalesRepository {
     }
   }
 
+  /// Alias for getCommandeById (for compatibility)
+  Future<Commande> getCommande(int id) => getCommandeById(id);
+
+
   /// Get commandes for a specific client
   Future<List<Commande>> getCommandesByClient(int clientId) async {
     try {
