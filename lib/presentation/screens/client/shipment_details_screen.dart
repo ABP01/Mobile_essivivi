@@ -5,6 +5,7 @@ import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
 import 'package:essivi_mobile/data/models/sales_models.dart';
+import 'package:essivi_mobile/services/phone_service.dart';
 
 class ShipmentDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> shipmentData;
@@ -165,6 +166,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     ],
                   ),
                 ),
+      bottomNavigationBar: _buildActionButtons(),
     );
   }
 
@@ -229,6 +231,108 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    final status = widget.shipmentData['status'] as String;
+    final isInProgress = status == 'En cours' || status == 'In Progress';
+
+    if (!isInProgress) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            // Bouton Suivre
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  // TODO: Récupérer les vraies données agent
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.trackDelivery,
+                    arguments: {
+                      'deliveryId': _commande?.id ?? 0,
+                      'agentId': _commande?.agent ?? 0,
+                      'agentName': 'Agent Essivi',
+                      'agentPhone': '+22890123456',
+                      'clientLatitude': _commande?.deliveryLatitude,
+                      'clientLongitude': _commande?.deliveryLongitude,
+                    },
+                  );
+                },
+                icon: const Icon(FluentIcons.location_24_regular),
+                label: Text(
+                  'Suivre',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary, width: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Bouton Appeler
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  try {
+                    await PhoneService.makeCall('+22890123456');
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Impossible d\'appeler',
+                            style: GoogleFonts.poppins(),
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(FluentIcons.call_24_filled),
+                label: Text(
+                  'Appeler',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

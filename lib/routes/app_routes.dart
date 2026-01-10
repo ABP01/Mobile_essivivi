@@ -14,6 +14,8 @@ class AppRoutes {
   static const String tracking = '/tracking';
   static const String ordersList = '/orders-list';
   static const String createOrder = '/create-order';
+  static const String cart = '/cart';
+  static const String trackDelivery = '/track-delivery';
   static const String shipmentHistory = '/shipment-history';
   static const String shipmentDetails = '/shipment-details';
   static const String helpCenter = '/help-center';

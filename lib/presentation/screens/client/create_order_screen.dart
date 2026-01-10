@@ -6,6 +6,8 @@ import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
 import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/data/models/sales_models.dart';
+import 'package:essivi_mobile/services/cart_service.dart';
+import 'package:essivi_mobile/data/models/cart_models.dart';
 import 'select_location_screen.dart';
 
 class CreateOrderScreen extends StatefulWidget {
@@ -76,18 +78,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   double _calculateTotalAmount() {
-    double unitPrice = 0;
-    switch (_selectedBottleSize) {
-      case '5L':
-        unitPrice = 1300;
-        break;
-      case '10L':
-        unitPrice = 2350;
-        break;
-      case '20L':
-        unitPrice = 4200;
-        break;
-    }
+    double unitPrice = CartItem.getPriceForSize(_selectedBottleSize);
     return unitPrice * _quantity;
   }
 
@@ -140,6 +131,64 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     ),
                   ),
                   const Spacer(),
+                  // Icône Panier avec badge
+                  FutureBuilder<int>(
+                    future: CartService().getItemCount(),
+                    builder: (context, snapshot) {
+                      final count = snapshot.data ?? 0;
+                      return GestureDetector(
+                        onTap: () => Navigator.pushNamed(context, AppRoutes.cart),
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                FluentIcons.cart_24_regular,
+                                color: AppColors.primary,
+                                size: 24,
+                              ),
+                            ),
+                            if (count > 0)
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 18,
+                                    minHeight: 18,
+                                  ),
+                                  child: Text(
+                                    count.toString(),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(width: 20),
                 ],
               ),
@@ -163,11 +212,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        Expanded(child: _buildBottleSizeCard('5L', '1300 FCFA')),
+                        Expanded(child: _buildBottleSizeCard('5L', '500 FCFA')),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildBottleSizeCard('10L', '2350 FCFA')),
+                        Expanded(child: _buildBottleSizeCard('10L', '1,000 FCFA')),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildBottleSizeCard('20L', '4200 FCFA')),
+                        Expanded(child: _buildBottleSizeCard('20L', '2,000 FCFA')),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -375,36 +424,64 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    // Commander Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _submitOrder,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                    // Boutons d'action
+                    Row(
+                      children: [
+                        // Bouton Ajouter au Panier
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _addToCart,
+                            icon: const Icon(FluentIcons.cart_24_regular),
+                            label: Text(
+                              'Ajouter',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: const BorderSide(color: AppColors.primary, width: 2),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
                           ),
                         ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(
-                                'Commander',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                        const SizedBox(width: 12),
+                        // Bouton Commander Maintenant
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _submitOrder,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                      ),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    'Commander',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 30),
                   ],
@@ -568,15 +645,50 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   String _getPrice() {
     switch (_selectedBottleSize) {
       case '5L':
-        return '1300 FCFA';
+        return '500 FCFA';
       case '10L':
-        return '2350 FCFA';
+        return '1,000 FCFA';
       case '20L':
-        return '4200 FCFA';
+        return '2,000 FCFA';
       default:
         return '0 FCFA';
     }
   }
+
+  double _getPriceValue() {
+    return CartItem.getPriceForSize(_selectedBottleSize);
+  }
+
+  Future<void> _addToCart() async {
+    final cartService = CartService();
+    final item = CartItem(
+      bottleSize: _selectedBottleSize,
+      quantity: _quantity,
+      unitPrice: _getPriceValue(),
+    );
+
+    await cartService.addToCart(item);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Ajouté au panier : $_quantity × $_selectedBottleSize',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: AppColors.primary,
+          action: SnackBarAction(
+            label: 'Voir',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.cart);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
 
   void _showOrderConfirmation(BuildContext context) {
     showDialog(

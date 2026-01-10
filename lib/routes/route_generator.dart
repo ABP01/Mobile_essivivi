@@ -22,6 +22,8 @@ import 'package:essivi_mobile/presentation/screens/client/help_center_screen.dar
 import 'package:essivi_mobile/presentation/screens/client/bottle_return_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/subscription_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/water_quality_screen.dart';
+import 'package:essivi_mobile/presentation/screens/client/cart_screen.dart';
+import 'package:essivi_mobile/presentation/screens/client/track_delivery_screen.dart';
 
 // Agent Screens
 import 'package:essivi_mobile/presentation/screens/agent/agent_dashboard.dart';
@@ -78,6 +80,26 @@ class RouteGenerator {
       
       case AppRoutes.createOrder:
         return MaterialPageRoute(builder: (_) => const CreateOrderScreen());
+      
+      case AppRoutes.cart:
+        return MaterialPageRoute(builder: (_) => const CartScreen());
+      
+      case AppRoutes.trackDelivery:
+        if (args is Map<String, dynamic>) {
+          return MaterialPageRoute(
+            builder: (_) => TrackDeliveryScreen(
+              deliveryId: args['deliveryId'] ?? 0,
+              agentId: args['agentId'] ?? 0,
+              agentName: args['agentName'] ?? 'Agent',
+              agentPhone: args['agentPhone'] ?? '',
+              clientLatitude: args['clientLatitude'],
+              clientLongitude: args['clientLongitude'],
+            ),
+          );
+        }
+        return MaterialPageRoute(builder: (_) => const Scaffold(
+          body: Center(child: Text('Paramètres manquants')),
+        ));
       
       case AppRoutes.shipmentHistory:
         return MaterialPageRoute(builder: (_) => const ShipmentHistoryScreen());
