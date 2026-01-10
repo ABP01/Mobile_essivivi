@@ -1,0 +1,34 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Mobile builds
+android/
+ios/
+linux/
+macos/
+windows/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Project specific
+Dockerfile
+.dockerignore
+README.md
+pubspec.lock
