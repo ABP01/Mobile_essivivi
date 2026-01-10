@@ -76,7 +76,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final unreadCount = _notifications.where((n) => !n['read']).length;
+    final unreadCount = _notifications.where((n) => !n.read).length;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

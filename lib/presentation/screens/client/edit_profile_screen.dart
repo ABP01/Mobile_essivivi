@@ -72,7 +72,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         solde: _clientProfile!.solde,
       );
 
-      await _userRepo.updateClient(_clientProfile!.id, updatedProfile);
+      await _userRepo.updateClient(_clientProfile!.id, updatedProfile.toJson());
 
       if (!mounted) return;
 
@@ -146,7 +146,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         controller: _nomPointVenteController,
                         decoration: InputDecoration(
                           labelText: 'Nom du Point de Vente',
-                          prefixIcon: const Icon(FluentIcons.store_24_regular),
+                          prefixIcon: const Icon(FluentIcons.building_24_regular),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
