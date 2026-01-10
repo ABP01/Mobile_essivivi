@@ -6,6 +6,8 @@ import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
 import 'package:essivi_mobile/data/models/sales_models.dart';
 import 'package:essivi_mobile/services/phone_service.dart';
+import 'package:essivi_mobile/data/repositories/user_repository.dart';
+import 'package:essivi_mobile/data/models/user_models.dart';
 
 class ShipmentDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> shipmentData;
@@ -18,7 +20,9 @@ class ShipmentDetailsScreen extends StatefulWidget {
 
 class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   final _salesRepo = SalesRepository();
+  final _userRepo = UserRepository();
   Commande? _commande;
+  AgentProfile? _agentProfile;
   bool _isLoading = true;
 
   @override
@@ -34,6 +38,16 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       final id = int.parse(idString.replaceAll('#', ''));
       
       _commande = await _salesRepo.getCommande(id);
+      
+      // Load agent details if assigned
+      if (_commande?.agentId != null) {
+        try {
+          _agentProfile = await _userRepo.getAgentById(_commande!.agentId!);
+        } catch (agentError) {
+          // If agent profile fails to load, we still show the order details
+          debugPrint('Erreur chargement profil agent: $agentError');
+        }
+      }
     } catch (e) {
       // Handle error
     } finally {
@@ -237,7 +251,11 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
   Widget _buildActionButtons() {
     final status = widget.shipmentData['status'] as String;
-    final isInProgress = status == 'En cours' || status == 'In Progress';
+    final isInProgress = status == 'En cours' || status == 'In Progress' || status == 'validated';
+    
+    // Récupérer le nom et le numéro de l'agent si disponibles
+    final agentName = _agentProfile?.user?.fullName ?? 'Agent Essivi';
+    final agentPhone = _agentProfile?.user?.phoneNumber ?? '+22890123456';
 
     if (!isInProgress) return const SizedBox.shrink();
 
@@ -260,15 +278,14 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () {
-                  // TODO: Récupérer les vraies données agent
                   Navigator.pushNamed(
                     context,
                     AppRoutes.trackDelivery,
                     arguments: {
                       'deliveryId': _commande?.id ?? 0,
                       'agentId': _commande?.agent ?? 0,
-                      'agentName': 'Agent Essivi',
-                      'agentPhone': '+22890123456',
+                      'agentName': agentName,
+                      'agentPhone': agentPhone,
                       'clientLatitude': _commande?.deliveryLatitude,
                       'clientLongitude': _commande?.deliveryLongitude,
                     },
@@ -298,13 +315,13 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   try {
-                    await PhoneService.makeCall('+22890123456');
+                    await PhoneService.makeCall(agentPhone);
                   } catch (e) {
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'Impossible d\'appeler',
+                            'Impossible d\'appeler : $agentPhone',
                             style: GoogleFonts.poppins(),
                           ),
                           backgroundColor: Colors.red,
