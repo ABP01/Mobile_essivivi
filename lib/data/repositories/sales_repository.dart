@@ -242,24 +242,54 @@ class SalesRepository {
     double? gpsLng,
   }) async {
     try {
-      final formData = FormData();
+      // Check if we have files to upload
+      bool hasFiles = photoPath != null || signaturePath != null;
+      
+      dynamic requestData;
+      
+      if (hasFiles) {
+        // Use FormData when files are present
+        final formData = FormData();
 
-      if (gpsLat != null) formData.fields.add(MapEntry('gps_lat', gpsLat.toString()));
-      if (gpsLng != null) formData.fields.add(MapEntry('gps_lng', gpsLng.toString()));
+        if (gpsLat != null) formData.fields.add(MapEntry('gps_lat', gpsLat.toString()));
+        if (gpsLng != null) formData.fields.add(MapEntry('gps_lng', gpsLng.toString()));
 
-      if (photoPath != null) {
-        final photoFile = await _apiService.createMultipartFile(photoPath);
-        formData.files.add(MapEntry('photo_preuve', photoFile));
-      }
+        if (photoPath != null) {
+          final photoFile = await _apiService.createMultipartFile(photoPath);
+          formData.files.add(MapEntry('photo_preuve', photoFile));
+        }
 
-      if (signaturePath != null) {
-        final signatureFile = await _apiService.createMultipartFile(signaturePath);
-        formData.files.add(MapEntry('signature', signatureFile));
+        if (signaturePath != null) {
+          final signatureFile = await _apiService.createMultipartFile(signaturePath);
+          formData.files.add(MapEntry('signature', signatureFile));
+        }
+        
+        requestData = formData;
+      } else {
+        // Use JSON when no files
+        requestData = {
+          if (gpsLat != null) 'gps_lat': gpsLat,
+          if (gpsLng != null) 'gps_lng': gpsLng,
+        };
       }
 
       final response = await _apiService.client.post(
         '${ApiConfig.livraisonsEndpoint}$id/submit_proof/',
-        data: formData,
+        data: requestData,
+      );
+
+      return Livraison.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Update delivery status (en_route, arriving, etc.)
+  Future<Livraison> updateDeliveryStatus(int id, String status) async {
+    try {
+      final response = await _apiService.client.post(
+        '${ApiConfig.livraisonsEndpoint}$id/update_status/',
+        data: {'statut_livraison': status},
       );
 
       return Livraison.fromJson(response.data);

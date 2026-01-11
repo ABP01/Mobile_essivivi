@@ -11,6 +11,8 @@ class Commande {
   final String updatedAt;
   final double? deliveryLatitude;
   final double? deliveryLongitude;
+  final String? clientPhone;
+  final String? agentPhone;
 
   Commande({
     required this.id,
@@ -23,6 +25,8 @@ class Commande {
     required this.updatedAt,
     this.deliveryLatitude,
     this.deliveryLongitude,
+    this.clientPhone,
+    this.agentPhone,
   });
 
   factory Commande.fromJson(Map<String, dynamic> json) {
@@ -37,6 +41,8 @@ class Commande {
       updatedAt: json['updated_at'] as String,
       deliveryLatitude: json['delivery_latitude'] != null ? double.tryParse(json['delivery_latitude'].toString()) : null,
       deliveryLongitude: json['delivery_longitude'] != null ? double.tryParse(json['delivery_longitude'].toString()) : null,
+      clientPhone: json['client_phone'] as String?,
+      agentPhone: json['agent_phone'] as String?,
     );
   }
 
@@ -84,28 +90,39 @@ class Livraison {
   final int tourneeId;
   final int? commandeId;
   final int clientId;
+  final String? statutLivraison;
   final double? gpsLat;
   final double? gpsLng;
   final String? photoPreuve;
   final String? signature;
   final bool preuveValidee;
   final String timestamp;
+  final String? clientPhone;
+  final String? agentPhone;
 
   // Added getters for UI compatibility
   bool get isDelivered => preuveValidee;
   String get createdAt => timestamp;
+  
+  // Status helpers
+  bool get isAssigned => statutLivraison == 'assigned';
+  bool get isEnRoute => statutLivraison == 'en_route';
+  bool get isArriving => statutLivraison == 'arriving';
 
   Livraison({
     required this.id,
     required this.tourneeId,
     this.commandeId,
     required this.clientId,
+    this.statutLivraison,
     this.gpsLat,
     this.gpsLng,
     this.photoPreuve,
     this.signature,
     required this.preuveValidee,
     required this.timestamp,
+    this.clientPhone,
+    this.agentPhone,
   });
 
   factory Livraison.fromJson(Map<String, dynamic> json) {
@@ -114,12 +131,15 @@ class Livraison {
       tourneeId: json['tournee'] as int,
       commandeId: json['commande'] as int?,
       clientId: json['client'] as int,
+      statutLivraison: json['statut_livraison'] as String? ?? 'assigned',
       gpsLat: json['gps_lat'] != null ? (json['gps_lat'] as num).toDouble() : null,
       gpsLng: json['gps_lng'] != null ? (json['gps_lng'] as num).toDouble() : null,
       photoPreuve: json['photo_preuve'] as String?,
       signature: json['signature'] as String?,
       preuveValidee: json['preuve_validee'] as bool? ?? false,
       timestamp: json['timestamp'] as String,
+      clientPhone: json['client_phone'] as String?,
+      agentPhone: json['agent_phone'] as String?,
     );
   }
 
@@ -129,6 +149,7 @@ class Livraison {
       'tournee': tourneeId,
       'commande': commandeId,
       'client': clientId,
+      'statut_livraison': statutLivraison,
       'gps_lat': gpsLat,
       'gps_lng': gpsLng,
       'photo_preuve': photoPreuve,

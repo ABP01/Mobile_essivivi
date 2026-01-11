@@ -116,6 +116,34 @@ class _AgentDeliveriesScreenState extends State<AgentDeliveriesScreen> {
     }
   }
 
+  Future<void> _updateStatus(int livraisonId, String newStatus) async {
+    try {
+      await _salesRepo.updateDeliveryStatus(livraisonId, newStatus);
+      if (mounted) {
+        String message = 'Statut mis à jour!';
+        if (newStatus == 'en_route') message = 'Vous êtes en route!';
+        if (newStatus == 'arriving') message = 'Vous arrivez bientôt!';
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.blue,
+          ),
+        );
+        _loadData(); // Refresh to show updated status
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   List<Livraison> get _filteredDeliveries {
     if (_selectedFilter == 'all') return _deliveries;
     return _deliveries.where((d) {
@@ -147,7 +175,27 @@ class _AgentDeliveriesScreenState extends State<AgentDeliveriesScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
                   children: [
-                    const SizedBox(width: 48), // Spacer for where the back button was
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isDark ? theme.cardColor : Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          FluentIcons.arrow_left_24_regular,
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
 
                     const Spacer(),
                     Text(
@@ -714,6 +762,57 @@ class _AgentDeliveriesScreenState extends State<AgentDeliveriesScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Status update buttons
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: delivery.isEnRoute || delivery.isArriving || delivery.isDelivered
+                        ? null
+                        : () => _updateStatus(delivery.id, 'en_route'),
+                    icon: const Icon(FluentIcons.navigation_24_regular, size: 16),
+                    label: Text(
+                      'En route',
+                      style: GoogleFonts.poppins(fontSize: 11),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: delivery.isEnRoute ? Colors.blue : Colors.grey,
+                      side: BorderSide(
+                        color: delivery.isEnRoute ? Colors.blue : Colors.grey,
+                      ),
+                      backgroundColor: delivery.isEnRoute ? Colors.blue.withOpacity(0.1) : null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: !delivery.isEnRoute || delivery.isArriving || delivery.isDelivered
+                        ? null
+                        : () => _updateStatus(delivery.id, 'arriving'),
+                    icon: const Icon(FluentIcons.location_arrow_24_regular, size: 16),
+                    label: Text(
+                      'J\'arrive',
+                      style: GoogleFonts.poppins(fontSize: 11),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: delivery.isArriving ? Colors.orange : Colors.grey,
+                      side: BorderSide(
+                        color: delivery.isArriving ? Colors.orange : Colors.grey,
+                      ),
+                      backgroundColor: delivery.isArriving ? Colors.orange.withOpacity(0.1) : null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   ),

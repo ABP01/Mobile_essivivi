@@ -174,11 +174,23 @@ class _TrackingScreenState extends State<TrackingScreen> {
                           _commande!.statut != 'en_attente',
                           _commande!.statut != 'en_attente',
                         ),
+                        // New: En route status
                         _buildTimelineItem(
-                          'Out for Delivery',
-                          _livraison != null ? 'In transit' : 'Not started',
-                          _livraison != null,
-                          _livraison != null,
+                          'En route',
+                          _livraison?.isEnRoute == true || _livraison?.isArriving == true || _commande!.isDelivered
+                              ? 'Agent en route'
+                              : _livraison != null ? 'Assigné' : 'En attente',
+                          _livraison?.isEnRoute == true || _livraison?.isArriving == true || _commande!.isDelivered,
+                          _livraison?.isEnRoute == true || _livraison?.isArriving == true || _commande!.isDelivered,
+                        ),
+                        // New: Arriving status
+                        _buildTimelineItem(
+                          'Arriving Soon',
+                          _livraison?.isArriving == true || _commande!.isDelivered
+                              ? 'Arrive bientôt'
+                              : 'En attente',
+                          _livraison?.isArriving == true || _commande!.isDelivered,
+                          _livraison?.isArriving == true || _commande!.isDelivered,
                         ),
                         _buildTimelineItem(
                           'Delivered',

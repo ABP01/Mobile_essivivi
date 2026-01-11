@@ -66,7 +66,27 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
               // Header
               Row(
                 children: [
-                  const SizedBox(width: 48), // Spacer for where the back button was
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isDark ? theme.cardColor : Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        FluentIcons.arrow_left_24_regular,
+                        color: theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                  ),
 
                   const Spacer(),
                   Text(
