@@ -101,6 +101,11 @@ class SalesRepository {
     }
   }
 
+  /// Confirm commande reception by client
+  Future<Commande> confirmCommande(int id) async {
+    return updateCommande(id, UpdateCommandeRequest(statut: 'delivered'));
+  }
+
   /// Delete commande
   Future<void> deleteCommande(int id) async {
     try {
@@ -219,6 +224,41 @@ class SalesRepository {
 
       final response = await _apiService.client.patch(
         '${ApiConfig.livraisonsEndpoint}$id/',
+        data: formData,
+      );
+
+      return Livraison.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Submit delivery proof (calls the backend action that also updates command status)
+  Future<Livraison> submitProof({
+    required int id,
+    String? photoPath,
+    String? signaturePath,
+    double? gpsLat,
+    double? gpsLng,
+  }) async {
+    try {
+      final formData = FormData();
+
+      if (gpsLat != null) formData.fields.add(MapEntry('gps_lat', gpsLat.toString()));
+      if (gpsLng != null) formData.fields.add(MapEntry('gps_lng', gpsLng.toString()));
+
+      if (photoPath != null) {
+        final photoFile = await _apiService.createMultipartFile(photoPath);
+        formData.files.add(MapEntry('photo_preuve', photoFile));
+      }
+
+      if (signaturePath != null) {
+        final signatureFile = await _apiService.createMultipartFile(signaturePath);
+        formData.files.add(MapEntry('signature', signatureFile));
+      }
+
+      final response = await _apiService.client.post(
+        '${ApiConfig.livraisonsEndpoint}$id/submit_proof/',
         data: formData,
       );
 

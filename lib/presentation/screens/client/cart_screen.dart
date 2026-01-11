@@ -5,6 +5,7 @@ import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/services/cart_service.dart';
 import 'package:essivi_mobile/data/models/cart_models.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -46,7 +47,7 @@ class _CartScreenState extends State<CartScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Article retiré du panier',
+            AppLocalizations.of(context)!.remove,
             style: GoogleFonts.poppins(),
           ),
           backgroundColor: AppColors.primary,
@@ -64,7 +65,7 @@ class _CartScreenState extends State<CartScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Votre panier est vide',
+            AppLocalizations.of(context)!.emptyCart,
             style: GoogleFonts.poppins(),
           ),
           backgroundColor: Colors.orange,
@@ -93,7 +94,7 @@ class _CartScreenState extends State<CartScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Mon Panier',
+          AppLocalizations.of(context)!.myCart,
           style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -108,20 +109,20 @@ class _CartScreenState extends State<CartScreen> {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text('Vider le panier', style: GoogleFonts.poppins()),
+                    title: Text(AppLocalizations.of(context)!.clearCart, style: GoogleFonts.poppins()),
                     content: Text(
-                      'Voulez-vous vraiment vider votre panier ?',
+                      AppLocalizations.of(context)!.clearCartConfirm,
                       style: GoogleFonts.poppins(),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: Text('Annuler', style: GoogleFonts.poppins()),
+                        child: Text(AppLocalizations.of(context)!.cancel, style: GoogleFonts.poppins()),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
                         child: Text(
-                          'Vider',
+                          AppLocalizations.of(context)!.delete,
                           style: GoogleFonts.poppins(color: Colors.red),
                         ),
                       ),
@@ -166,11 +167,11 @@ class _CartScreenState extends State<CartScreen> {
           Icon(
             FluentIcons.cart_24_regular,
             size: 100,
-            color: AppColors.textSecondary.withValues(alpha: 0.3),
+            color: AppColors.textSecondary.withOpacity(0.3),
           ),
           const SizedBox(height: 20),
           Text(
-            'Votre panier est vide',
+            AppLocalizations.of(context)!.emptyCart,
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -179,7 +180,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Ajoutez des articles pour commencer',
+            AppLocalizations.of(context)!.addItemsToStart,
             style: GoogleFonts.poppins(
               fontSize: 14,
               color: AppColors.textSecondary,
@@ -196,7 +197,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             child: Text(
-              'Continuer mes achats',
+              AppLocalizations.of(context)!.continueShopping,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -225,7 +226,7 @@ class _CartScreenState extends State<CartScreen> {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -297,7 +298,7 @@ class _CartScreenState extends State<CartScreen> {
                 onPressed: () => _removeItem(index),
                 icon: const Icon(FluentIcons.delete_24_regular, size: 16, color: Colors.red),
                 label: Text(
-                  'Retirer',
+                  AppLocalizations.of(context)!.remove,
                   style: GoogleFonts.poppins(fontSize: 12, color: Colors.red),
                 ),
               ),
@@ -319,7 +320,7 @@ class _CartScreenState extends State<CartScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -333,7 +334,7 @@ class _CartScreenState extends State<CartScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total',
+                  AppLocalizations.of(context)!.total,
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -363,7 +364,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 child: Text(
-                  'Commander',
+                  AppLocalizations.of(context)!.checkout,
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

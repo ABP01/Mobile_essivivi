@@ -1,6 +1,5 @@
-import 'package:dio/dio.dart';
+import 'package:essivi_mobile/utils/api_config.dart';
 import '../datasources/api_service.dart';
-import '../../utils/api_config.dart';
 
 class DashboardRepository {
   final ApiService _apiService = ApiService();

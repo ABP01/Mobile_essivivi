@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/cart_models.dart';
 
@@ -10,7 +11,7 @@ class CartService {
 
   /// Ajouter un article au panier
   Future<void> addToCart(CartItem item) async {
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
     final cart = await getCart();
     
     // Vérifier si l'article existe déjà (même taille)
@@ -40,7 +41,7 @@ class CartService {
       final List<dynamic> decoded = json.decode(cartJson);
       return decoded.map((item) => CartItem.fromJson(item)).toList();
     } catch (e) {
-      print('Erreur lecture panier: $e');
+      debugPrint('Erreur lecture panier: $e');
       return [];
     }
   }

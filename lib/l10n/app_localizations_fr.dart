@@ -363,4 +363,49 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get termsOfServiceContent =>
       'Conditions d\'utilisation de l\'application Essivi.\\n\\n1. Acceptation des conditions\\nEn utilisant cette application, vous acceptez ces conditions.\\n\\n2. Services fournis\\nEssivi fournit un service de livraison d\'eau potable à domicile.\\n\\n3. Commandes\\nLes commandes sont traitées selon la disponibilité et la zone de livraison.\\n\\n4. Paiement\\nLe paiement peut être effectué par carte, mobile money ou à la livraison.\\n\\n5. Annulation\\nLes commandes peuvent être annulées avant la préparation.\\n\\n6. Responsabilité\\nEssivi s\'engage à fournir un service de qualité.\\n\\nDernière mise à jour: Décembre 2024';
+
+  @override
+  String get welcomeBack => 'Bon retour parmi nous';
+
+  @override
+  String get signInToContinue => 'Connectez-vous pour continuer';
+
+  @override
+  String get login => 'Connexion';
+
+  @override
+  String get dontHaveAccount => 'Vous n\'avez pas de compte ?';
+
+  @override
+  String get signUp => 'S\'inscrire';
+
+  @override
+  String get myCart => 'Mon Panier';
+
+  @override
+  String get emptyCart => 'Votre panier est vide';
+
+  @override
+  String get addItemsToStart => 'Ajoutez des articles pour commencer';
+
+  @override
+  String get continueShopping => 'Continuer mes achats';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get checkout => 'Commander';
+
+  @override
+  String get remove => 'Retirer';
+
+  @override
+  String get clearCart => 'Vider le panier';
+
+  @override
+  String get clearCartConfirm => 'Voulez-vous vraiment vider votre panier ?';
+
+  @override
+  String get errorLogin => 'Email ou mot de passe incorrect';
 }

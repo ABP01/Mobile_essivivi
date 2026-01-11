@@ -1,5 +1,5 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/services/websocket_service.dart';
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import '../data/models/user_models.dart';
 
 enum UserRole { client, agent, admin, gestionnaire }
@@ -9,7 +9,7 @@ class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
 
-  final _storage = const FlutterSecureStorage();
+
   final _authRepository = AuthRepository();
 
   AuthService._internal();
@@ -20,6 +20,9 @@ class AuthService {
     try {
       // Call backend API
       final user = await _authRepository.login(email, password);
+      
+      // Initialize WebSocket connection
+      WebSocketService().connect();
       
       // Convert role string to UserRole enum
       return _roleFromString(user.role);
@@ -47,6 +50,10 @@ class AuthService {
       );
 
       final user = await _authRepository.signup(signupRequest);
+      
+      // Initialize WebSocket connection
+      WebSocketService().connect();
+      
       return _roleFromString(user.role);
     } catch (e) {
       return null;
@@ -55,6 +62,7 @@ class AuthService {
 
   /// Logs out the current user
   Future<void> logout() async {
+    WebSocketService().disconnect();
     await _authRepository.logout();
   }
 

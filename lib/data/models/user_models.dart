@@ -71,6 +71,10 @@ class AgentProfile {
   // Nested user object if included in response
   final CustomUser? user;
 
+  // Added getters for UI fields
+  String get vehicleType => tricycleId != null ? 'Standard' : '...';
+  String get licensePlate => tricyclePlate ?? '...';
+
   AgentProfile({
     required this.id,
     required this.userId,

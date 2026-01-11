@@ -38,7 +38,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
 
     try {
       final user = await _authRepo.getCurrentUser();
-      if (user != null) {
+      if (true) {
         final allOrders = await _salesRepo.getCommandesByClient(user.id);
         
         // Filter by status
@@ -121,7 +121,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -156,7 +156,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [_statusColor, _statusColor.withValues(alpha: 0.7)],
+                      colors: [_statusColor, _statusColor.withOpacity(0.7)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -228,7 +228,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
           label,
           style: GoogleFonts.poppins(
             fontSize: 12,
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Colors.white.withOpacity(0.9),
           ),
         ),
       ],
@@ -244,7 +244,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -261,7 +261,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: _statusColor.withValues(alpha: 0.1),
+                      color: _statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(FluentIcons.drop_24_filled, color: _statusColor, size: 24),
@@ -292,7 +292,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _statusColor.withValues(alpha: 0.1),
+                  color: _statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -356,7 +356,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
           Icon(
             FluentIcons.box_24_regular,
             size: 80,
-            color: AppColors.textSecondary.withValues(alpha: 0.3),
+            color: AppColors.textSecondary.withOpacity(0.3),
           ),
           const SizedBox(height: 16),
           Text(

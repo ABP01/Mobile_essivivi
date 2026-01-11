@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
@@ -62,9 +63,34 @@ class _SignupScreenState extends State<SignupScreen> {
     } catch (e) {
       if (!mounted) return;
       
+      String errorMessage = 'Une erreur est survenue';
+      
+      if (e is DioException) {
+        if (e.response?.data != null && e.response!.data is Map) {
+          final data = e.response!.data as Map;
+          final List<String> messages = [];
+          
+          data.forEach((key, value) {
+            if (value is List) {
+              messages.addAll(value.map((v) => v.toString()));
+            } else {
+              messages.add(value.toString());
+            }
+          });
+          
+          if (messages.isNotEmpty) {
+            errorMessage = messages.join('\n');
+          }
+        } else if (e.type == DioExceptionType.connectionError || e.type == DioExceptionType.connectionTimeout) {
+          errorMessage = 'Erreur de connexion au serveur. Vérifiez votre internet.';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur: ${e.toString()}'),
+          content: Text(errorMessage),
           backgroundColor: Colors.red,
         ),
       );
@@ -77,13 +103,16 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textMain),
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -100,7 +129,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textMain,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -108,7 +137,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   'Join Essivi delivery network',
                   style: GoogleFonts.poppins(
                     fontSize: 16,
-                    color: AppColors.textSecondary,
+                    color: theme.textTheme.bodySmall?.color,
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -116,10 +145,19 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Username
                 TextFormField(
                   controller: _usernameController,
-                  decoration: const InputDecoration(
+                  style: theme.textTheme.bodyLarge,
+                  decoration: InputDecoration(
                     labelText: 'Username',
-                    prefixIcon: Icon(Icons.person_outline),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                    labelStyle: theme.textTheme.bodyMedium,
+                    hintStyle: theme.textTheme.bodySmall,
+                    prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
+                    filled: true,
+                    fillColor: theme.cardColor,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.dividerColor),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -133,10 +171,19 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Email
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
+                  style: theme.textTheme.bodyLarge,
+                  decoration: InputDecoration(
                     labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                    labelStyle: theme.textTheme.bodyMedium,
+                    hintStyle: theme.textTheme.bodySmall,
+                    prefixIcon: const Icon(Icons.email_outlined, color: AppColors.primary),
+                    filled: true,
+                    fillColor: theme.cardColor,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.dividerColor),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -153,10 +200,19 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Phone
                 TextFormField(
                   controller: _phoneController,
-                  decoration: const InputDecoration(
+                  style: theme.textTheme.bodyLarge,
+                  decoration: InputDecoration(
                     labelText: 'Phone Number',
-                    prefixIcon: Icon(Icons.phone_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                    labelStyle: theme.textTheme.bodyMedium,
+                    hintStyle: theme.textTheme.bodySmall,
+                    prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.primary),
+                    filled: true,
+                    fillColor: theme.cardColor,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.dividerColor),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -171,10 +227,19 @@ class _SignupScreenState extends State<SignupScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  style: theme.textTheme.bodyLarge,
+                  decoration: InputDecoration(
                     labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                    labelStyle: theme.textTheme.bodyMedium,
+                    hintStyle: theme.textTheme.bodySmall,
+                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
+                    filled: true,
+                    fillColor: theme.cardColor,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.dividerColor),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -191,14 +256,23 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Role selection
                 DropdownButtonFormField<String>(
                   value: _selectedRole,
-                  decoration: const InputDecoration(
+                  dropdownColor: theme.cardColor,
+                  style: theme.textTheme.bodyLarge,
+                  decoration: InputDecoration(
                     labelText: 'Role',
-                    prefixIcon: Icon(Icons.badge_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                    labelStyle: theme.textTheme.bodyMedium,
+                    prefixIcon: const Icon(Icons.badge_outlined, color: AppColors.primary),
+                    filled: true,
+                    fillColor: theme.cardColor,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.dividerColor),
+                    ),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'client', child: Text('Client')),
-                    DropdownMenuItem(value: 'agent', child: Text('Agent')),
+                  items: [
+                    DropdownMenuItem(value: 'client', child: Text('Client', style: theme.textTheme.bodyLarge)),
+                    DropdownMenuItem(value: 'agent', child: Text('Agent', style: theme.textTheme.bodyLarge)),
                   ],
                   onChanged: (value) {
                     setState(() => _selectedRole = value!);
@@ -240,7 +314,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   children: [
                     Text(
                       'Already have an account? ',
-                      style: GoogleFonts.poppins(color: AppColors.textSecondary),
+                      style: GoogleFonts.poppins(color: theme.textTheme.bodySmall?.color),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.login),

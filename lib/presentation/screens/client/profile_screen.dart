@@ -24,15 +24,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _salesRepo = SalesRepository();
   final _authService = AuthService();
   
-  CustomUser? _user;
-  ClientProfile? _clientProfile;
-  List<Commande> _orders = [];
-  bool _isLoading = true;
-
-  int get _totalDeliveries => _orders.where((o) => o.isDelivered).length;
+  // Computed properties
+  int get _totalDeliveries => _orders.length;
   int get _activeOrders => _orders.where((o) => !o.isDelivered && o.statut != 'annulee').length;
   int get _completedOrders => _orders.where((o) => o.isDelivered).length;
 
+  
+  CustomUser? _user;
+  ClientProfile? _clientProfile;
+  List<Commande> _orders = [];
   @override
   void initState() {
     super.initState();
@@ -53,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Handle error
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {});
       }
     }
   }
@@ -85,28 +85,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Header
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isDark ? theme.cardColor : Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_ios_new,
-                        size: 20,
-                        color: theme.textTheme.bodyLarge?.color,
-                      ),
-                    ),
-                  ),
+                  const SizedBox(width: 48), // Spacer for where the back button was
+
                   const Spacer(),
                   Text(
                     AppLocalizations.of(context)!.profile,
@@ -128,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -149,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
+                        color: AppColors.primary.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -309,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ElevatedButton(
                   onPressed: _logout,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? Colors.red.withValues(alpha: 0.1) : Colors.red.shade50,
+                    backgroundColor: isDark ? Colors.red.withOpacity(0.1) : Colors.red.shade50,
                     foregroundColor: Colors.red,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -355,7 +335,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -401,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -412,7 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.primary, size: 20),

@@ -7,7 +7,7 @@ import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/data/repositories/user_repository.dart';
 import 'package:essivi_mobile/data/models/user_models.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
+
 
 class AgentProfileScreen extends StatefulWidget {
   const AgentProfileScreen({super.key});
@@ -19,11 +19,9 @@ class AgentProfileScreen extends StatefulWidget {
 class _AgentProfileScreenState extends State<AgentProfileScreen> {
   final _authRepo = AuthRepository();
   final _userRepo = UserRepository();
-  final _authService = AuthService();
   
   CustomUser? _user;
   AgentProfile? _agentProfile;
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -39,22 +37,16 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
         _agentProfile = agents.firstWhere((a) => a.userId == _user!.id);
       }
     } catch (e) {
-      // Handle error
+      debugPrint('Error loading profile: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors du chargement du profil')),
+        );
+      }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {});
       }
-    }
-  }
-
-  Future<void> _logout() async {
-    await _authService.logout();
-    if (mounted) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.login,
-        (route) => false,
-      );
     }
   }
 
@@ -74,34 +66,8 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
               // Header
               Row(
                 children: [
-                  GestureDetector(
-                  onTap: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.home);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isDark ? theme.cardColor : Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: theme.textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                ),
+                  const SizedBox(width: 48), // Spacer for where the back button was
+
                   const Spacer(),
                   Text(
                     AppLocalizations.of(context)!.driverProfile,
@@ -123,7 +89,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -170,7 +136,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Agent Name',
+                      _user?.fullName ?? 'Agent',
                       style: GoogleFonts.poppins(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -304,21 +270,21 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
                 context,
                 icon: FluentIcons.vehicle_car_24_regular,
                 title: AppLocalizations.of(context)!.vehicleType,
-                value: '...',
+                value: _agentProfile?.vehicleType ?? '...',
               ),
               const SizedBox(height: 12),
               _buildInfoTile(
                 context,
                 icon: FluentIcons.number_symbol_24_regular,
                 title: AppLocalizations.of(context)!.licensePlate,
-                value: '...',
+                value: _agentProfile?.licensePlate ?? '...',
               ),
               const SizedBox(height: 12),
               _buildInfoTile(
                 context,
                 icon: FluentIcons.color_24_regular,
                 title: AppLocalizations.of(context)!.color,
-                value: '...',
+                value: _agentProfile?.vehicleType != null ? 'Standard' : '...',
               ),
               const SizedBox(height: 30),
 
@@ -368,14 +334,14 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
                 context,
                 icon: FluentIcons.phone_24_regular,
                 title: AppLocalizations.of(context)!.phone,
-                value: '+XXX XX XXX XXX',
+                value: _user?.phoneNumber ?? '+228 XX XX XX XX',
               ),
               const SizedBox(height: 12),
               _buildInfoTile(
                 context,
                 icon: FluentIcons.mail_24_regular,
                 title: AppLocalizations.of(context)!.email,
-                value: 'agent@essivi.com',
+                value: _user?.email ?? 'agent@essivivi.com',
               ),
               const SizedBox(height: 30),
 
@@ -438,7 +404,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -484,7 +450,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -495,7 +461,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.primary, size: 20),
@@ -543,7 +509,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

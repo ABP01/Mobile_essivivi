@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,6 +11,22 @@ import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/routes/route_generator.dart';
 
 void main() {
+  // Capture Flutter framework errors
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter Error: ${details.exception}');
+    debugPrint('Stack trace: ${details.stack}');
+  };
+
+  // Capture platform errors (async gaps, etc.)
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Platform Error: $error');
+    debugPrint('Stack trace: $stack');
+    return true;
+  };
+
+  WidgetsFlutterBinding.ensureInitialized();
+  
   runApp(
     MultiProvider(
       providers: [
@@ -43,7 +60,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          initialRoute: AppRoutes.onboarding,
+          initialRoute: AppRoutes.splash,
           onGenerateRoute: RouteGenerator.generateRoute,
         );
       },

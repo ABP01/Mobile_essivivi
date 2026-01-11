@@ -54,7 +54,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
     
     try {
       final user = await _authRepo.getCurrentUser();
-      if (user != null) {
+      if (true) {
         // Sauvegarder l'ID de l'agent
         _currentAgentId = user.id;
         
@@ -99,9 +99,9 @@ class _AgentDashboardState extends State<AgentDashboard> {
     
     final success = await _locationService.startTracking(_currentAgentId!);
     if (success) {
-      print('✅ Tracking GPS démarré');
+      debugPrint('✅ Tracking GPS démarré');
     } else {
-      print('❌ Échec démarrage tracking GPS');
+      debugPrint('❌ Échec démarrage tracking GPS');
       // Afficher un message à l'utilisateur
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -134,7 +134,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
     } else {
       // Arrêter le tracking
       await _locationService.stopTracking();
-      print('⏸️  Tracking GPS arrêté');
+      debugPrint('⏸️  Tracking GPS arrêté');
     }
   }
 
@@ -146,15 +146,17 @@ class _AgentDashboardState extends State<AgentDashboard> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Scrollable Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+        child: _isLoading 
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : Column(
+                children: [
+                  // Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                     // Header
                     Row(
                       children: [
@@ -231,7 +233,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: AppColors.primary.withOpacity(0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -254,7 +256,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
+                                  color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -280,7 +282,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
                               Container(
                                 width: 1,
                                 height: 40,
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: Colors.white.withOpacity(0.3),
                               ),
                               Expanded(
                                 child: _buildSummaryItem(
@@ -292,7 +294,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
                               Container(
                                 width: 1,
                                 height: 40,
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: Colors.white.withOpacity(0.3),
                               ),
                               Expanded(
                                 child: _buildSummaryItem(
@@ -332,7 +334,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
                         ),
                       ],
                     ),
-                    ],
+
                     const SizedBox(height: 24),
 
                     // Active Deliveries Section
@@ -448,74 +450,6 @@ class _AgentDashboardState extends State<AgentDashboard> {
               ),
             ),
 
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(FluentIcons.home_24_filled, color: AppColors.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          AppLocalizations.of(context)!.home,
-                          style: GoogleFonts.poppins(
-                            color: theme.primaryColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AgentDeliveriesScreen()),
-                      );
-                    },
-                    child: const Icon(FluentIcons.box_24_regular, color: Colors.grey),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AgentEarningsScreen()),
-                      );
-                    },
-                    child: const Icon(FluentIcons.money_24_regular, color: Colors.grey),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AgentProfileScreen()),
-                      );
-                    },
-                    child: const Icon(FluentIcons.person_24_regular, color: Colors.grey),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -544,7 +478,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
           label,
           style: GoogleFonts.poppins(
             fontSize: 12,
-            color: Colors.white.withValues(alpha: 0.8),
+            color: Colors.white.withOpacity(0.8),
           ),
         ),
       ],
@@ -567,7 +501,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -597,236 +531,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
     );
   }
 
-  Widget _buildDeliveryCard({
-    required String title,
-    required String id,
-    required String from,
-    required String to,
-    required String distance,
-    required String earnings,
-    required String status,
-    required ThemeData theme,
-    required bool isDark,
-  }) {
-    final isInTransit = status == 'In Transit';
-    final statusColor = isInTransit ? AppColors.primary : Colors.orange;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? theme.cardColor : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(FluentIcons.box_24_regular, color: AppColors.primary, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: theme.textTheme.bodyLarge?.color,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      id,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: theme.textTheme.bodySmall?.color,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  status,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            from,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: theme.textTheme.bodySmall?.color,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            to,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: theme.textTheme.bodySmall?.color,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(FluentIcons.location_24_regular, size: 16, color: AppColors.textSecondary),
-                  const SizedBox(width: 4),
-                  Text(
-                    distance,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: theme.textTheme.bodySmall?.color,
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                earnings,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
-          if (status != 'Delivered') ...[
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.shipmentDetails,
-                        arguments: {
-                          'title': title,
-                          'id': id,
-                          'status': status,
-                        },
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: AppColors.primary),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.viewDetails,
-                      style: GoogleFonts.poppins(fontSize: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.tracking);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      status == 'Pending Pickup' ? AppLocalizations.of(context)!.start : AppLocalizations.of(context)!.navigate,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 
   Widget _buildActionButton(BuildContext context, {
     required IconData icon,
@@ -845,7 +550,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

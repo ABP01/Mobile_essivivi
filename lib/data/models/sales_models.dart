@@ -31,12 +31,12 @@ class Commande {
       clientId: json['client'] as int,
       agentId: json['agent'] as int?,
       statut: json['statut'] as String,
-      montant: (json['montant'] as num).toDouble(),
+      montant: double.parse(json['montant'].toString()),
       dateSouhaitee: json['date_souhaitee'] as String,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
-      deliveryLatitude: json['delivery_latitude'] != null ? (json['delivery_latitude'] as num).toDouble() : null,
-      deliveryLongitude: json['delivery_longitude'] != null ? (json['delivery_longitude'] as num).toDouble() : null,
+      deliveryLatitude: json['delivery_latitude'] != null ? double.tryParse(json['delivery_latitude'].toString()) : null,
+      deliveryLongitude: json['delivery_longitude'] != null ? double.tryParse(json['delivery_longitude'].toString()) : null,
     );
   }
 
@@ -88,7 +88,12 @@ class Livraison {
   final double? gpsLng;
   final String? photoPreuve;
   final String? signature;
+  final bool preuveValidee;
   final String timestamp;
+
+  // Added getters for UI compatibility
+  bool get isDelivered => preuveValidee;
+  String get createdAt => timestamp;
 
   Livraison({
     required this.id,
@@ -99,6 +104,7 @@ class Livraison {
     this.gpsLng,
     this.photoPreuve,
     this.signature,
+    required this.preuveValidee,
     required this.timestamp,
   });
 
@@ -112,6 +118,7 @@ class Livraison {
       gpsLng: json['gps_lng'] != null ? (json['gps_lng'] as num).toDouble() : null,
       photoPreuve: json['photo_preuve'] as String?,
       signature: json['signature'] as String?,
+      preuveValidee: json['preuve_validee'] as bool? ?? false,
       timestamp: json['timestamp'] as String,
     );
   }
@@ -126,6 +133,7 @@ class Livraison {
       'gps_lng': gpsLng,
       'photo_preuve': photoPreuve,
       'signature': signature,
+      'preuve_validee': preuveValidee,
       'timestamp': timestamp,
     };
   }
@@ -142,12 +150,16 @@ class CreateCommandeRequest {
   final double montant;
   final String dateSouhaitee;
   final int? agentId;
+  final double? deliveryLatitude;
+  final double? deliveryLongitude;
 
   CreateCommandeRequest({
     required this.clientId,
     required this.montant,
     required this.dateSouhaitee,
     this.agentId,
+    this.deliveryLatitude,
+    this.deliveryLongitude,
   });
 
   Map<String, dynamic> toJson() {
@@ -157,6 +169,8 @@ class CreateCommandeRequest {
       'date_souhaitee': dateSouhaitee,
       'agent': agentId,
       'statut': 'pending',
+      'delivery_latitude': deliveryLatitude,
+      'delivery_longitude': deliveryLongitude,
     };
   }
 }

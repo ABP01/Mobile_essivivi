@@ -18,7 +18,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   List<FAQ> _faqs = [];
   List<FAQ> _filteredFaqs = [];
   bool _isLoading = true;
-  String _searchQuery = '';
+
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 
   void _filterFAQs(String query) {
     setState(() {
-      _searchQuery = query;
+
       if (query.isEmpty) {
         _filteredFaqs = _faqs;
       } else {
@@ -84,7 +84,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -125,7 +125,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -133,6 +133,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       ),
                       child: TextField(
                         style: GoogleFonts.poppins(color: theme.textTheme.bodyLarge?.color),
+                        onChanged: _filterFAQs,
                         decoration: InputDecoration(
                           hintText: 'Rechercher une question...',
                           border: InputBorder.none,
@@ -198,7 +199,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                             'Nontre équipe est disponible 24/7',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: Colors.white.withOpacity(0.9),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -248,7 +249,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

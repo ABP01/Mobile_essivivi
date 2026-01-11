@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+
 import '../datasources/api_service.dart';
 import '../models/subscription_models.dart';
 import '../../utils/api_config.dart';
@@ -9,7 +9,7 @@ class SubscriptionRepository {
   /// Récupérer l'abonnement actuel de l'utilisateur
   Future<Subscription?> getCurrentSubscription() async {
     try {
-      final response = await _apiService.client.get('${ApiConfig.baseUrl}/sales/subscriptions/');
+      final response = await _apiService.client.get(ApiConfig.subscriptionsEndpoint);
       final List<dynamic> data = response.data;
       if (data.isEmpty) return null;
       return Subscription.fromJson(data.first);
@@ -22,7 +22,7 @@ class SubscriptionRepository {
   Future<Subscription> createSubscription(Subscription subscription) async {
     try {
       final response = await _apiService.client.post(
-        '${ApiConfig.baseUrl}/sales/subscriptions/',
+        ApiConfig.subscriptionsEndpoint,
         data: subscription.toJson(),
       );
       return Subscription.fromJson(response.data);
@@ -35,7 +35,7 @@ class SubscriptionRepository {
   Future<Subscription> updateSubscription(int id, Subscription subscription) async {
     try {
       final response = await _apiService.client.put(
-        '${ApiConfig.baseUrl}/sales/subscriptions/$id/',
+        '${ApiConfig.subscriptionsEndpoint}$id/',
         data: subscription.toJson(),
       );
       return Subscription.fromJson(response.data);
@@ -48,7 +48,7 @@ class SubscriptionRepository {
   Future<Subscription> pauseSubscription(int id) async {
     try {
       final response = await _apiService.client.post(
-        '${ApiConfig.baseUrl}/sales/subscriptions/$id/pause/',
+        '${ApiConfig.subscriptionsEndpoint}$id/pause/',
       );
       return Subscription.fromJson(response.data);
     } catch (e) {
@@ -60,7 +60,7 @@ class SubscriptionRepository {
   Future<Subscription> resumeSubscription(int id) async {
     try {
       final response = await _apiService.client.post(
-        '${ApiConfig.baseUrl}/sales/subscriptions/$id/resume/',
+        '${ApiConfig.subscriptionsEndpoint}$id/resume/',
       );
       return Subscription.fromJson(response.data);
     } catch (e) {

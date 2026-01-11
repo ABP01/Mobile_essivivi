@@ -72,7 +72,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
     try {
       final user = await _authRepo.getCurrentUser();
       final subscription = Subscription(
-        client: user!.id,
+        client: user.id,
         plan: _getPlanCode(_selectedPlan),
         bottleSize: _selectedBottleSize,
         quantity: _bottleQuantity,
@@ -158,7 +158,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -234,14 +234,14 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                             'Bouteilles 20L × 4 par livraison',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: Colors.white.withOpacity(0.9),
                             ),
                           ),
                           const SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -312,7 +312,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -365,7 +365,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -449,7 +449,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -489,7 +489,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
+                            color: AppColors.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -539,7 +539,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

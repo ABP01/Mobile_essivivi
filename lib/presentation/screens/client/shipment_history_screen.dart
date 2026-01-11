@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
@@ -36,7 +36,7 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
 
     try {
       final user = await _authRepo.getCurrentUser();
-      if (user != null) {
+      if (true) {
         _orders = await _salesRepo.getCommandesByClient(user.id);
         // Sort by date descending
         _orders.sort((a, b) => DateTime.parse(b.createdAt).compareTo(DateTime.parse(a.createdAt)));
@@ -53,7 +53,6 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -107,10 +106,12 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
   Widget _buildOrderCard(Commande order) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
     Color statusColor = AppColors.primary;
-    if (order.isDelivered) statusColor = Colors.green;
-    else if (order.statut == 'annulee') statusColor = Colors.red;
+    if (order.isDelivered) {
+      statusColor = Colors.green;
+    } else if (order.statut == 'annulee') {
+      statusColor = Colors.red;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -120,7 +121,7 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -143,7 +144,7 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
+                  color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

@@ -51,14 +51,31 @@ class _HomeScreenState extends State<HomeScreen> {
       if (_currentUser != null) {
         // Load recent orders for this client
         final allOrders = await _salesRepo.getCommandesByClient(_currentUser!.id);
-        _recentOrders = allOrders.take(5).toList();
+        
+        if (mounted) {
+          setState(() {
+            _recentOrders = allOrders.take(5).toList();
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
       }
+    }
+  }
+
+  Commande? get _activeOrder {
+    try {
+      return _recentOrders.firstWhere(
+        (o) => o.statut == 'pending' || o.statut == 'validated',
+      );
+    } catch (e) {
+      return null;
     }
   }
 
@@ -142,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
+                                  color: Colors.black.withOpacity(0.05),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -163,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
+                                  color: Colors.black.withOpacity(0.05),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -227,6 +244,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
+                    // Our Products Section
+                    Text(
+                      'Nos Produits',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildProductCard(context, '5L', '500 FCFA', FluentIcons.drop_24_filled, Colors.lightBlue),
+                          const SizedBox(width: 16),
+                          _buildProductCard(context, '10L', '1,000 FCFA', FluentIcons.drop_24_filled, Colors.blue),
+                          const SizedBox(width: 16),
+                          _buildProductCard(context, '20L', '2,000 FCFA', FluentIcons.drop_24_filled, AppColors.primary),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 24),
 
                     // New Order Button
@@ -272,16 +311,51 @@ class _HomeScreenState extends State<HomeScreen> {
                        ),
                     ),
                     const SizedBox(height: 16),
+                    if (_activeOrder != null)
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, AppRoutes.tracking);
+                        if (_activeOrder!.statut == 'validated') {
+                          Navigator.pushNamed(
+                            context, 
+                            AppRoutes.trackDelivery,
+                            arguments: {
+                              'deliveryId': _activeOrder!.id,
+                              'agentId': _activeOrder!.agentId ?? 0,
+                              'agentName': 'Livreur', // Idéalement à charger
+                              'agentPhone': '', // Idéalement à charger
+                              'clientLatitude': _activeOrder!.deliveryLatitude,
+                              'clientLongitude': _activeOrder!.deliveryLongitude,
+                            }
+                          );
+                        } else {
+                          Navigator.pushNamed(
+                            context, 
+                            AppRoutes.shipmentDetails,
+                            arguments: {
+                              'id': _activeOrder!.id,
+                              'status': _activeOrder!.statut,
+                              'title': '${_activeOrder!.montant.toStringAsFixed(0)} FCFA',
+                            }
+                          );
+                        }
                       },
                       child: Container(
-                        height: 180,
+                        height: 160,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primary, Color(0xFFFF8A00)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
                         child: Stack(
                           children: [
@@ -296,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       SizedBox(
                                         width: 150,
                                         child: Text(
-                                          'Water Bottles\n20L x 4',
+                                          'Commande Active\n${_activeOrder!.montant.toStringAsFixed(0)} FCFA',
                                           style: GoogleFonts.poppins(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
@@ -319,34 +393,58 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.9),
+                                      color: Colors.white.withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
-                                      'ID:V789456AR123',
+                                      'Statut: ${_activeOrder!.statutLabel}',
                                       style: GoogleFonts.poppins(
                                         fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            // Image Box
                             Positioned(
-                              right: -20,
-                              bottom: -20,
-                              child: Image.asset(
-                                'assets/images/cardboard_boxes.png',
-                                height: 140,
-                                width: 140,
-                                fit: BoxFit.contain,
+                              right: 20,
+                              bottom: 10,
+                              child: Icon(
+                                _activeOrder!.statut == 'validated' 
+                                  ? FluentIcons.vehicle_truck_24_filled 
+                                  : FluentIcons.clock_24_filled,
+                                color: Colors.white.withOpacity(0.2),
+                                size: 80,
                               ),
                             ),
                           ],
                         ),
+                      ),
+                    )
+                    else 
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: isDark ? theme.cardColor : Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(FluentIcons.box_24_regular, size: 48, color: Colors.grey.shade400),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Aucune livraison en cours',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     
@@ -394,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -483,87 +581,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // Bottom Navigation
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: theme.primaryColor.withValues(alpha: 0.2), // Faint orange bg
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(FluentIcons.home_24_filled, color: theme.primaryColor),
-                        const SizedBox(width: 8),
-                        Text(
-                          AppLocalizations.of(context)!.home,
-                          style: GoogleFonts.poppins(
-                            color: theme.primaryColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.settings);
-                    },
-                    child: Icon(FluentIcons.settings_24_regular, color: theme.textTheme.bodySmall?.color),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.profile);
-                    },
-                    child: Icon(FluentIcons.person_24_regular, color: theme.textTheme.bodySmall?.color),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.notifications);
-                    },
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Icon(FluentIcons.alert_24_regular, color: theme.textTheme.bodySmall?.color),
-                        if (context.watch<NotificationProvider>().unreadCount > 0)
-                          Positioned(
-                            right: -2,
-                            top: -2,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 8,
-                                minHeight: 8,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -593,7 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -639,7 +656,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -650,7 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: AppColors.primary),
@@ -681,6 +698,66 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Icon(Icons.arrow_forward_ios, size: 14, color: theme.textTheme.bodyLarge?.color),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductCard(BuildContext context, String title, String price, IconData icon, Color color) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.createOrder,
+          arguments: {'initialBottleSize': title},
+        );
+      },
+      child: Container(
+        width: 140,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? theme.cardColor : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: theme.textTheme.bodyLarge?.color,
+              ),
+            ),
+            Text(
+              price,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: theme.textTheme.bodySmall?.color,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -758,7 +835,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.primary, size: 24),

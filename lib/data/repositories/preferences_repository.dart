@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+
 import '../datasources/api_service.dart';
 import '../models/preferences_models.dart';
 import '../../utils/api_config.dart';

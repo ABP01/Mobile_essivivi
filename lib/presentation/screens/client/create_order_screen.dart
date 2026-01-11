@@ -33,34 +33,75 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   final _salesRepo = SalesRepository();
   final _authRepo = AuthRepository();
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map<String, dynamic>) {
+      if (args.containsKey('cartItems')) {
+        final items = args['cartItems'] as List<CartItem>;
+        if (items.isNotEmpty) {
+          setState(() {
+            _selectedBottleSize = items[0].bottleSize;
+            _quantity = items[0].quantity;
+          });
+        }
+      } else if (args.containsKey('initialBottleSize')) {
+        setState(() {
+          _selectedBottleSize = args['initialBottleSize'] as String;
+        });
+      }
+    }
+  }
+
   Future<void> _submitOrder() async {
+    if (_deliveryLatitude == null || _deliveryLongitude == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner un lieu de livraison'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
+      debugPrint('🔵 Début création commande...');
+      
       // Get current user
       final user = await _authRepo.getCurrentUser();
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
+      debugPrint('🔵 User récupéré: ${user.id}');
 
       // Calculate total amount
       final montant = _calculateTotalAmount();
+      debugPrint('🔵 Montant calculé: $montant');
 
       // Create order request
       final request = CreateCommandeRequest(
         clientId: user.id,
         montant: montant,
         dateSouhaitee: _selectedDate.toIso8601String(),
+        deliveryLatitude: _deliveryLatitude,
+        deliveryLongitude: _deliveryLongitude,
       );
+      
+      debugPrint('🔵 Request créée: ${request.toJson()}');
 
       // Submit to backend
-      await _salesRepo.createCommande(request);
+      final commande = await _salesRepo.createCommande(request);
+      debugPrint('✅ Commande créée avec succès! ID: ${commande.id}');
+      
+      // Si la commande vient du panier, on le vide
+      await CartService().clearCart();
 
       if (!mounted) return;
 
       // Show success dialog
       _showOrderConfirmation(context);
     } catch (e) {
+      debugPrint('❌ Erreur création commande: $e');
       if (!mounted) return;
       
       // Show error
@@ -109,7 +150,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -147,7 +188,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
+                                    color: Colors.black.withOpacity(0.05),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -238,7 +279,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -314,7 +355,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
+                              color: Colors.black.withOpacity(0.03),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -374,13 +415,100 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     _buildPaymentMethod('Carte Bancaire', FluentIcons.payment_24_regular),
                     const SizedBox(height: 24),
 
+                    // Lieu de Livraison
+                    Text(
+                      'Lieu de Livraison',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textMain,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SelectLocationScreen(
+                              initialLatitude: _deliveryLatitude,
+                              initialLongitude: _deliveryLongitude,
+                            ),
+                          ),
+                        );
+
+                        if (result != null && result is Map<String, dynamic>) {
+                          setState(() {
+                            _deliveryLatitude = result['latitude'];
+                            _deliveryLongitude = result['longitude'];
+                            _deliveryAddress = result['address'];
+                          });
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: _deliveryLatitude != null ? AppColors.primary : Colors.grey.shade200,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              FluentIcons.location_24_regular,
+                              color: _deliveryLatitude != null ? AppColors.primary : Colors.grey,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _deliveryAddress ?? 'Sélectionner sur la carte',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: _deliveryAddress != null ? FontWeight.w600 : FontWeight.normal,
+                                      color: _deliveryAddress != null ? AppColors.textMain : AppColors.textSecondary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (_deliveryLatitude != null)
+                                    Text(
+                                      'Position confirmée',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+
                     // Résumé de la Commande
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
+                        color: AppColors.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,7 +637,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -535,7 +663,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               price,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: isSelected ? Colors.white.withValues(alpha: 0.9) : AppColors.textSecondary,
+                color: isSelected ? Colors.white.withOpacity(0.9) : AppColors.textSecondary,
               ),
             ),
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 
 // Auth Screens
+import 'package:essivi_mobile/presentation/screens/auth/splash_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/onboarding_screen.dart';
 import 'package:essivi_mobile/presentation/screens/auth/login_screen.dart';
 import 'package:essivi_mobile/presentation/screens/auth/signup_screen.dart';
@@ -33,6 +34,10 @@ import 'package:essivi_mobile/presentation/screens/agent/agent_profile_screen.da
 import 'package:essivi_mobile/presentation/screens/agent/bottle_inventory_screen.dart';
 import 'package:essivi_mobile/presentation/screens/agent/delivery_proof_screen.dart';
 
+// Shells
+import 'package:essivi_mobile/presentation/screens/client/client_main_shell.dart';
+import 'package:essivi_mobile/presentation/screens/agent/agent_main_shell.dart';
+
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     // Extract arguments if any
@@ -40,6 +45,9 @@ class RouteGenerator {
 
     switch (settings.name) {
       // Auth Routes
+      case AppRoutes.splash:
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
+
       case AppRoutes.onboarding:
         return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       
@@ -51,7 +59,7 @@ class RouteGenerator {
 
       // Client Routes
       case AppRoutes.home:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return MaterialPageRoute(builder: (_) => const ClientMainShell());
       
       case AppRoutes.profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
@@ -136,7 +144,7 @@ class RouteGenerator {
 
       // Agent Routes
       case AppRoutes.agentDashboard:
-        return MaterialPageRoute(builder: (_) => const AgentDashboard());
+        return MaterialPageRoute(builder: (_) => const AgentMainShell());
       
       case AppRoutes.agentDeliveries:
         return MaterialPageRoute(builder: (_) => const AgentDeliveriesScreen());

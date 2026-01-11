@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
+
 import 'package:essivi_mobile/data/repositories/user_repository.dart';
 import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/data/models/user_models.dart';
@@ -111,7 +111,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

@@ -116,7 +116,7 @@ class _BottleReturnScreenState extends State<BottleReturnScreen> {
                     'Return your empty bottles and get credit for your next order!',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: Colors.white.withOpacity(0.9),
                     ),
                   ),
                 ],
@@ -142,7 +142,7 @@ class _BottleReturnScreenState extends State<BottleReturnScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
+                    color: Colors.black.withOpacity(0.03),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -194,9 +194,9 @@ class _BottleReturnScreenState extends State<BottleReturnScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: Colors.green.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                  border: Border.all(color: Colors.green.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [

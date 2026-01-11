@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../utils/api_config.dart';
 
@@ -94,7 +95,9 @@ class ApiService {
         },
         onResponse: (response, handler) {
           // Log responses in debug mode
-          // print('Response [${response.statusCode}]: ${response.data}');
+          if (kDebugMode) {
+            debugPrint('Response [${response.statusCode}]: ${response.data}');
+          }
           return handler.next(response);
         },
       ),
@@ -108,7 +111,9 @@ class ApiService {
         error: true,
         logPrint: (obj) {
           // Only log in debug mode
-          // print(obj);
+          if (kDebugMode) {
+            debugPrint(obj.toString());
+          }
         },
       ),
     );

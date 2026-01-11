@@ -5,7 +5,7 @@ import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/services/auth_service.dart';
 import 'package:essivi_mobile/data/repositories/preferences_repository.dart';
-import 'package:essivi_mobile/data/models/preferences_models.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,7 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _smsNotifications = false;
   bool _darkModeEnabled = false;
   String _selectedLanguage = 'Français';
-  bool _isLoading = true;
+
 
   @override
   void initState() {
@@ -39,10 +39,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _emailNotifications = prefs.emailNotifications;
         _smsNotifications = prefs.smsNotifications;
         _selectedLanguage = _getLanguageLabel(prefs.language);
-        _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      // Handle error
     }
   }
 
@@ -94,12 +93,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(
           'Settings',
           style: GoogleFonts.poppins(
@@ -234,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? Colors.red.withValues(alpha: 0.1) : Colors.red.shade50,
+                  backgroundColor: isDark ? Colors.red.withOpacity(0.1) : Colors.red.shade50,
                   foregroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -308,7 +304,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -319,7 +315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: AppColors.primary, size: 20),
@@ -373,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -384,7 +380,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.primary, size: 20),
@@ -416,7 +412,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),
@@ -449,8 +445,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       value: language,
       groupValue: _selectedLanguage,
       onChanged: (value) {
-        setState(() => _selectedLanguage = value!);
-        _updatePreference({'language': _getLanguageCode(value!)});
+        if (value != null) {
+          setState(() => _selectedLanguage = value);
+          _updatePreference({'language': _getLanguageCode(value)});
+        }
         Navigator.pop(context);
       },
       activeColor: AppColors.primary,

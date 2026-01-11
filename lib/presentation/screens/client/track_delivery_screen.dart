@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/data/repositories/logistics_repository.dart';
 import 'package:essivi_mobile/services/phone_service.dart';
+import 'package:essivi_mobile/services/routing_service.dart';
 
 class TrackDeliveryScreen extends StatefulWidget {
   final int deliveryId;
@@ -31,18 +33,17 @@ class TrackDeliveryScreen extends StatefulWidget {
 }
 
 class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
   final _logisticsRepo = LogisticsRepository();
+  final _routingService = RoutingService();
   
   Timer? _locationTimer;
   double? _agentLatitude;
   double? _agentLongitude;
+  List<LatLng> _routePoints = [];
   double? _distance;
   int? _estimatedTime;
   bool _isLoading = true;
-
-  final Set<Marker> _markers = {};
-  final Set<Polyline> _polylines = {};
 
   @override
   void initState() {
@@ -53,7 +54,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
   @override
   void dispose() {
     _locationTimer?.cancel();
-    _mapController?.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -70,112 +71,84 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
   Future<void> _updateAgentLocation() async {
     try {
       final locations = await _logisticsRepo.getAgentLocations();
+      
+      if (locations.isEmpty) {
+        if (mounted && _isLoading) {
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
+      
       final agentLocation = locations.firstWhere(
         (loc) => loc['agent_id'] == widget.agentId,
         orElse: () => {},
       );
 
       if (agentLocation.isNotEmpty && mounted) {
+        final newLat = agentLocation['latitude'] as double;
+        final newLng = agentLocation['longitude'] as double;
+        
+        // Only update route if location changed significantly
+        bool shouldUpdateRoute = _agentLatitude == null || 
+                                (newLat - _agentLatitude!).abs() > 0.0001 || 
+                                (newLng - _agentLongitude!).abs() > 0.0001;
+
         setState(() {
-          _agentLatitude = agentLocation['latitude'];
-          _agentLongitude = agentLocation['longitude'];
+          _agentLatitude = newLat;
+          _agentLongitude = newLng;
           _isLoading = false;
         });
 
-        _updateMapMarkers();
-        _calculateDistance();
+        if (shouldUpdateRoute) {
+          _calculateRouteAndDistance();
+        }
+      } else {
+        if (mounted && _isLoading) {
+          setState(() => _isLoading = false);
+        }
       }
     } catch (e) {
-      print('Erreur mise à jour position: $e');
-      if (mounted) {
+      debugPrint('Erreur mise à jour position: $e');
+      if (mounted && _isLoading) {
         setState(() => _isLoading = false);
       }
     }
   }
 
-  void _updateMapMarkers() {
-    _markers.clear();
-
-    // Marqueur client
-    if (widget.clientLatitude != null && widget.clientLongitude != null) {
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('client'),
-          position: LatLng(widget.clientLatitude!, widget.clientLongitude!),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-          infoWindow: const InfoWindow(title: 'Votre position'),
-        ),
-      );
-    }
-
-    // Marqueur agent
-    if (_agentLatitude != null && _agentLongitude != null) {
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('agent'),
-          position: LatLng(_agentLatitude!, _agentLongitude!),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(title: widget.agentName),
-        ),
-      );
-
-      // Ligne entre client et agent
-      if (widget.clientLatitude != null && widget.clientLongitude != null) {
-        _polylines.add(
-          Polyline(
-            polylineId: const PolylineId('route'),
-            points: [
-              LatLng(widget.clientLatitude!, widget.clientLongitude!),
-              LatLng(_agentLatitude!, _agentLongitude!),
-            ],
-            color: AppColors.primary,
-            width: 3,
-            patterns: [PatternItem.dash(20), PatternItem.gap(10)],
-          ),
-        );
-      }
-    }
-
-    // Centrer la carte
-    if (_mapController != null && _markers.length == 2) {
-      _fitMapToMarkers();
-    }
-  }
-
-  void _fitMapToMarkers() {
+  Future<void> _calculateRouteAndDistance() async {
     if (_agentLatitude == null || widget.clientLatitude == null) return;
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(
-        _agentLatitude! < widget.clientLatitude! ? _agentLatitude! : widget.clientLatitude!,
-        _agentLongitude! < widget.clientLongitude! ? _agentLongitude! : widget.clientLongitude!,
-      ),
-      northeast: LatLng(
-        _agentLatitude! > widget.clientLatitude! ? _agentLatitude! : widget.clientLatitude!,
-        _agentLongitude! > widget.clientLongitude! ? _agentLongitude! : widget.clientLongitude!,
-      ),
-    );
+    final start = LatLng(_agentLatitude!, _agentLongitude!);
+    final end = LatLng(widget.clientLatitude!, widget.clientLongitude!);
 
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(bounds, 100),
-    );
-  }
+    // Get real route from OSRM
+    final points = await _routingService.getRoute(start, end);
+    
+    if (mounted) {
+      setState(() {
+        _routePoints = points;
+        
+        // Calculate distance based on route if available, otherwise straight line
+        if (points.isNotEmpty) {
+          double totalDist = 0;
+          for (int i = 0; i < points.length - 1; i++) {
+            totalDist += Geolocator.distanceBetween(
+              points[i].latitude, points[i].longitude,
+              points[i+1].latitude, points[i+1].longitude
+            );
+          }
+          _distance = totalDist / 1000;
+        } else {
+          _distance = Geolocator.distanceBetween(
+            widget.clientLatitude!, widget.clientLongitude!,
+            _agentLatitude!, _agentLongitude!,
+          ) / 1000;
+        }
 
-  void _calculateDistance() {
-    if (_agentLatitude == null || widget.clientLatitude == null) return;
-
-    final distanceInMeters = Geolocator.distanceBetween(
-      widget.clientLatitude!,
-      widget.clientLongitude!,
-      _agentLatitude!,
-      _agentLongitude!,
-    );
-
-    setState(() {
-      _distance = distanceInMeters / 1000; // Convertir en km
-      // Estimation: 20 km/h en moyenne en ville
-      _estimatedTime = ((distanceInMeters / 1000) / 20 * 60).round();
-    });
+        // Estimation based on distance
+        _estimatedTime = (_distance! / 20 * 60).round();
+      });
+    }
   }
 
   Future<void> _callAgent() async {
@@ -198,6 +171,12 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Default center if no coordinates
+    final center = LatLng(
+      widget.clientLatitude ?? 6.1319,
+      widget.clientLongitude ?? 1.2228,
+    );
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -231,32 +210,95 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: Colors.black.withOpacity(0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                          widget.clientLatitude ?? 6.1319,
-                          widget.clientLongitude ?? 1.2228,
-                        ),
-                        zoom: 14,
+                    child: FlutterMap(
+                      mapController: _mapController,
+                      options: MapOptions(
+                        initialCenter: center,
+                        initialZoom: 14.0,
                       ),
-                      markers: _markers,
-                      polylines: _polylines,
-                      onMapCreated: (controller) {
-                        _mapController = controller;
-                        if (_markers.length == 2) {
-                          _fitMapToMarkers();
-                        }
-                      },
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      zoomControlsEnabled: false,
+                      children: [
+                        TileLayer(
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'com.essivivi.water',
+                        ),
+                        // Route Line
+                        if (_routePoints.isNotEmpty)
+                          PolylineLayer(
+                            polylines: [
+                              Polyline(
+                                points: _routePoints,
+                                strokeWidth: 4.0,
+                                color: AppColors.primary,
+                              ),
+                            ],
+                          )
+                        else if (widget.clientLatitude != null && 
+                                 widget.clientLongitude != null && 
+                                 _agentLatitude != null && 
+                                 _agentLongitude != null)
+                          PolylineLayer(
+                            polylines: [
+                              Polyline(
+                                points: [
+                                  LatLng(widget.clientLatitude!, widget.clientLongitude!),
+                                  LatLng(_agentLatitude!, _agentLongitude!),
+                                ],
+                                strokeWidth: 3.0,
+                                color: AppColors.primary.withOpacity(0.5),
+                                pattern: const StrokePattern.dotted(),
+                              ),
+                            ],
+                          ),
+                        // Markers
+                        MarkerLayer(
+                          markers: [
+                            // Client Marker
+                            if (widget.clientLatitude != null && widget.clientLongitude != null)
+                              Marker(
+                                point: LatLng(widget.clientLatitude!, widget.clientLongitude!),
+                                width: 50,
+                                height: 50,
+                                child: const Icon(
+                                  Icons.location_on,
+                                  color: Colors.red,
+                                  size: 40,
+                                ),
+                              ),
+                            // Agent Marker
+                            if (_agentLatitude != null && _agentLongitude != null)
+                              Marker(
+                                point: LatLng(_agentLatitude!, _agentLongitude!),
+                                width: 50,
+                                height: 50,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                    boxShadow: [
+                                       BoxShadow(
+                                         color: Colors.black.withOpacity(0.2),
+                                         blurRadius: 6,
+                                       )
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.delivery_dining,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -273,7 +315,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, -4),
                         ),
@@ -289,7 +331,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                               width: 60,
                               height: 60,
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
+                                color: AppColors.primary.withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:latlong2/latlong.dart';
 
 class SelectLocationScreen extends StatefulWidget {
   final double? initialLatitude;
@@ -19,7 +20,7 @@ class SelectLocationScreen extends StatefulWidget {
 }
 
 class _SelectLocationScreenState extends State<SelectLocationScreen> {
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
   LatLng? _selectedPosition;
   bool _isLoading = true;
   String _selectedAddress = 'Sélectionnez votre position sur la carte';
@@ -81,14 +82,10 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
     }
   }
 
-  void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-  }
-
-  void _onMapTapped(LatLng position) {
+  void _onMapTapped(TapPosition tapPosition, LatLng point) {
     setState(() {
-      _selectedPosition = position;
-      _selectedAddress = 'Lat: ${position.latitude.toStringAsFixed(6)}, Lng: ${position.longitude.toStringAsFixed(6)}';
+      _selectedPosition = point;
+      _selectedAddress = 'Lat: ${point.latitude.toStringAsFixed(6)}, Lng: ${point.longitude.toStringAsFixed(6)}';
     });
   }
 
@@ -112,17 +109,25 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
         _selectedAddress = 'Position actuelle';
       });
 
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(newPosition, 15),
-      );
+      _mapController.move(newPosition, 15);
     } catch (e) {
+      debugPrint('Error getting location: $e');
+      
+      setState(() {
+        _selectedPosition = _defaultPosition;
+        _selectedAddress = 'Position par défaut (Lomé)';
+      });
+      
+      _mapController.move(_defaultPosition, 15);
+      
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Impossible d\'obtenir votre position',
+            'GPS non disponible, utilisation de la position par défaut',
             style: GoogleFonts.poppins(),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.orange,
         ),
       );
     }
@@ -143,28 +148,35 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Google Map
-          GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: _selectedPosition ?? _defaultPosition,
-              zoom: 14,
+          // Flutter Map (OpenStreetMap)
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _selectedPosition ?? _defaultPosition,
+              initialZoom: 14.0,
+              onTap: _onMapTapped,
             ),
-            onTap: _onMapTapped,
-            markers: _selectedPosition != null
-                ? {
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.essivivi.water',
+              ),
+              if (_selectedPosition != null)
+                MarkerLayer(
+                  markers: [
                     Marker(
-                      markerId: const MarkerId('selected'),
-                      position: _selectedPosition!,
-                      icon: BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueOrange,
+                      point: _selectedPosition!,
+                      width: 50,
+                      height: 50,
+                      child: const Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 40,
                       ),
                     ),
-                  }
-                : {},
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
+                  ],
+                ),
+            ],
           ),
 
           // Header
@@ -182,7 +194,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: Colors.black.withOpacity(0.1),
                             blurRadius: 10,
                           ),
                         ],
@@ -199,7 +211,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: Colors.black.withOpacity(0.1),
                             blurRadius: 10,
                           ),
                         ],
@@ -234,7 +246,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 20,
                     offset: const Offset(0, -4),
                   ),
@@ -318,7 +330,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
 
   @override
   void dispose() {
-    _mapController?.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 }

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
-import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+
 import 'package:essivi_mobile/data/models/sales_models.dart';
 
 class AgentEarningsScreen extends StatefulWidget {
@@ -15,7 +15,6 @@ class AgentEarningsScreen extends StatefulWidget {
 
 class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
   final _salesRepo = SalesRepository();
-  final _authRepo = AuthRepository();
   
   List<Livraison> _deliveries = [];
   bool _isLoading = true;
@@ -31,8 +30,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
     setState(() => _isLoading = true);
     
     try {
-      final user = await _authRepo.getCurrentUser();
-      if (user != null) {
+      if (true) {
         final allDeliveries = await _salesRepo.getLivraisons();
         _deliveries = allDeliveries.where((d) => d.isDelivered).toList();
         
@@ -51,17 +49,14 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(
           'My Earnings',
           style: GoogleFonts.poppins(
@@ -96,7 +91,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
                           'Total Earnings',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: Colors.white.withOpacity(0.9),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -137,7 +132,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
                         child: _buildStatCard(
                           'This Week',
                           '${(_totalEarnings * 0.3).toStringAsFixed(0)} FCFA',
-                          FluentIcons.calendar_week_24_regular,
+                          FluentIcons.calendar_24_regular,
                           Colors.green,
                         ),
                       ),
@@ -170,7 +165,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
@@ -195,7 +190,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -238,7 +233,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -249,7 +244,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.1),
+              color: Colors.green.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(FluentIcons.checkmark_24_filled, color: Colors.green, size: 20),

@@ -12,6 +12,7 @@ class WaterQualityScreen extends StatefulWidget {
 }
 
 class _WaterQualityScreenState extends State<WaterQualityScreen> {
+  /*
   bool _isLoading = false;
   
   // Water quality data (in a real app, load from backend)
@@ -33,6 +34,7 @@ class _WaterQualityScreenState extends State<WaterQualityScreen> {
       'Organic Certified',
     ],
   };
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,7 @@ class _WaterQualityScreenState extends State<WaterQualityScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -133,14 +135,14 @@ class _WaterQualityScreenState extends State<WaterQualityScreen> {
                             'Certified Pure Drinking Water',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: Colors.white.withOpacity(0.9),
                             ),
                           ),
                           const SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -173,7 +175,7 @@ class _WaterQualityScreenState extends State<WaterQualityScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -227,7 +229,7 @@ class _WaterQualityScreenState extends State<WaterQualityScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -360,7 +362,7 @@ class _WaterQualityScreenState extends State<WaterQualityScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -371,7 +373,7 @@ class _WaterQualityScreenState extends State<WaterQualityScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.1),
+              color: Colors.green.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(FluentIcons.checkmark_circle_24_filled, color: Colors.green, size: 20),

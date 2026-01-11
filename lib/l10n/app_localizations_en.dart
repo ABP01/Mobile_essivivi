@@ -363,4 +363,49 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get termsOfServiceContent =>
       'Terms of use of the Essivi application.\\n\\n1. Acceptance of terms\\nBy using this application, you accept these terms.\\n\\n2. Services provided\\nEssivi provides a home drinking water delivery service.\\n\\n3. Orders\\nOrders are processed according to availability and delivery area.\\n\\n4. Payment\\nPayment can be made by card, mobile money or on delivery.\\n\\n5. Cancellation\\nOrders can be cancelled before preparation.\\n\\n6. Responsibility\\nEssivi is committed to providing quality service.\\n\\nDernière mise à jour: December 2024';
+
+  @override
+  String get welcomeBack => 'Welcome Back';
+
+  @override
+  String get signInToContinue => 'Sign in to continue';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account?';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get myCart => 'My Cart';
+
+  @override
+  String get emptyCart => 'Your cart is empty';
+
+  @override
+  String get addItemsToStart => 'Add items to start';
+
+  @override
+  String get continueShopping => 'Continue Shopping';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get checkout => 'Checkout';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get clearCart => 'Clear Cart';
+
+  @override
+  String get clearCartConfirm => 'Do you really want to clear your cart?';
+
+  @override
+  String get errorLogin => 'Invalid email or password';
 }

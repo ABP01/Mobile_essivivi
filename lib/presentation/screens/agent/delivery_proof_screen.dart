@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/data/repositories/sales_repository.dart';
 
 class DeliveryProofScreen extends StatefulWidget {
   final String deliveryId;
@@ -22,15 +21,14 @@ class DeliveryProofScreen extends StatefulWidget {
 }
 
 class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
-  final _salesRepo = SalesRepository();
+
   
   bool _photoTaken = false;
   bool _signatureCaptured = false;
   bool _gpsValidated = false;
   bool _isSubmitting = false;
   
-  double? _currentLat;
-  double? _currentLng;
+
 
   Future<void> _submitProof() async {
     setState(() => _isSubmitting = true);
@@ -42,15 +40,15 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
       // 3. Convert signature to base64
       
       // For now, simulate with mock data
-      final proofData = {
-        'gps_lat': _currentLat ?? 6.1319,
-        'gps_lng': _currentLng ?? 1.2223,
-        'signature': 'base64_signature_data',
-        'preuve_validee': true,
-      };
+      // final proofData = {
+      //   'gps_lat': _currentLat ?? 6.1319,
+      //   'gps_lng': _currentLng ?? 1.2223,
+      //   'signature': 'base64_signature_data',
+      //   'preuve_validee': true,
+      // };
       
       // Extract delivery ID from widget.deliveryId (remove # if present)
-      final deliveryId = int.parse(widget.deliveryId.replaceAll('#', ''));
+      // final deliveryId = int.parse(widget.deliveryId.replaceAll('#', ''));
       
       // Submit to backend (you'll need to add this method to SalesRepository)
       // await _salesRepo.submitDeliveryProof(deliveryId, proofData);
@@ -101,7 +99,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -166,7 +164,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                                   widget.address,
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
-                                    color: Colors.white.withValues(alpha: 0.9),
+                                    color: Colors.white.withOpacity(0.9),
                                   ),
                                 ),
                               ),
@@ -176,7 +174,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -207,8 +205,6 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                         // In a real app, get actual GPS coordinates
                         setState(() {
                           _gpsValidated = true;
-                          _currentLat = 6.1319;
-                          _currentLng = 1.2223;
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

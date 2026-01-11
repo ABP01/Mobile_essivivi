@@ -123,5 +123,20 @@
   "enRouteSubtitle": "Le livreur arrive",
   "courierStatus": "Statut de livraison",
   "privacyPolicyContent": "Essivi s'engage à protéger vos données personnelles.\\n\\n1. Collecte de données\\nNous collectons uniquement les informations nécessaires pour fournir nos services de livraison d'eau.\\n\\n2. Utilisation des données\\nVos données sont utilisées pour traiter vos commandes et améliorer nos services.\\n\\n3. Protection des données\\nNous utilisons des mesures de sécurité pour protéger vos informations.\\n\\n4. Partage des données\\nNous ne partageons pas vos données avec des tiers sans votre consentement.\\n\\nDernière mise à jour: Décembre 2024",
-  "termsOfServiceContent": "Conditions d'utilisation de l'application Essivi.\\n\\n1. Acceptation des conditions\\nEn utilisant cette application, vous acceptez ces conditions.\\n\\n2. Services fournis\\nEssivi fournit un service de livraison d'eau potable à domicile.\\n\\n3. Commandes\\nLes commandes sont traitées selon la disponibilité et la zone de livraison.\\n\\n4. Paiement\\nLe paiement peut être effectué par carte, mobile money ou à la livraison.\\n\\n5. Annulation\\nLes commandes peuvent être annulées avant la préparation.\\n\\n6. Responsabilité\\nEssivi s'engage à fournir un service de qualité.\\n\\nDernière mise à jour: Décembre 2024"
+  "termsOfServiceContent": "Conditions d'utilisation de l'application Essivi.\\n\\n1. Acceptation des conditions\\nEn utilisant cette application, vous acceptez ces conditions.\\n\\n2. Services fournis\\nEssivi fournit un service de livraison d'eau potable à domicile.\\n\\n3. Commandes\\nLes commandes sont traitées selon la disponibilité et la zone de livraison.\\n\\n4. Paiement\\nLe paiement peut être effectué par carte, mobile money ou à la livraison.\\n\\n5. Annulation\\nLes commandes peuvent être annulées avant la préparation.\\n\\n6. Responsabilité\\nEssivi s'engage à fournir un service de qualité.\\n\\nDernière mise à jour: Décembre 2024",
+  "welcomeBack": "Bon retour parmi nous",
+  "signInToContinue": "Connectez-vous pour continuer",
+  "login": "Connexion",
+  "dontHaveAccount": "Vous n'avez pas de compte ?",
+  "signUp": "S'inscrire",
+  "myCart": "Mon Panier",
+  "emptyCart": "Votre panier est vide",
+  "addItemsToStart": "Ajoutez des articles pour commencer",
+  "continueShopping": "Continuer mes achats",
+  "total": "Total",
+  "checkout": "Commander",
+  "remove": "Retirer",
+  "clearCart": "Vider le panier",
+  "clearCartConfirm": "Voulez-vous vraiment vider votre panier ?",
+  "errorLogin": "Email ou mot de passe incorrect"
 }

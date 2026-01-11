@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:essivi_mobile/services/websocket_service.dart';
 
 class NotificationProvider with ChangeNotifier {
   List<Map<String, dynamic>> _notifications = [];
@@ -11,6 +12,25 @@ class NotificationProvider with ChangeNotifier {
 
   NotificationProvider() {
     _loadNotificationsFromPrefs();
+    _listenToWebSockets();
+  }
+
+  void _listenToWebSockets() {
+    WebSocketService().notifications.listen((data) {
+      addNotification(data);
+    });
+  }
+
+  void addNotification(Map<String, dynamic> notification) {
+    // Add to the beginning of the list
+    final newNotification = {
+      ...notification,
+      'isRead': false,
+      'timestamp': DateTime.now().toIso8601String(),
+    };
+    _notifications.insert(0, newNotification);
+    _saveNotificationsToPrefs();
+    notifyListeners();
   }
 
   void markAsRead(int index) {

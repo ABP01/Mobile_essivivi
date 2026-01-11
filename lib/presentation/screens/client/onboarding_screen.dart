@@ -30,9 +30,9 @@ class OnboardingScreen extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.1),
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black.withValues(alpha: 0.9),
+                    Colors.black.withOpacity(0.1),
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0.9),
                   ],
                   stops: const [0.4, 0.6, 0.8, 1.0],
                 ),

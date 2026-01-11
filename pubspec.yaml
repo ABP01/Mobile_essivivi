@@ -1,5 +1,5 @@
 name: essivi_mobile
-description: "A new Flutter project."
+description: "Application mobile Essivivi - Livraison d'eau potable"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -47,8 +47,10 @@ dependencies:
     sdk: flutter
   # Géolocalisation
   geolocator: ^10.1.0
-  google_maps_flutter: ^2.5.0
   permission_handler: ^11.0.1
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:

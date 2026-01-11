@@ -93,7 +93,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
                             gradient: LinearGradient(
                               colors: [
                                 _getStatusColor(),
-                                _getStatusColor().withValues(alpha: 0.7),
+                                _getStatusColor().withOpacity(0.7),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -117,7 +117,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                                      color: Colors.white.withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
@@ -209,38 +209,73 @@ class _TrackingScreenState extends State<TrackingScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.03),
+                                      color: Colors.black.withOpacity(0.03),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: Row(
+                                child: Column(
                                   children: [
-                                    const Icon(FluentIcons.location_24_filled, color: AppColors.primary),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'GPS Coordinates',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              color: theme.textTheme.bodySmall?.color,
-                                            ),
+                                    Row(
+                                      children: [
+                                        const Icon(FluentIcons.location_24_filled, color: AppColors.primary),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Lieu de Livraison',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12,
+                                                  color: theme.textTheme.bodySmall?.color,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Position confirmée',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: theme.textTheme.bodyLarge?.color,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          Text(
-                                            '${_livraison!.gpsLat}, ${_livraison!.gpsLng}',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: theme.textTheme.bodyLarge?.color,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
+                                    if (_commande!.statut == 'validated') ...[
+                                      const SizedBox(height: 16),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            Navigator.pushNamed(
+                                              context,
+                                              'trackDelivery',
+                                              arguments: {
+                                                'deliveryId': _commande!.id,
+                                                'agentId': _commande!.agentId ?? 0,
+                                                'agentName': 'Livreur',
+                                                'agentPhone': '',
+                                                'clientLatitude': _commande!.deliveryLatitude,
+                                                'clientLongitude': _commande!.deliveryLongitude,
+                                              },
+                                            );
+                                          },
+                                          icon: const Icon(FluentIcons.map_24_regular),
+                                          label: const Text('Voir sur la carte'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.primary,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
@@ -262,8 +297,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
   Widget _buildTimelineItem(String title, String subtitle, bool isCompleted, bool showLine) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
+    
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

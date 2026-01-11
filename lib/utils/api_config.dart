@@ -1,3 +1,4 @@
+import 'dart:io';
 /// API Configuration for Essivi Mobile App
 /// 
 /// This file contains all API-related configuration settings.
@@ -7,12 +8,28 @@
 /// - For Physical Device: http://YOUR_MACHINE_IP:8000/api (e.g., http://192.168.1.100:8000/api)
 
 class ApiConfig {
+  // ⚠️ PRODUCTION: Mettre à true avant déploiement
+  static const bool isProduction = false;
+  
   // Base URL for the API
-  static const String baseUrl = 'http://10.0.2.2:8000/api';
+  static const String _prodUrl = 'https://api.essivivi.com/api'; // TODO: Mettre votre URL de production
+  
+  static String get baseUrl {
+    if (isProduction) return _prodUrl;
+    // Sur Android Emulator, utiliser 10.0.2.2
+    // Sur iOS et Desktop (Linux/Windows/Mac), utiliser localhost
+    if (Platform.isAndroid) return 'http://10.0.2.2:8000/api';
+    return localUrl;
+  }
+
+  static String get wsUrl {
+    final base = baseUrl.replaceFirst('http', 'ws').replaceFirst('/api', '');
+    return '$base/ws/notifications/';
+  }
   
   // Alternative URLs for different environments
   static const String localUrl = 'http://localhost:8000/api';
-  static const String productionUrl = 'https://api.essivi.com/api'; // Update with actual production URL
+  static const String productionUrl = 'https://api.essivivi.com/api'; // Update with actual production URL
   
   // Timeout settings
   static const Duration connectTimeout = Duration(seconds: 10);
@@ -53,6 +70,12 @@ class ApiConfig {
   
   // User preferences endpoints
   static const String preferencesEndpoint = '/users/preferences/';
+  
+  // Abonnements endpoints
+  static const String subscriptionsEndpoint = '/sales/subscriptions/';
+  
+  // FAQs endpoints
+  static const String faqsEndpoint = '/sales/faqs/';
   
   // Change password endpoint
   static const String changePasswordEndpoint = '/users/auth/change-password/';

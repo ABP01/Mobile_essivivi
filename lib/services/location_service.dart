@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../data/repositories/logistics_repository.dart';
@@ -16,14 +17,14 @@ class LocationService {
   /// Démarre le tracking GPS pour un agent
   Future<bool> startTracking(int agentId) async {
     if (_isTracking) {
-      print('Tracking déjà actif');
+      debugPrint('Tracking déjà actif');
       return true;
     }
 
     // Vérifier et demander les permissions
     final hasPermission = await _requestPermissions();
     if (!hasPermission) {
-      print('Permissions GPS refusées');
+      debugPrint('Permissions GPS refusées');
       return false;
     }
 
@@ -44,11 +45,11 @@ class LocationService {
         _updateAgentLocation(position);
       },
       onError: (error) {
-        print('Erreur tracking GPS: $error');
+        debugPrint('Erreur tracking GPS: $error');
       },
     );
 
-    print('Tracking GPS démarré pour agent $agentId');
+    debugPrint('Tracking GPS démarré pour agent $agentId');
     return true;
   }
 
@@ -58,7 +59,7 @@ class LocationService {
     _positionStream = null;
     _isTracking = false;
     _currentAgentId = null;
-    print('Tracking GPS arrêté');
+    debugPrint('Tracking GPS arrêté');
   }
 
   /// Envoie la position actuelle au backend
@@ -74,9 +75,9 @@ class LocationService {
         position.speed * 3.6, // Convertir m/s en km/h
         position.heading,
       );
-      print('Position mise à jour: ${position.latitude}, ${position.longitude}');
+      debugPrint('Position mise à jour: ${position.latitude}, ${position.longitude}');
     } catch (e) {
-      print('Erreur mise à jour position: $e');
+      debugPrint('Erreur mise à jour position: $e');
     }
   }
 
@@ -90,7 +91,7 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.high,
       );
     } catch (e) {
-      print('Erreur obtention position: $e');
+      debugPrint('Erreur obtention position: $e');
       return null;
     }
   }
@@ -100,7 +101,7 @@ class LocationService {
     // Vérifier si les services de localisation sont activés
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print('Services de localisation désactivés');
+      debugPrint('Services de localisation désactivés');
       return false;
     }
 
@@ -110,13 +111,13 @@ class LocationService {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        print('Permission de localisation refusée');
+        debugPrint('Permission de localisation refusée');
         return false;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      print('Permission de localisation refusée définitivement');
+      debugPrint('Permission de localisation refusée définitivement');
       // Ouvrir les paramètres
       await openAppSettings();
       return false;
@@ -127,7 +128,7 @@ class LocationService {
       // Pour Android 10+, demander la permission en arrière-plan
       var status = await Permission.locationAlways.request();
       if (!status.isGranted) {
-        print('Permission arrière-plan refusée, tracking limité');
+        debugPrint('Permission arrière-plan refusée, tracking limité');
       }
     }
 

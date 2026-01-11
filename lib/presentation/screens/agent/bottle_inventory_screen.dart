@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/data/repositories/logistics_repository.dart';
-import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+
 import 'package:essivi_mobile/data/models/logistics_models.dart';
 
 class BottleInventoryScreen extends StatefulWidget {
@@ -15,7 +15,6 @@ class BottleInventoryScreen extends StatefulWidget {
 
 class _BottleInventoryScreenState extends State<BottleInventoryScreen> {
   final _logisticsRepo = LogisticsRepository();
-  final _authRepo = AuthRepository();
   
   Tournee? _activeTournee;
   bool _isLoading = true;
@@ -31,12 +30,11 @@ class _BottleInventoryScreenState extends State<BottleInventoryScreen> {
     setState(() => _isLoading = true);
     
     try {
-      final user = await _authRepo.getCurrentUser();
-      if (user != null) {
+      if (true) {
         final tournees = await _logisticsRepo.getActiveTournees();
         if (tournees.isNotEmpty) {
           _activeTournee = tournees.first;
-          _stockRetour = _activeTournee!.stockRetour ?? 0;
+          _stockRetour = _activeTournee!.stockRetour;
         }
       }
     } catch (e) {
@@ -84,7 +82,7 @@ class _BottleInventoryScreenState extends State<BottleInventoryScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-
+    
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -171,7 +169,7 @@ class _BottleInventoryScreenState extends State<BottleInventoryScreen> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
+                              color: Colors.black.withOpacity(0.03),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -256,7 +254,7 @@ class _BottleInventoryScreenState extends State<BottleInventoryScreen> {
           label,
           style: GoogleFonts.poppins(
             fontSize: 14,
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Colors.white.withOpacity(0.9),
           ),
         ),
         const SizedBox(height: 4),

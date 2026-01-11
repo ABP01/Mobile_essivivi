@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../datasources/api_service.dart';
 import '../models/user_models.dart';
 import '../../utils/api_config.dart';
@@ -12,15 +11,9 @@ class AuthRepository {
   /// Returns CustomUser on success, throws DioException on failure
   Future<CustomUser> login(String username, String password) async {
     try {
-      final loginRequest = LoginRequest(
-        username: username,
-        password: password,
-      );
-
-      // Call login endpoint
       final response = await _apiService.client.post(
         ApiConfig.loginEndpoint,
-        data: loginRequest.toJson(),
+        data: {'username': username, 'password': password},
       );
 
       // Extract tokens
@@ -62,7 +55,7 @@ class AuthRepository {
   /// Signup new user
   Future<CustomUser> signup(SignupRequest signupRequest) async {
     try {
-      final response = await _apiService.client.post(
+      await _apiService.client.post(
         ApiConfig.signupEndpoint,
         data: signupRequest.toJson(),
       );
@@ -124,6 +117,11 @@ class AuthRepository {
     return await _storage.read(key: ApiConfig.userEmailKey);
   }
 
+  /// Get stored access token
+  Future<String?> getAccessToken() async {
+    return await _storage.read(key: ApiConfig.accessTokenKey);
+  }
+
   /// Refresh access token
   Future<void> refreshToken() async {
     try {
@@ -157,7 +155,7 @@ class AuthRepository {
     required String confirmPassword,
   }) async {
     try {
-      final response = await _apiService.client.post(
+      await _apiService.client.post(
         ApiConfig.changePasswordEndpoint,
         data: {
           'current_password': currentPassword,

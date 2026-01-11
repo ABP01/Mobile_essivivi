@@ -799,6 +799,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms of use of the Essivi application.\\n\\n1. Acceptance of terms\\nBy using this application, you accept these terms.\\n\\n2. Services provided\\nEssivi provides a home drinking water delivery service.\\n\\n3. Orders\\nOrders are processed according to availability and delivery area.\\n\\n4. Payment\\nPayment can be made by card, mobile money or on delivery.\\n\\n5. Cancellation\\nOrders can be cancelled before preparation.\\n\\n6. Responsibility\\nEssivi is committed to providing quality service.\\n\\nDernière mise à jour: December 2024'**
   String get termsOfServiceContent;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back'**
+  String get welcomeBack;
+
+  /// No description provided for @signInToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue'**
+  String get signInToContinue;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get dontHaveAccount;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// No description provided for @myCart.
+  ///
+  /// In en, this message translates to:
+  /// **'My Cart'**
+  String get myCart;
+
+  /// No description provided for @emptyCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get emptyCart;
+
+  /// No description provided for @addItemsToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add items to start'**
+  String get addItemsToStart;
+
+  /// No description provided for @continueShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Shopping'**
+  String get continueShopping;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @checkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get checkout;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @clearCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Cart'**
+  String get clearCart;
+
+  /// No description provided for @clearCartConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to clear your cart?'**
+  String get clearCartConfirm;
+
+  /// No description provided for @errorLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password'**
+  String get errorLogin;
 }
 
 class _AppLocalizationsDelegate

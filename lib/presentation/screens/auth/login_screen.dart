@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
@@ -24,11 +25,11 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
     // Validate credentials using AuthService
-    final userRole = await _authService.login(email, password);
+    final userRole = await _authService.login(username, password);
 
     setState(() => _isLoading = false);
 
@@ -36,15 +37,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (userRole != null) {
       // Navigate based on user role
-      if (userRole == UserRole.client) {
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
-      } else if (userRole == UserRole.agent) {
+      if (userRole == UserRole.agent) {
         Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
+      } else {
+        // All other roles (client, admin, etc.) go to home for now
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
       }
     } else {
       // Invalid credentials
       setState(() {
-        _errorMessage = 'Email ou mot de passe incorrect';
+        _errorMessage = AppLocalizations.of(context)!.errorLogin;
       });
     }
   }
@@ -79,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                          color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -104,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                 Text(
-                  'Welcome Back',
+                  AppLocalizations.of(context)!.welcomeBack,
                   style: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -114,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               const SizedBox(height: 8),
                 Text(
-                  'Sign in to continue',
+                  AppLocalizations.of(context)!.signInToContinue,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     color: theme.textTheme.bodySmall?.color,
@@ -123,16 +125,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               const SizedBox(height: 40),
               
-              // Email Field
+              // Username Field
               TextField(
-                controller: _emailController,
+                controller: _usernameController,
                 style: theme.textTheme.bodyLarge,
                 decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
+                  labelText: 'Username',
+                  hintText: 'Entrez votre nom d\'utilisateur',
                   hintStyle: theme.textTheme.bodySmall,
                   labelStyle: theme.textTheme.bodyMedium,
-                  prefixIcon: const Icon(Icons.email_outlined, color: AppColors.primary),
+                  prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
                   filled: true,
                   fillColor: theme.cardColor,
                   border: OutlineInputBorder(
@@ -158,9 +160,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 style: theme.textTheme.bodyLarge,
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  hintStyle: theme.textTheme.bodySmall,
+                  labelText: AppLocalizations.of(context)!.changePassword.split(' ').last, // Use part of Change Password for "Password"
+                  hintText: AppLocalizations.of(context)!.changePassword.split(' ').last,
                   labelStyle: theme.textTheme.bodyMedium,
                   prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
                   filled: true,
@@ -220,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: _isLoading 
                   ? const CircularProgressIndicator(color: Colors.white)
                   : Text(
-                      'Login',
+                      AppLocalizations.of(context)!.login,
                       style: GoogleFonts.poppins(
                         fontSize: 16, 
                         fontWeight: FontWeight.w600,
@@ -234,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Don't have an account? ",
+                    AppLocalizations.of(context)!.dontHaveAccount,
                     style: GoogleFonts.poppins(color: theme.textTheme.bodySmall?.color),
                   ),
                   GestureDetector(
@@ -242,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushNamed(context, AppRoutes.signup);
                     },
                     child: Text(
-                      'Sign Up',
+                      ' ${AppLocalizations.of(context)!.signUp}',
                       style: GoogleFonts.poppins(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,

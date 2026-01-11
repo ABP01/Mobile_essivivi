@@ -81,12 +81,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(
           'Notifications',
           style: GoogleFonts.poppins(
@@ -182,15 +179,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         decoration: BoxDecoration(
           color: isRead 
               ? (isDark ? theme.cardColor : Colors.white)
-              : AppColors.primary.withValues(alpha: 0.05),
+              : AppColors.primary.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isRead ? Colors.transparent : AppColors.primary.withValues(alpha: 0.2),
+            color: isRead ? Colors.transparent : AppColors.primary.withOpacity(0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -202,7 +199,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
+                color: iconColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: iconColor, size: 24),
@@ -248,7 +245,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     _formatTime(notification.createdAt),
                     style: GoogleFonts.poppins(
                       fontSize: 11,
-                      color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                      color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
                     ),
                   ),
                 ],
