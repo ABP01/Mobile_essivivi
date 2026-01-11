@@ -449,8 +449,6 @@ class _AgentDashboardState extends State<AgentDashboard> {
                 ),
               ),
             ),
-
-            ),
           ],
         ),
       ),
