@@ -41,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadProfile() async {
     try {
-      _user = await _authRepo.getCurrentUser();
+      _user = await _authRepo.getCurrentUserLegacy();
       if (_user != null) {
         final clients = await _userRepo.getClients();
         _clientProfile = clients.firstWhere((c) => c.userId == _user!.id);

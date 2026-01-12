@@ -31,7 +31,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
 
   Future<void> _loadProfile() async {
     try {
-      _user = await _authRepo.getCurrentUser();
+      _user = await _authRepo.getCurrentUserLegacy();
       if (_user != null) {
         final agents = await _userRepo.getAgents();
         _agentProfile = agents.firstWhere((a) => a.userId == _user!.id);

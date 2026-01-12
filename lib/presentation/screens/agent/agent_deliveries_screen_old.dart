@@ -1,46 +1,118 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/data/models/sales_models.dart';
-import 'package:essivi_mobile/presentation/providers/deliveries_provider_simple.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/data/models/sales_models.dart';
 
-class AgentDeliveriesScreen extends ConsumerStatefulWidget {
+class AgentDeliveriesScreen extends StatefulWidget {
   const AgentDeliveriesScreen({super.key});
 
   @override
-  ConsumerState<AgentDeliveriesScreen> createState() => _AgentDeliveriesScreenState();
+  State<AgentDeliveriesScreen> createState() => _AgentDeliveriesScreenState();
 }
 
-class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
+class _AgentDeliveriesScreenState extends State<AgentDeliveriesScreen> {
   String _selectedFilter = 'all';
   final List<String> _filters = ['all', 'pending', 'inTransit', 'delivered'];
-  final _salesRepo = SalesRepository(); // For update status (not yet in provider)
+
+  final _salesRepo = SalesRepository();
+  final _authRepo = AuthRepository();
+  
+  List<Livraison> _deliveries = [];
+  List<Commande> _availableOrders = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Load deliveries via provider
-    Future.microtask(() => ref.read(deliveriesProvider.notifier).loadDeliveries());
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    try {
+      final user = await _authRepo.getCurrentUserLegacy();
+      
+      // Load all deliveries securely
+      final allDeliveries = await _salesRepo.getLivraisons();
+
+      // Load all orders securely
+      // Ideally we should use getCommandesByAgent(user.id) but we need to cross-reference with Livraisons
+      final agentOrders = await _salesRepo.getCommandesByAgent(user.id);
+      final agentOrderIds = agentOrders.map((o) => o.id).toSet();
+      
+      // Filter deliveries that belong to this agent (via Commande ID)
+      // Since Livraison connects to Commande, and Commande has Agent ID
+      final myDeliveries = allDeliveries.where((d) => 
+        d.commandeId != null && agentOrderIds.contains(d.commandeId)
+      ).toList();
+      
+      // Load pending orders (available for pickup)
+      final pendingOrders = await _salesRepo.getCommandesByStatus('pending');
+      
+      if (mounted) {
+        setState(() {
+          _deliveries = myDeliveries;
+          // Filter out orders that are already assigned
+          _availableOrders = pendingOrders.where((o) => o.agentId == null).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading data: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _acceptOrder(Commande order) async {
-    final success = await ref.read(deliveriesProvider.notifier).acceptOrder(
-      order.id,
-      1, // Default tournee ID
-    );
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success ? 'Commande acceptée avec succès !' : 'Erreur lors de l\'acceptation'),
-          backgroundColor: success ? Colors.green : Colors.red,
-        ),
+    setState(() => _isLoading = true);
+    try {
+      final user = await _authRepo.getCurrentUserLegacy();
+      
+      // 1. Update Commande with agent ID
+      await _salesRepo.updateCommande(
+        order.id, 
+        UpdateCommandeRequest(agentId: user.id, statut: 'validated')
       );
+
+      // 2. Create Livraison
+      // Assuming active tournee ID 1 for simplicity if not managed yet
+      // In a full app, we would select the tournee
+      int tourneeId = 1; 
+      
+      await _salesRepo.createLivraison(
+        request: CreateLivraisonRequest(
+          tourneeId: tourneeId,
+          clientId: order.clientId,
+          commandeId: order.id,
+        )
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Commande acceptée avec succès !'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _loadData(); // Refresh lists
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'acceptation: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -58,7 +130,7 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
             backgroundColor: Colors.blue,
           ),
         );
-        ref.read(deliveriesProvider.notifier).loadDeliveries();
+        _loadData(); // Refresh to show updated status
       }
     } catch (e) {
       if (mounted) {
@@ -72,11 +144,24 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
     }
   }
 
+  List<Livraison> get _filteredDeliveries {
+    if (_selectedFilter == 'all') return _deliveries;
+    return _deliveries.where((d) {
+      switch (_selectedFilter) {
+        case 'delivered':
+          return d.isDelivered;
+        case 'pending': // "En attente" matches deliveries that are NOT delivered
+           return !d.isDelivered;
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final deliveriesState = ref.watch(deliveriesProvider);
 
     return DefaultTabController(
       length: 2,
@@ -86,35 +171,79 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
           child: Column(
             children: [
               // Header
-              _buildHeader(theme, isDark),
-              
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isDark ? theme.cardColor : Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          FluentIcons.arrow_left_24_regular,
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
+
+                    const Spacer(),
+                    Text(
+                      AppLocalizations.of(context)!.myDeliveries,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                    const Spacer(),
+                    const SizedBox(width: 40), // Balance back button
+                  ],
+                ),
+              ),
+
               // Tab Bar
-              _buildTabBar(theme, isDark),
-              
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: isDark ? theme.cardColor : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: TabBar(
+                  indicator: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: theme.textTheme.bodySmall?.color,
+                  tabs: const [
+                    Tab(text: 'Mes Livraisons'),
+                    Tab(text: 'Disponibles'),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
 
-              // Content
+              // Tab View
               Expanded(
-                child: deliveriesState.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : deliveriesState.error != null
-                        ? Center(child: Text('Erreur: ${deliveriesState.error!.message}'))
-                        : TabBarView(
-                            children: [
-                              _buildMyDeliveriesTab(
-                                context,
-                                theme,
-                                isDark,
-                                deliveriesState.myDeliveries,
-                              ),
-                              _buildAvailableOrdersTab(
-                                context,
-                                theme,
-                                isDark,
-                                deliveriesState.availableOrders,
-                              ),
-                            ],
-                          ),
+                child: _isLoading 
+                  ? const Center(child: CircularProgressIndicator())
+                  : TabBarView(
+                      children: [
+                        _buildMyDeliveriesTab(context, theme, isDark),
+                        _buildAvailableOrdersTab(context, theme, isDark),
+                      ],
+                    ),
               ),
             ],
           ),
@@ -123,90 +252,17 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
     );
   }
 
-  Widget _buildHeader(ThemeData theme, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isDark ? theme.cardColor : Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                FluentIcons.arrow_left_24_regular,
-                color: theme.textTheme.bodyLarge?.color,
-              ),
-            ),
-          ),
-          const Spacer(),
-          Text(
-            AppLocalizations.of(context)!.myDeliveries,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: theme.textTheme.bodyLarge?.color,
-            ),
-          ),
-          const Spacer(),
-          const SizedBox(width: 40), // Balance back button
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabBar(ThemeData theme, bool isDark) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: isDark ? theme.cardColor : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: TabBar(
-        indicator: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        labelColor: Colors.white,
-        unselectedLabelColor: theme.textTheme.bodySmall?.color,
-        tabs: const [
-          Tab(text: 'Mes Livraisons'),
-          Tab(text: 'Disponibles'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMyDeliveriesTab(
-    BuildContext context,
-    ThemeData theme,
-    bool isDark,
-    List<Livraison> deliveries,
-  ) {
-    final todayCount = deliveries.where((d) {
-      final now = DateTime.now();
-      return d.createdAt.startsWith(now.toIso8601String().substring(0, 10));
+  Widget _buildMyDeliveriesTab(BuildContext context, ThemeData theme, bool isDark) {
+    // Calculate stats dynamically
+    final todayCount = _deliveries.where((d) {
+       // Simple check if created today
+       // Assuming createdAt format YYYY-MM-DD...
+       final now = DateTime.now();
+       return d.createdAt.startsWith(now.toIso8601String().substring(0, 10));
     }).length;
     
-    final activeCount = deliveries.where((d) => !d.isDelivered).length;
-    final completedCount = deliveries.where((d) => d.isDelivered).length;
-
-    List<Livraison> filteredDeliveries = deliveries;
-    if (_selectedFilter == 'delivered') {
-      filteredDeliveries = deliveries.where((d) => d.isDelivered).toList();
-    } else if (_selectedFilter == 'pending') {
-      filteredDeliveries = deliveries.where((d) => !d.isDelivered).toList();
-    }
+    final activeCount = _deliveries.where((d) => !d.isDelivered).length;
+    final completedCount = _deliveries.where((d) => d.isDelivered).length;
 
     return Column(
       children: [
@@ -286,55 +342,50 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
 
         // Deliveries List
         Expanded(
-          child: filteredDeliveries.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Aucune livraison', style: GoogleFonts.poppins()),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  itemCount: filteredDeliveries.length,
-                  itemBuilder: (context, index) {
-                    final delivery = filteredDeliveries[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: _buildDeliveryCard(context, delivery),
-                    );
-                  },
+          child: _filteredDeliveries.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Aucune livraison', style: GoogleFonts.poppins()),
+                  ],
                 ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                itemCount: _filteredDeliveries.length,
+                itemBuilder: (context, index) {
+                  final delivery = _filteredDeliveries[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: _buildDeliveryCard(context, delivery),
+                  );
+                },
+              ),
         ),
       ],
     );
   }
 
-  Widget _buildAvailableOrdersTab(
-    BuildContext context,
-    ThemeData theme,
-    bool isDark,
-    List<Commande> availableOrders,
-  ) {
-    if (availableOrders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(FluentIcons.box_dismiss_24_regular, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text('Aucune commande disponible', style: GoogleFonts.poppins(color: Colors.grey)),
-          ],
-        ),
-      );
+  Widget _buildAvailableOrdersTab(BuildContext context, ThemeData theme, bool isDark) {
+    if (_availableOrders.isEmpty) {
+       return Center(
+         child: Column(
+           mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+             Icon(FluentIcons.box_dismiss_24_regular, size: 48, color: Colors.grey),
+             const SizedBox(height: 16),
+             Text('Aucune commande disponible', style: GoogleFonts.poppins(color: Colors.grey)),
+           ],
+         ),
+       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.all(20),
-      itemCount: availableOrders.length,
+      itemCount: _availableOrders.length,
       itemBuilder: (context, index) {
-        final order = availableOrders[index];
+        final order = _availableOrders[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: Container(
@@ -343,11 +394,11 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
               color: isDark ? theme.cardColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
+                 BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                 ),
               ],
             ),
             child: Column(
@@ -674,8 +725,12 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: delivery.isDelivered ? null : () async {
+                      // Marquer comme livrée
                       try {
-                        await _salesRepo.submitProof(id: delivery.id);
+                        await _salesRepo.submitProof(
+                          id: delivery.id,
+                          // On envoie des données vides car le backend gère le changement de statut
+                        );
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -683,7 +738,7 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
                               backgroundColor: Colors.green,
                             ),
                           );
-                          ref.read(deliveriesProvider.notifier).loadDeliveries();
+                          _loadData(); // Refresh list to update UI state
                         }
                       } catch (e) {
                         if (mounted) {
@@ -707,6 +762,57 @@ class _AgentDeliveriesScreenState extends ConsumerState<AgentDeliveriesScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Status update buttons
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: delivery.isEnRoute || delivery.isArriving || delivery.isDelivered
+                        ? null
+                        : () => _updateStatus(delivery.id, 'en_route'),
+                    icon: const Icon(FluentIcons.navigation_24_regular, size: 16),
+                    label: Text(
+                      'En route',
+                      style: GoogleFonts.poppins(fontSize: 11),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: delivery.isEnRoute ? Colors.blue : Colors.grey,
+                      side: BorderSide(
+                        color: delivery.isEnRoute ? Colors.blue : Colors.grey,
+                      ),
+                      backgroundColor: delivery.isEnRoute ? Colors.blue.withOpacity(0.1) : null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: !delivery.isEnRoute || delivery.isArriving || delivery.isDelivered
+                        ? null
+                        : () => _updateStatus(delivery.id, 'arriving'),
+                    icon: const Icon(FluentIcons.location_arrow_24_regular, size: 16),
+                    label: Text(
+                      'J\'arrive',
+                      style: GoogleFonts.poppins(fontSize: 11),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: delivery.isArriving ? Colors.orange : Colors.grey,
+                      side: BorderSide(
+                        color: delivery.isArriving ? Colors.orange : Colors.grey,
+                      ),
+                      backgroundColor: delivery.isArriving ? Colors.orange.withOpacity(0.1) : null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   ),

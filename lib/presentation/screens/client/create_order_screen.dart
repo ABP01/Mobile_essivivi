@@ -71,7 +71,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       debugPrint('🔵 Début création commande...');
       
       // Get current user
-      final user = await _authRepo.getCurrentUser();
+      final user = await _authRepo.getCurrentUserLegacy();
       debugPrint('🔵 User récupéré: ${user.id}');
 
       // Calculate total amount

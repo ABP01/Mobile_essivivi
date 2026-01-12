@@ -35,7 +35,7 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
     });
 
     try {
-      final user = await _authRepo.getCurrentUser();
+      final user = await _authRepo.getCurrentUserLegacy();
       if (true) {
         _orders = await _salesRepo.getCommandesByClient(user.id);
         // Sort by date descending

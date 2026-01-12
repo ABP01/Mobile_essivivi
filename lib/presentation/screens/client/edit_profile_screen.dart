@@ -36,7 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _loadProfile() async {
     try {
-      _user = await _authRepo.getCurrentUser();
+      _user = await _authRepo.getCurrentUserLegacy();
       if (_user != null) {
         final clients = await _userRepo.getClients();
         _clientProfile = clients.firstWhere((c) => c.userId == _user!.id);

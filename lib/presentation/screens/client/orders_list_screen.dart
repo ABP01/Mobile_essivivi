@@ -37,7 +37,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     });
 
     try {
-      final user = await _authRepo.getCurrentUser();
+      final user = await _authRepo.getCurrentUserLegacy();
       if (true) {
         final allOrders = await _salesRepo.getCommandesByClient(user.id);
         

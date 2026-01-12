@@ -19,13 +19,21 @@ class AuthService {
   Future<UserRole?> login(String email, String password) async {
     try {
       // Call backend API
-      final user = await _authRepository.login(email, password);
+      final result = await _authRepository.login(username: email, password: password);
       
-      // Initialize WebSocket connection
-      WebSocketService().connect();
-      
-      // Convert role string to UserRole enum
-      return _roleFromString(user.role);
+      return result.fold(
+        (failure) {
+          // Return null on login failure
+          return null;
+        },
+        (user) {
+          // Initialize WebSocket connection
+          WebSocketService().connect();
+          
+          // Convert role string to UserRole enum
+          return _roleFromString(user.role);
+        },
+      );
     } catch (e) {
       // Return null on login failure
       return null;
@@ -49,12 +57,17 @@ class AuthService {
         phoneNumber: phoneNumber,
       );
 
-      final user = await _authRepository.signup(signupRequest);
+      final result = await _authRepository.signup(request: signupRequest);
       
-      // Initialize WebSocket connection
-      WebSocketService().connect();
-      
-      return _roleFromString(user.role);
+      return result.fold(
+        (failure) => null,
+        (user) {
+          // Initialize WebSocket connection
+          WebSocketService().connect();
+          
+          return _roleFromString(user.role);
+        },
+      );
     } catch (e) {
       return null;
     }
@@ -90,7 +103,11 @@ class AuthService {
   /// Gets the current user's full profile from the backend
   Future<CustomUser?> getCurrentUser() async {
     try {
-      return await _authRepository.getCurrentUser();
+      final result = await _authRepository.getCurrentUser();
+      return result.fold(
+        (failure) => null,
+        (user) => user,
+      );
     } catch (e) {
       return null;
     }

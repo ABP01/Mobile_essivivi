@@ -53,7 +53,7 @@ class _AgentDashboardState extends State<AgentDashboard> {
     setState(() => _isLoading = true);
     
     try {
-      final user = await _authRepo.getCurrentUser();
+      final user = await _authRepo.getCurrentUserLegacy();
       if (true) {
         // Sauvegarder l'ID de l'agent
         _currentAgentId = user.id;

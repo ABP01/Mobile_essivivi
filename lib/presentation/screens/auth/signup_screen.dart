@@ -47,7 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
         role: _selectedRole,
       );
 
-      await _authRepo.signup(request);
+      await _authRepo.signup(request: request);
 
       if (!mounted) return;
 

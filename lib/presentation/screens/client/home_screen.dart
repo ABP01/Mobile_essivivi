@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       // Load user profile
-      _currentUser = await _authRepo.getCurrentUser();
+      _currentUser = await _authRepo.getCurrentUserLegacy();
       
       if (_currentUser != null) {
         // Load recent orders for this client

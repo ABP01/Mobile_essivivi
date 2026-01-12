@@ -1,15 +1,23 @@
+import 'package:dartz/dartz.dart';
 import '../datasources/api_service.dart';
 import '../models/user_models.dart';
-import '../../utils/api_config.dart';
+import '../../core/config/api_config.dart';
+import '../../core/errors/failures.dart';
+import '../../core/errors/error_handler.dart';
+import '../../domain/repositories/i_auth_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class AuthRepository {
+class AuthRepository implements IAuthRepository {
   final ApiService _apiService = ApiService();
   final _storage = const FlutterSecureStorage();
 
   /// Login with username and password
-  /// Returns CustomUser on success, throws DioException on failure
-  Future<CustomUser> login(String username, String password) async {
+  /// Returns Either<Failure, CustomUser>
+  @override
+  Future<Either<Failure, CustomUser>> login({
+    required String username,
+    required String password,
+  }) async {
     try {
       final response = await _apiService.client.post(
         ApiConfig.loginEndpoint,
@@ -34,41 +42,49 @@ class AuthRepository {
       );
 
       // Fetch user profile
-      final user = await getCurrentUser();
-
-      // Store user info
-      await _storage.write(
-        key: ApiConfig.userEmailKey,
-        value: user.email,
+      final userResult = await getCurrentUser();
+      
+      return userResult.fold(
+        (failure) => Left(failure),
+        (user) async {
+          // Store user info
+          await _storage.write(
+            key: ApiConfig.userEmailKey,
+            value: user.email,
+          );
+          await _storage.write(
+            key: ApiConfig.userRoleKey,
+            value: user.role,
+          );
+          return Right(user);
+        },
       );
-      await _storage.write(
-        key: ApiConfig.userRoleKey,
-        value: user.role,
-      );
-
-      return user;
-    } catch (e) {
-      rethrow;
+    } catch (e, stackTrace) {
+      return Left(ErrorHandler.handleError(e, stackTrace));
     }
   }
 
   /// Signup new user
-  Future<CustomUser> signup(SignupRequest signupRequest) async {
+  @override
+  Future<Either<Failure, CustomUser>> signup({
+    required SignupRequest request,
+  }) async {
     try {
       await _apiService.client.post(
         ApiConfig.signupEndpoint,
-        data: signupRequest.toJson(),
+        data: request.toJson(),
       );
 
       // After signup, login automatically
-      return await login(signupRequest.username, signupRequest.password);
-    } catch (e) {
-      rethrow;
+      return await login(username: request.username, password: request.password);
+    } catch (e, stackTrace) {
+      return Left(ErrorHandler.handleError(e, stackTrace));
     }
   }
 
   /// Logout current user
-  Future<void> logout() async {
+  @override
+  Future<Either<Failure, Unit>> logout() async {
     try {
       final refreshToken = await _storage.read(key: ApiConfig.refreshTokenKey);
 
@@ -88,19 +104,33 @@ class AuthRepository {
       await _storage.delete(key: ApiConfig.userRoleKey);
       await _storage.delete(key: ApiConfig.isAuthenticatedKey);
     }
+    return Right(unit);
   }
 
   /// Get current user profile
-  Future<CustomUser> getCurrentUser() async {
+  @override
+  Future<Either<Failure, CustomUser>> getCurrentUser() async {
     try {
       final response = await _apiService.client.get(ApiConfig.meEndpoint);
-      return CustomUser.fromJson(response.data);
-    } catch (e) {
-      rethrow;
+      return Right(CustomUser.fromJson(response.data));
+    } catch (e, stackTrace) {
+      return Left(ErrorHandler.handleError(e, stackTrace));
     }
   }
 
+  /// Legacy helper for backward compatibility with old screens
+  /// Returns CustomUser directly or throws exception
+  /// @deprecated Use getCurrentUser() with Either instead
+  Future<CustomUser> getCurrentUserLegacy() async {
+    final result = await getCurrentUser();
+    return result.fold(
+      (failure) => throw Exception(failure.message),
+      (user) => user,
+    );
+  }
+
   /// Check if user is authenticated
+  @override
   Future<bool> isAuthenticated() async {
     final isAuth = await _storage.read(key: ApiConfig.isAuthenticatedKey);
     final accessToken = await _storage.read(key: ApiConfig.accessTokenKey);
@@ -108,6 +138,7 @@ class AuthRepository {
   }
 
   /// Get stored user role
+  @override
   Future<String?> getUserRole() async {
     return await _storage.read(key: ApiConfig.userRoleKey);
   }
@@ -123,12 +154,13 @@ class AuthRepository {
   }
 
   /// Refresh access token
-  Future<void> refreshToken() async {
+  @override
+  Future<Either<Failure, Unit>> refreshToken() async {
     try {
       final refreshToken = await _storage.read(key: ApiConfig.refreshTokenKey);
 
       if (refreshToken == null) {
-        throw Exception('No refresh token available');
+        return Left(AuthFailure('No refresh token available'));
       }
 
       final response = await _apiService.client.post(
@@ -141,15 +173,17 @@ class AuthRepository {
         key: ApiConfig.accessTokenKey,
         value: newAccessToken,
       );
-    } catch (e) {
+      return Right(unit);
+    } catch (e, stackTrace) {
       // If refresh fails, logout
       await logout();
-      rethrow;
+      return Left(ErrorHandler.handleError(e, stackTrace));
     }
   }
 
   /// Change user password
-  Future<void> changePassword({
+  @override
+  Future<Either<Failure, Unit>> changePassword({
     required String currentPassword,
     required String newPassword,
     required String confirmPassword,
@@ -163,10 +197,9 @@ class AuthRepository {
           'confirm_password': confirmPassword,
         },
       );
-      
-      // Password changed successfully
-    } catch (e) {
-      rethrow;
+      return Right(unit);
+    } catch (e, stackTrace) {
+      return Left(ErrorHandler.handleError(e, stackTrace));
     }
   }
 }

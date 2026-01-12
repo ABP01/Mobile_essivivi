@@ -37,6 +37,11 @@ dependencies:
   google_fonts: ^6.3.3
   fluentui_system_icons: ^1.1.273
   flutter_svg: ^2.2.3
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  
+  # Legacy provider (will be gradually removed)
   provider: ^6.1.1
   shared_preferences: ^2.2.2
   dio: ^5.4.0
@@ -51,6 +56,16 @@ dependencies:
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
   web_socket_channel: ^3.0.3
+  
+  # Functional Programming & Error Handling
+  dartz: ^0.10.1
+  
+  # Code Generation
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
+  
+  # Value Equality
+  equatable: ^2.0.7
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +77,15 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  
+  # Code Generation
+  build_runner: ^2.4.8
+  riverpod_generator: ^2.4.0
+  freezed: ^2.4.7
+  json_serializable: ^6.7.1
+  
+  # Testing
+  mockito: ^5.4.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

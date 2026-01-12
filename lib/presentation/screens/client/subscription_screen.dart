@@ -70,7 +70,7 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
   Future<void> _updateSubscription() async {
     setState(() => _isLoading = true);
     try {
-      final user = await _authRepo.getCurrentUser();
+      final user = await _authRepo.getCurrentUserLegacy();
       final subscription = Subscription(
         client: user.id,
         plan: _getPlanCode(_selectedPlan),
