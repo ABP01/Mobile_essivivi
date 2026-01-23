@@ -6,7 +6,7 @@ import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
 import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/data/models/sales_models.dart';
-import 'package:essivi_mobile/services/cart_service.dart';
+import 'package:essivi_mobile/data/repositories/cart_repository.dart';
 import 'package:essivi_mobile/data/models/cart_models.dart';
 import 'select_location_screen.dart';
 
@@ -94,7 +94,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       debugPrint('✅ Commande créée avec succès! ID: ${commande.id}');
       
       // Si la commande vient du panier, on le vide
-      await CartService().clearCart();
+      await CartRepository().clearCart();
 
       if (!mounted) return;
 
@@ -174,7 +174,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   const Spacer(),
                   // Icône Panier avec badge
                   FutureBuilder<int>(
-                    future: CartService().getItemCount(),
+                    future: CartRepository().getItemCount(),
                     builder: (context, snapshot) {
                       final count = snapshot.data ?? 0;
                       return GestureDetector(
@@ -788,14 +788,14 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   Future<void> _addToCart() async {
-    final cartService = CartService();
+    final cartRepo = CartRepository();
     final item = CartItem(
       bottleSize: _selectedBottleSize,
       quantity: _quantity,
       unitPrice: _getPriceValue(),
     );
 
-    await cartService.addToCart(item);
+    await cartRepo.addToCart(item);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

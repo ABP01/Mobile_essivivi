@@ -1,52 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
+import 'package:essivi_mobile/presentation/providers/auth_provider_simple.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
-  bool _isLoading = false;
   String? _errorMessage;
 
   void _login() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    // Validate credentials using AuthService
-    final userRole = await _authService.login(username, password);
+    // Clear previous errors
+    setState(() => _errorMessage = null);
 
-    setState(() => _isLoading = false);
+    // Use Riverpod provider
+    await ref.read(authProviderSimple.notifier).login(username, password);
 
     if (!mounted) return;
 
-    if (userRole != null) {
+    // Check auth state
+    final authState = ref.read(authProviderSimple);
+    
+    if (authState.isAuthenticated && authState.user != null) {
       // Navigate based on user role
-      if (userRole == UserRole.agent) {
+      if (authState.user!.role == 'agent') {
         Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
       } else {
         // All other roles (client, admin, etc.) go to home for now
         Navigator.pushReplacementNamed(context, AppRoutes.home);
       }
-    } else {
+    } else if (authState.error != null) {
       // Invalid credentials
       setState(() {
-        _errorMessage = AppLocalizations.of(context)!.errorLogin;
+        _errorMessage = authState.error!.message;
       });
     }
   }
@@ -212,13 +210,13 @@ class _LoginScreenState extends State<LoginScreen> {
               
               // Login Button
               ElevatedButton(
-                onPressed: _isLoading ? null : _login,
+                onPressed: ref.watch(authProviderSimple).isLoading ? null : _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: _isLoading 
+                child: ref.watch(authProviderSimple).isLoading 
                   ? const CircularProgressIndicator(color: Colors.white)
                   : Text(
                       AppLocalizations.of(context)!.login,

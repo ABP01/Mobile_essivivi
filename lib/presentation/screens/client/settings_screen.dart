@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
+import 'package:essivi_mobile/presentation/providers/auth_provider_simple.dart';
 import 'package:essivi_mobile/data/repositories/preferences_repository.dart';
 
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
-  final _authService = AuthService();
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _preferencesRepo = PreferencesRepository();
   
   bool _notificationsEnabled = true;
@@ -221,7 +221,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  await _authService.logout();
+                  await ref.read(authProviderSimple.notifier).logout();
                   if (!mounted) return;
                   Navigator.pushNamedAndRemoveUntil(
                     context,

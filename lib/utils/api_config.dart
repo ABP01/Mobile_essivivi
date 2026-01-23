@@ -16,19 +16,30 @@ class ApiConfig {
   
   static String get baseUrl {
     if (isProduction) return _prodUrl;
-    // Sur Android Emulator, utiliser 10.0.2.2
-    // Sur iOS et Desktop (Linux/Windows/Mac), utiliser localhost
-    if (Platform.isAndroid) return 'http://10.0.2.2:8000/api';
-    return localUrl;
+    
+    // En développement, utiliser Traefik (port 80)
+    // Android Emulator: 10.0.2.2:8081
+    // iOS/Desktop: localhost:8081
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8083/api';
+    }
+    return 'http://localhost:8083/api';
   }
 
   static String get wsUrl {
-    final base = baseUrl.replaceFirst('http', 'ws').replaceFirst('/api', '');
-    return '$base/ws/notifications/';
+    // WebSocket via Traefik
+    if (isProduction) {
+      return _prodUrl.replaceFirst('https', 'wss').replaceFirst('/api', '/ws/notifications/');
+    }
+    
+    if (Platform.isAndroid) {
+      return 'ws://10.0.2.2:8083/ws/notifications/';
+    }
+    return 'ws://localhost:8083/ws/notifications/';
   }
   
   // Alternative URLs for different environments
-  static const String localUrl = 'http://localhost:8000/api';
+  static const String localUrl = 'http://localhost:8083/api';  // Via Traefik
   static const String productionUrl = 'https://api.essivivi.com/api'; // Update with actual production URL
   
   // Timeout settings

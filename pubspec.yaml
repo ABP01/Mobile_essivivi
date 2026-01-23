@@ -45,6 +45,7 @@ dependencies:
   provider: ^6.1.1
   shared_preferences: ^2.2.2
   dio: ^5.4.0
+  http: ^1.2.0
   flutter_secure_storage: ^9.0.0
   url_launcher: ^6.2.5
   intl: ^0.20.2
@@ -66,6 +67,9 @@ dependencies:
   
   # Value Equality
   equatable: ^2.0.7
+  
+  # Logging
+  logger: ^2.0.2
 
 dev_dependencies:
   flutter_test:

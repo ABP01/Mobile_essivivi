@@ -12,7 +12,10 @@ class UserRepository {
   Future<List<CustomUser>> getUsers() async {
     try {
       final response = await _apiService.client.get(ApiConfig.usersEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => CustomUser.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -70,7 +73,10 @@ class UserRepository {
   Future<List<AgentProfile>> getAgents() async {
     try {
       final response = await _apiService.client.get(ApiConfig.agentsEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => AgentProfile.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -128,7 +134,10 @@ class UserRepository {
   Future<List<ClientProfile>> getClients() async {
     try {
       final response = await _apiService.client.get(ApiConfig.clientsEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => ClientProfile.fromJson(json)).toList();
     } catch (e) {
       rethrow;

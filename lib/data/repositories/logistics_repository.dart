@@ -12,7 +12,10 @@ class LogisticsRepository {
   Future<List<Tricycle>> getTricycles() async {
     try {
       final response = await _apiService.client.get(ApiConfig.tricyclesEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Tricycle.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -70,7 +73,10 @@ class LogisticsRepository {
   Future<List<Tournee>> getTournees() async {
     try {
       final response = await _apiService.client.get(ApiConfig.tourneesEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Tournee.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -94,7 +100,10 @@ class LogisticsRepository {
         ApiConfig.tourneesEndpoint,
         queryParameters: {'agent': agentId},
       );
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Tournee.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -108,7 +117,10 @@ class LogisticsRepository {
         ApiConfig.tourneesEndpoint,
         queryParameters: {'active': true},
       );
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Tournee.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -194,7 +206,11 @@ class LogisticsRepository {
   Future<List<Map<String, dynamic>>> getAgentLocations() async {
     try {
       final response = await _apiService.client.get('/logistics/agents/locations/');
-      return List<Map<String, dynamic>>.from(response.data);
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
+      return List<Map<String, dynamic>>.from(data);
     } catch (e) {
       rethrow;
     }
@@ -215,7 +231,12 @@ class LogisticsRepository {
           'max_agents': maxAgents,
         },
       );
-      return List<Map<String, dynamic>>.from(response.data);
+      // Usually these custom endpoints return List directly, but checking for safety
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
+      return List<Map<String, dynamic>>.from(data);
     } catch (e) {
       rethrow;
     }

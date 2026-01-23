@@ -10,7 +10,10 @@ class NotificationRepository {
   Future<List<Notification>> getNotifications() async {
     try {
       final response = await _apiService.client.get(ApiConfig.notificationsEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Notification.fromJson(json)).toList();
     } catch (e) {
       rethrow;

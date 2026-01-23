@@ -4,10 +4,12 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/sales_repository_impl.dart';
 import '../../data/repositories/logistics_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
+import '../../data/repositories/cart_repository.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../../domain/repositories/i_sales_repository.dart';
 import '../../domain/repositories/i_logistics_repository.dart';
 import '../../domain/repositories/i_user_repository.dart';
+import '../../domain/repositories/i_cart_repository.dart';
 import '../../domain/usecases/auth/login_usecase.dart';
 import '../../domain/usecases/auth/logout_usecase.dart';
 import '../../domain/usecases/auth/get_current_user_usecase.dart';
@@ -41,6 +43,11 @@ final logisticsRepositoryProvider = Provider<ILogisticsRepository>((ref) {
 /// User Repository Provider
 final userRepositoryProvider = Provider<IUserRepository>((ref) {
   return UserRepositoryImpl();
+});
+
+/// Cart Repository Provider
+final cartRepositoryProvider = Provider<ICartRepository>((ref) {
+  return CartRepository();
 });
 
 

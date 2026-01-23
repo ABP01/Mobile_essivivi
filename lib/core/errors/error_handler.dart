@@ -96,8 +96,14 @@ class ErrorHandler {
         );
 
       case 401:
+        // If we have a specific message from server (like "No active account found"), use it.
+        // Otherwise use the generic session expired message.
+        final displayMessage = (message.isNotEmpty && message != 'Server error occurred') 
+            ? message 
+            : 'Your session has expired. Please log in again.';
+            
         return AuthFailure(
-          'Your session has expired. Please log in again.',
+          displayMessage,
           stackTrace,
         );
 

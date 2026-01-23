@@ -12,7 +12,10 @@ class SalesRepository {
   Future<List<Commande>> getCommandes() async {
     try {
       final response = await _apiService.client.get(ApiConfig.commandesEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Commande.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -40,7 +43,10 @@ class SalesRepository {
         ApiConfig.commandesEndpoint,
         queryParameters: {'client': clientId},
       );
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Commande.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -54,7 +60,10 @@ class SalesRepository {
         ApiConfig.commandesEndpoint,
         queryParameters: {'agent': agentId},
       );
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Commande.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -68,7 +77,10 @@ class SalesRepository {
         ApiConfig.commandesEndpoint,
         queryParameters: {'statut': status},
       );
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Commande.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -121,7 +133,10 @@ class SalesRepository {
   Future<List<Livraison>> getLivraisons() async {
     try {
       final response = await _apiService.client.get(ApiConfig.livraisonsEndpoint);
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Livraison.fromJson(json)).toList();
     } catch (e) {
       rethrow;
@@ -145,7 +160,10 @@ class SalesRepository {
         ApiConfig.livraisonsEndpoint,
         queryParameters: {'tournee': tourneeId},
       );
-      final List<dynamic> data = response.data;
+      final dynamic rawData = response.data;
+      final List<dynamic> data = (rawData is Map && rawData.containsKey('results')) 
+          ? rawData['results'] 
+          : rawData;
       return data.map((json) => Livraison.fromJson(json)).toList();
     } catch (e) {
       rethrow;

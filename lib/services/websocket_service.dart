@@ -1,51 +1,28 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
-import '../utils/api_config.dart';
 import '../data/repositories/auth_repository.dart';
+import '../data/repositories/websocket_repository_impl.dart';
+import '../domain/repositories/i_websocket_repository.dart';
 
 class WebSocketService {
-  WebSocketChannel? _channel;
-  final _controller = StreamController<Map<String, dynamic>>.broadcast();
-  bool _isConnected = false;
+  final IWebSocketRepository _repository = WebSocketRepositoryImpl();
   Timer? _reconnectTimer;
 
-  Stream<Map<String, dynamic>> get notifications => _controller.stream;
-  bool get isConnected => _isConnected;
+  Stream<Map<String, dynamic>> get notifications => _repository.messages;
+  bool get isConnected => _repository.isConnected;
 
   static final WebSocketService _instance = WebSocketService._internal();
   factory WebSocketService() => _instance;
   WebSocketService._internal();
 
   Future<void> connect() async {
-    if (_isConnected) return;
+    if (_repository.isConnected) return;
 
     final token = await AuthRepository().getAccessToken();
     if (token == null) return;
 
-    final uri = Uri.parse('${ApiConfig.wsUrl}?token=$token');
-    
     try {
-      _channel = WebSocketChannel.connect(uri);
-      _isConnected = true;
-      
-      _channel!.stream.listen(
-        (message) {
-          final data = jsonDecode(message);
-          _controller.add(data);
-        },
-        onDone: () {
-          _isConnected = false;
-          _reconnect();
-        },
-        onError: (error) {
-          _isConnected = false;
-          _reconnect();
-        },
-      );
+      await _repository.connect(token);
     } catch (e) {
-      _isConnected = false;
       _reconnect();
     }
   }
@@ -59,7 +36,6 @@ class WebSocketService {
 
   void disconnect() {
     _reconnectTimer?.cancel();
-    _channel?.sink.close(status.goingAway);
-    _isConnected = false;
+    _repository.disconnect();
   }
 }

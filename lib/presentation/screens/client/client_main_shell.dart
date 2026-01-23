@@ -30,6 +30,7 @@ class _ClientMainShellState extends State<ClientMainShell> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+    
   }
 
   void _onItemTapped(int index) {

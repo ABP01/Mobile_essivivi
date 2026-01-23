@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../data/repositories/logistics_repository.dart';
+import '../data/repositories/location_repository_impl.dart';
+import '../domain/repositories/i_location_repository.dart';
 
 class LocationService {
   static final LocationService _instance = LocationService._internal();
@@ -10,6 +11,8 @@ class LocationService {
   LocationService._internal();
 
   final LogisticsRepository _logisticsRepo = LogisticsRepository();
+  final ILocationRepository _locationRepo = LocationRepositoryImpl();
+  
   StreamSubscription<Position>? _positionStream;
   bool _isTracking = false;
   int? _currentAgentId;
@@ -21,8 +24,8 @@ class LocationService {
       return true;
     }
 
-    // Vérifier et demander les permissions
-    final hasPermission = await _requestPermissions();
+    // Vérifier et demander les permissions via le repo
+    final hasPermission = await _locationRepo.requestPermissions();
     if (!hasPermission) {
       debugPrint('Permissions GPS refusées');
       return false;
@@ -37,8 +40,8 @@ class LocationService {
       distanceFilter: 10, // Mise à jour tous les 10 mètres
     );
 
-    // Écouter les changements de position
-    _positionStream = Geolocator.getPositionStream(
+    // Écouter les changements de position via le repo
+    _positionStream = _locationRepo.getPositionStream(
       locationSettings: locationSettings,
     ).listen(
       (Position position) {
@@ -83,56 +86,7 @@ class LocationService {
 
   /// Obtient la position actuelle une seule fois
   Future<Position?> getCurrentPosition() async {
-    final hasPermission = await _requestPermissions();
-    if (!hasPermission) return null;
-
-    try {
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-    } catch (e) {
-      debugPrint('Erreur obtention position: $e');
-      return null;
-    }
-  }
-
-  /// Demande les permissions de localisation
-  Future<bool> _requestPermissions() async {
-    // Vérifier si les services de localisation sont activés
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      debugPrint('Services de localisation désactivés');
-      return false;
-    }
-
-    // Vérifier les permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        debugPrint('Permission de localisation refusée');
-        return false;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      debugPrint('Permission de localisation refusée définitivement');
-      // Ouvrir les paramètres
-      await openAppSettings();
-      return false;
-    }
-
-    // Demander la permission en arrière-plan (Android)
-    if (permission == LocationPermission.whileInUse) {
-      // Pour Android 10+, demander la permission en arrière-plan
-      var status = await Permission.locationAlways.request();
-      if (!status.isGranted) {
-        debugPrint('Permission arrière-plan refusée, tracking limité');
-      }
-    }
-
-    return true;
+    return _locationRepo.getCurrentPosition();
   }
 
   /// Vérifie si le tracking est actif
@@ -140,4 +94,19 @@ class LocationService {
 
   /// Obtient l'ID de l'agent en cours de tracking
   int? get currentAgentId => _currentAgentId;
+
+  /// Calcule la distance entre deux points (en mètres)
+  double calculateDistance(
+    double startLatitude,
+    double startLongitude,
+    double endLatitude,
+    double endLongitude,
+  ) {
+    return _locationRepo.calculateDistance(
+      startLatitude,
+      startLongitude,
+      endLatitude,
+      endLongitude,
+    );
+  }
 }

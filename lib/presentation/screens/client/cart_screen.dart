@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/services/cart_service.dart';
+import 'package:essivi_mobile/data/repositories/cart_repository.dart';
 import 'package:essivi_mobile/data/models/cart_models.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
@@ -15,7 +15,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final _cartService = CartService();
+  final _cartRepo = CartRepository();
   List<CartItem> _cartItems = [];
   bool _isLoading = true;
 
@@ -27,7 +27,7 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _loadCart() async {
     setState(() => _isLoading = true);
-    final items = await _cartService.getCart();
+    final items = await _cartRepo.getCart();
     setState(() {
       _cartItems = items;
       _isLoading = false;
@@ -35,12 +35,12 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Future<void> _updateQuantity(int index, int newQuantity) async {
-    await _cartService.updateQuantity(index, newQuantity);
+    await _cartRepo.updateQuantity(index, newQuantity);
     await _loadCart();
   }
 
   Future<void> _removeItem(int index) async {
-    await _cartService.removeItem(index);
+    await _cartRepo.removeItem(index);
     await _loadCart();
     
     if (mounted) {
@@ -131,7 +131,7 @@ class _CartScreenState extends State<CartScreen> {
                 );
 
                 if (confirm == true) {
-                  await _cartService.clearCart();
+                  await _cartRepo.clearCart();
                   await _loadCart();
                 }
               },

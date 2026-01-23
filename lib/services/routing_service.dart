@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import '../utils/logger.dart';
 
 class RoutingService {
   static const String _osrmBaseUrl = 'https://router.project-osrm.org/route/v1/driving';
@@ -20,7 +21,7 @@ class RoutingService {
       }
       return [];
     } catch (e) {
-      print('Routing error: $e');
+      logger.e('Routing error: $e');
       return [];
     }
   }

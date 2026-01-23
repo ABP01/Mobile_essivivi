@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/data/repositories/logistics_repository.dart';
 import 'package:essivi_mobile/services/phone_service.dart';
 import 'package:essivi_mobile/services/routing_service.dart';
+import 'package:essivi_mobile/services/location_service.dart';
 
 class TrackDeliveryScreen extends StatefulWidget {
   final int deliveryId;
@@ -36,6 +36,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
   final MapController _mapController = MapController();
   final _logisticsRepo = LogisticsRepository();
   final _routingService = RoutingService();
+  final _locationService = LocationService();
   
   Timer? _locationTimer;
   double? _agentLatitude;
@@ -132,14 +133,14 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
         if (points.isNotEmpty) {
           double totalDist = 0;
           for (int i = 0; i < points.length - 1; i++) {
-            totalDist += Geolocator.distanceBetween(
+            totalDist += _locationService.calculateDistance(
               points[i].latitude, points[i].longitude,
               points[i+1].latitude, points[i+1].longitude
             );
           }
           _distance = totalDist / 1000;
         } else {
-          _distance = Geolocator.distanceBetween(
+          _distance = _locationService.calculateDistance(
             widget.clientLatitude!, widget.clientLongitude!,
             _agentLatitude!, _agentLongitude!,
           ) / 1000;

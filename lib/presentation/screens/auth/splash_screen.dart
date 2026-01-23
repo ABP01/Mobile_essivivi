@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:essivi_mobile/presentation/providers/auth_provider_simple.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  final _authService = AuthService();
-
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -24,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 1));
     
     // Déconnecter l'utilisateur s'il était connecté
-    await _authService.logout();
+    await ref.read(authProviderSimple.notifier).logout();
     
     if (!mounted) return;
     

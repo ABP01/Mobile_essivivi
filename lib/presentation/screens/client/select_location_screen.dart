@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:essivi_mobile/services/location_service.dart';
 
 class SelectLocationScreen extends StatefulWidget {
   final double? initialLatitude;
@@ -21,6 +21,7 @@ class SelectLocationScreen extends StatefulWidget {
 
 class _SelectLocationScreenState extends State<SelectLocationScreen> {
   final MapController _mapController = MapController();
+  final _locationService = LocationService();
   LatLng? _selectedPosition;
   bool _isLoading = true;
   String _selectedAddress = 'Sélectionnez votre position sur la carte';
@@ -46,34 +47,18 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
 
     // Sinon, essayer d'obtenir la position actuelle
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
+      final position = await _locationService.getCurrentPosition();
+      if (position != null) {
+        setState(() {
+          _selectedPosition = LatLng(position.latitude, position.longitude);
+          _isLoading = false;
+        });
+      } else {
         setState(() {
           _selectedPosition = _defaultPosition;
           _isLoading = false;
         });
-        return;
       }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        setState(() {
-          _selectedPosition = _defaultPosition;
-          _isLoading = false;
-        });
-        return;
-      }
-
-      Position position = await Geolocator.getCurrentPosition();
-      setState(() {
-        _selectedPosition = LatLng(position.latitude, position.longitude);
-        _isLoading = false;
-      });
     } catch (e) {
       setState(() {
         _selectedPosition = _defaultPosition;
@@ -101,7 +86,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
 
   void _getCurrentLocation() async {
     try {
-      Position position = await Geolocator.getCurrentPosition();
+      final position = await _locationService.getCurrentPosition();
+      if (position == null) throw Exception('Position unavailable');
       final newPosition = LatLng(position.latitude, position.longitude);
       
       setState(() {

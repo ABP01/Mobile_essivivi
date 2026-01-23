@@ -110,3 +110,4 @@ final authProviderSimple = StateNotifierProvider<AuthNotifier, AuthState>((ref) 
     getCurrentUserUseCase: ref.watch(getCurrentUserUseCaseProvider),
   );
 });
+//
