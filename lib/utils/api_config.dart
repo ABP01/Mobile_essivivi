@@ -1,6 +1,7 @@
 import 'dart:io';
+
 /// API Configuration for Essivi Mobile App
-/// 
+///
 /// This file contains all API-related configuration settings.
 /// Update the baseUrl based on your environment:
 /// - For Android Emulator: http://10.0.2.2:8000/api
@@ -10,36 +11,41 @@ import 'dart:io';
 class ApiConfig {
   // ⚠️ PRODUCTION: Mettre à true avant déploiement
   static const bool isProduction = false;
-  
+
   // Base URL for the API
-  static const String _prodUrl = 'https://api.essivivi.com/api'; // TODO: Mettre votre URL de production
-  
+  static const String _prodUrl =
+      'https://api.essivivi.com/api'; // Remplacer par l'URL de production réelle
+
   static String get baseUrl {
     if (isProduction) return _prodUrl;
+    // Avec Traefik, l'API est accessible via le port 80 (sans port spécifique)
     // Sur Android Emulator, utiliser 10.0.2.2
     // Sur iOS et Desktop (Linux/Windows/Mac), utiliser localhost
-    if (Platform.isAndroid) return 'http://10.0.2.2:8000/api';
+    if (Platform.isAndroid) return 'http://10.0.2.2/api';
     return localUrl;
   }
 
   static String get wsUrl {
+    // WebSocket via Traefik (port 80)
     final base = baseUrl.replaceFirst('http', 'ws').replaceFirst('/api', '');
     return '$base/ws/notifications/';
   }
-  
+
   // Alternative URLs for different environments
-  static const String localUrl = 'http://localhost:8000/api';
-  static const String productionUrl = 'https://api.essivivi.com/api'; // Update with actual production URL
-  
+  static const String localUrl =
+      'http://localhost/api'; // Traefik route l'API sur le port 80
+  static const String productionUrl =
+      'https://api.essivivi.com/api'; // Update with actual production URL
+
   // Timeout settings
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 10);
   static const Duration sendTimeout = Duration(seconds: 10);
-  
+
   // API Endpoints
   static const String tokenEndpoint = '/token/';
   static const String tokenRefreshEndpoint = '/token/refresh/';
-  
+
   // Users endpoints
   static const String usersEndpoint = '/users/users/';
   static const String agentsEndpoint = '/users/agents/';
@@ -48,38 +54,40 @@ class ApiConfig {
   static const String loginEndpoint = '/users/auth/login/';
   static const String signupEndpoint = '/users/auth/signup/';
   static const String logoutEndpoint = '/users/auth/logout/';
-  
+
   // Logistics endpoints
   static const String tricyclesEndpoint = '/logistics/tricycles/';
   static const String tourneesEndpoint = '/logistics/tournees/';
-  
+
   // Sales endpoints
   static const String commandesEndpoint = '/sales/commandes/';
   static const String livraisonsEndpoint = '/sales/livraisons/';
-  
+
   // Dashboard endpoints
   static const String dashboardStatsEndpoint = '/dashboard/stats/';
-  
+
   // Notifications endpoints
   static const String notificationsEndpoint = '/sales/notifications/';
-  static const String markNotificationReadEndpoint = '/sales/notifications/{id}/mark_read/';
-  static const String markAllNotificationsReadEndpoint = '/sales/notifications/mark_all_read/';
-  
+  static const String markNotificationReadEndpoint =
+      '/sales/notifications/{id}/mark_read/';
+  static const String markAllNotificationsReadEndpoint =
+      '/sales/notifications/mark_all_read/';
+
   // Bottle returns endpoints
   static const String bottleReturnsEndpoint = '/sales/bottle-returns/';
-  
+
   // User preferences endpoints
   static const String preferencesEndpoint = '/users/preferences/';
-  
+
   // Abonnements endpoints
   static const String subscriptionsEndpoint = '/sales/subscriptions/';
-  
+
   // FAQs endpoints
   static const String faqsEndpoint = '/sales/faqs/';
-  
+
   // Change password endpoint
   static const String changePasswordEndpoint = '/users/auth/change-password/';
-  
+
   // Storage keys
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
@@ -87,4 +95,3 @@ class ApiConfig {
   static const String userRoleKey = 'user_role';
   static const String isAuthenticatedKey = 'is_authenticated';
 }
-

@@ -1,8 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import '../data/repositories/logistics_repository.dart';
+import '../utils/logger.dart';
 
 class LocationService {
   static final LocationService _instance = LocationService._internal();
@@ -17,14 +20,14 @@ class LocationService {
   /// Démarre le tracking GPS pour un agent
   Future<bool> startTracking(int agentId) async {
     if (_isTracking) {
-      debugPrint('Tracking déjà actif');
+      AppLogger.i('Tracking déjà actif');
       return true;
     }
 
     // Vérifier et demander les permissions
     final hasPermission = await _requestPermissions();
     if (!hasPermission) {
-      debugPrint('Permissions GPS refusées');
+      AppLogger.w('Permissions GPS refusées');
       return false;
     }
 
@@ -38,18 +41,18 @@ class LocationService {
     );
 
     // Écouter les changements de position
-    _positionStream = Geolocator.getPositionStream(
-      locationSettings: locationSettings,
-    ).listen(
-      (Position position) {
-        _updateAgentLocation(position);
-      },
-      onError: (error) {
-        debugPrint('Erreur tracking GPS: $error');
-      },
-    );
+    _positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+          (Position position) {
+            _updateAgentLocation(position);
+          },
+          onError: (error) {
+            AppLogger.e('Erreur tracking GPS: $error');
+          },
+        );
 
     debugPrint('Tracking GPS démarré pour agent $agentId');
+    AppLogger.i('Tracking GPS démarré pour agent $agentId');
     return true;
   }
 
@@ -75,7 +78,9 @@ class LocationService {
         position.speed * 3.6, // Convertir m/s en km/h
         position.heading,
       );
-      debugPrint('Position mise à jour: ${position.latitude}, ${position.longitude}');
+      debugPrint(
+        'Position mise à jour: ${position.latitude}, ${position.longitude}',
+      );
     } catch (e) {
       debugPrint('Erreur mise à jour position: $e');
     }
@@ -107,7 +112,7 @@ class LocationService {
 
     // Vérifier les permissions
     LocationPermission permission = await Geolocator.checkPermission();
-    
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {

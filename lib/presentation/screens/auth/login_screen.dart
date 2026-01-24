@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/services/auth_service.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,6 +26,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
+
+    // Validation de sécurité
+    if (username.isEmpty) {
+      setState(() {
+        _errorMessage = 'Le nom d\'utilisateur est requis.';
+        _isLoading = false;
+      });
+      return;
+    }
+    if (password.isEmpty || password.length < 6) {
+      setState(() {
+        _errorMessage = 'Le mot de passe doit contenir au moins 6 caractères.';
+        _isLoading = false;
+      });
+      return;
+    }
 
     final userRole = await _authService.login(username, password);
 
@@ -66,7 +82,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   } else {
-                    Navigator.pushReplacementNamed(context, AppRoutes.clientLanding);
+                    Navigator.pushReplacementNamed(
+                      context,
+                      AppRoutes.clientLanding,
+                    );
                   }
                 },
                 child: Container(
@@ -82,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 40),
 
               // Welcome Text
@@ -102,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               const SizedBox(height: 40),
-              
+
               // Username Field
               Text(
                 'Username',
@@ -119,18 +138,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: TextField(
                   controller: _usernameController,
-                  style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Enter your username',
-                    hintStyle: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
-                    prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
+                    hintStyle: textTheme.bodyMedium?.copyWith(
+                      color: textTheme.bodySmall?.color,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: AppColors.primary,
+                    ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                   ),
+                  // Accessibilité
+                  textInputAction: TextInputAction.next,
+                  autocorrect: false,
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Password Field
               Text(
                 'Password',
@@ -148,23 +180,33 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: TextField(
                   controller: _passwordController,
                   obscureText: true,
-                  style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Enter your password',
-                    hintStyle: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
-                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
+                    hintStyle: textTheme.bodyMedium?.copyWith(
+                      color: textTheme.bodySmall?.color,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: AppColors.primary,
+                    ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                   ),
                 ),
               ),
-              
+
               // Forgot Password
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    // TODO: Implement forgot password
+                    Navigator.pushNamed(context, AppRoutes.forgotPassword);
                   },
                   child: Text(
                     'Forgot Password?',
@@ -177,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               const SizedBox(height: 24),
-              
+
               // Error Message
               if (_errorMessage != null)
                 Container(
@@ -190,7 +232,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -208,30 +254,38 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
-                  // Style is inherited from AppTheme now!
-                  child: _isLoading 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        AppLocalizations.of(context)!.login,
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isLoading ? Colors.grey : null,
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            AppLocalizations.of(context)!.login,
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
+
               // Sign Up Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.dontHaveAccount,
-                    style: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: textTheme.bodySmall?.color,
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
