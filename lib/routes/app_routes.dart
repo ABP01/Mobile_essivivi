@@ -24,6 +24,11 @@ class AppRoutes {
   static const String subscription = '/subscription';
   static const String waterQuality = '/water-quality';
 
+  // Redesign Routes
+  static const String clientLanding = '/client-landing';
+  static const String clientHomeRedesign = '/client-home-redesign';
+  static const String clientTrackingRedesign = '/client-tracking-redesign';
+
   // Agent Routes
   static const String agentDashboard = '/agent-dashboard';
   static const String agentDeliveries = '/agent-deliveries';

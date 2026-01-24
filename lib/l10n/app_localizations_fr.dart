@@ -128,8 +128,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingTitle => 'De l\'eau fraîche\nlivrée à votre\nporte';
 
   @override
-  String get onboardingSubtitle =>
-      'Des bouteilles d\'eau pure livrées pile au moment où vous en avez besoin';
+  String get onboardingSubtitle => 'Des bouteilles d\'eau pure livrées pile au moment où vous en avez besoin';
 
   @override
   String get continueText => 'Continuer';
@@ -357,12 +356,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get courierStatus => 'Statut de livraison';
 
   @override
-  String get privacyPolicyContent =>
-      'Essivi s\'engage à protéger vos données personnelles.\\n\\n1. Collecte de données\\nNous collectons uniquement les informations nécessaires pour fournir nos services de livraison d\'eau.\\n\\n2. Utilisation des données\\nVos données sont utilisées pour traiter vos commandes et améliorer nos services.\\n\\n3. Protection des données\\nNous utilisons des mesures de sécurité pour protéger vos informations.\\n\\n4. Partage des données\\nNous ne partageons pas vos données avec des tiers sans votre consentement.\\n\\nDernière mise à jour: Décembre 2024';
+  String get privacyPolicyContent => 'Essivi s\'engage à protéger vos données personnelles.\\n\\n1. Collecte de données\\nNous collectons uniquement les informations nécessaires pour fournir nos services de livraison d\'eau.\\n\\n2. Utilisation des données\\nVos données sont utilisées pour traiter vos commandes et améliorer nos services.\\n\\n3. Protection des données\\nNous utilisons des mesures de sécurité pour protéger vos informations.\\n\\n4. Partage des données\\nNous ne partageons pas vos données avec des tiers sans votre consentement.\\n\\nDernière mise à jour: Décembre 2024';
 
   @override
-  String get termsOfServiceContent =>
-      'Conditions d\'utilisation de l\'application Essivi.\\n\\n1. Acceptation des conditions\\nEn utilisant cette application, vous acceptez ces conditions.\\n\\n2. Services fournis\\nEssivi fournit un service de livraison d\'eau potable à domicile.\\n\\n3. Commandes\\nLes commandes sont traitées selon la disponibilité et la zone de livraison.\\n\\n4. Paiement\\nLe paiement peut être effectué par carte, mobile money ou à la livraison.\\n\\n5. Annulation\\nLes commandes peuvent être annulées avant la préparation.\\n\\n6. Responsabilité\\nEssivi s\'engage à fournir un service de qualité.\\n\\nDernière mise à jour: Décembre 2024';
+  String get termsOfServiceContent => 'Conditions d\'utilisation de l\'application Essivi.\\n\\n1. Acceptation des conditions\\nEn utilisant cette application, vous acceptez ces conditions.\\n\\n2. Services fournis\\nEssivi fournit un service de livraison d\'eau potable à domicile.\\n\\n3. Commandes\\nLes commandes sont traitées selon la disponibilité et la zone de livraison.\\n\\n4. Paiement\\nLe paiement peut être effectué par carte, mobile money ou à la livraison.\\n\\n5. Annulation\\nLes commandes peuvent être annulées avant la préparation.\\n\\n6. Responsabilité\\nEssivi s\'engage à fournir un service de qualité.\\n\\nDernière mise à jour: Décembre 2024';
 
   @override
   String get welcomeBack => 'Bon retour parmi nous';

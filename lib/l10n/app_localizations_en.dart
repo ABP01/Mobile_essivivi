@@ -128,8 +128,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTitle => 'Fresh Water\nDelivered to\nYour Doorstep';
 
   @override
-  String get onboardingSubtitle =>
-      'Pure, clean water bottles delivered\nright when you need them';
+  String get onboardingSubtitle => 'Pure, clean water bottles delivered\nright when you need them';
 
   @override
   String get continueText => 'Continue';
@@ -357,12 +356,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get courierStatus => 'Courier Status';
 
   @override
-  String get privacyPolicyContent =>
-      'Essivi is committed to protecting your personal data.\\n\\n1. Data Collection\\nWe only collect information necessary to provide our water delivery services.\\n\\n2. Data Use\\nYour data is used to process your orders and improve our services.\\n\\n3. Data Protection\\nWe use security measures to protect your information.\\n\\n4. Data Sharing\\nWe do not share your data with third parties without your consent.\\n\\nDernière mise à jour: December 2025';
+  String get privacyPolicyContent => 'Essivi is committed to protecting your personal data.\\n\\n1. Data Collection\\nWe only collect information necessary to provide our water delivery services.\\n\\n2. Data Use\\nYour data is used to process your orders and improve our services.\\n\\n3. Data Protection\\nWe use security measures to protect your information.\\n\\n4. Data Sharing\\nWe do not share your data with third parties without your consent.\\n\\nDernière mise à jour: December 2025';
 
   @override
-  String get termsOfServiceContent =>
-      'Terms of use of the Essivi application.\\n\\n1. Acceptance of terms\\nBy using this application, you accept these terms.\\n\\n2. Services provided\\nEssivi provides a home drinking water delivery service.\\n\\n3. Orders\\nOrders are processed according to availability and delivery area.\\n\\n4. Payment\\nPayment can be made by card, mobile money or on delivery.\\n\\n5. Cancellation\\nOrders can be cancelled before preparation.\\n\\n6. Responsibility\\nEssivi is committed to providing quality service.\\n\\nDernière mise à jour: December 2024';
+  String get termsOfServiceContent => 'Terms of use of the Essivi application.\\n\\n1. Acceptance of terms\\nBy using this application, you accept these terms.\\n\\n2. Services provided\\nEssivi provides a home drinking water delivery service.\\n\\n3. Orders\\nOrders are processed according to availability and delivery area.\\n\\n4. Payment\\nPayment can be made by card, mobile money or on delivery.\\n\\n5. Cancellation\\nOrders can be cancelled before preparation.\\n\\n6. Responsibility\\nEssivi is committed to providing quality service.\\n\\nDernière mise à jour: December 2024';
 
   @override
   String get welcomeBack => 'Welcome Back';

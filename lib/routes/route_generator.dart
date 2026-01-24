@@ -25,6 +25,9 @@ import 'package:essivi_mobile/presentation/screens/client/subscription_screen.da
 import 'package:essivi_mobile/presentation/screens/client/water_quality_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/cart_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/track_delivery_screen.dart';
+import 'package:essivi_mobile/presentation/screens/client/client_landing_screen.dart';
+import 'package:essivi_mobile/presentation/screens/client/client_home_screen_redesign.dart';
+import 'package:essivi_mobile/presentation/screens/client/client_tracking_screen_redesign.dart';
 
 // Agent Screens
 import 'package:essivi_mobile/presentation/screens/agent/agent_dashboard.dart';
@@ -166,6 +169,16 @@ class RouteGenerator {
             address: '',
           ),
         );
+
+      // Redesign Routes
+      case AppRoutes.clientLanding:
+        return MaterialPageRoute(builder: (_) => const ClientLandingScreen());
+      
+      case AppRoutes.clientHomeRedesign:
+        return MaterialPageRoute(builder: (_) => const ClientHomeRedesign());
+      
+      case AppRoutes.clientTrackingRedesign:
+        return MaterialPageRoute(builder: (_) => const ClientTrackingRedesign());
 
       // Default Route (404)
       default:
