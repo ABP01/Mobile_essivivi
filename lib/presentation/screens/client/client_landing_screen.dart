@@ -73,8 +73,7 @@ class ClientLandingScreen extends StatelessWidget {
                    ),
                    
                    const SizedBox(height: 48),
-                   
-                   // Bottom Actions
+
                    // Bottom Actions
                    Padding(
                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
