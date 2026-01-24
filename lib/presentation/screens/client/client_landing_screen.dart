@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/presentation/widgets/custom_button.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/presentation/widgets/swippable_button_view.dart';
 
 class ClientLandingScreen extends StatelessWidget {
   const ClientLandingScreen({super.key});
@@ -74,35 +75,17 @@ class ClientLandingScreen extends StatelessWidget {
                    const SizedBox(height: 48),
                    
                    // Bottom Actions
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       TextButton(
-                         onPressed: () {
-                           Navigator.pushReplacementNamed(context, AppRoutes.login);
-                         },
-                         child: Row(
-                           children: [
-                             Text(
-                               'Continue',
-                               style: GoogleFonts.poppins(
-                                 fontSize: 16,
-                                 color: Colors.white,
-                               ),
-                             ),
-                             const SizedBox(width: 8),
-                             const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                           ],
-                         ),
-                       ),
-                       CustomButton(
-                         text: 'Get Started',
-                         backgroundColor: AppColors.primary,
-                         onTap: () {
-                            Navigator.pushReplacementNamed(context, AppRoutes.login);
-                         },
-                       ),
-                     ],
+                   // Bottom Actions
+                   Padding(
+                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                     child: SwippableButtonView(
+                       onFinish: () {
+                         Navigator.pushReplacementNamed(context, AppRoutes.login);
+                       },
+                       label: 'Swipe to Get Started',
+                       buttonColor: AppColors.primary,
+                       backgroundColor: Colors.grey.withOpacity(0.2), // Glass effect
+                     ),
                    ),
                    const SizedBox(height: 20),
                 ],
