@@ -138,5 +138,20 @@
   "remove": "Remove",
   "clearCart": "Clear Cart",
   "clearCartConfirm": "Do you really want to clear your cart?",
-  "errorLogin": "Invalid email or password"
+  "errorLogin": "Invalid email or password",
+  "homeLabel": "Home",
+  "callError": "Unable to call {target}",
+  "@callError": {
+    "placeholders": {
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "callDriver": "Call Driver",
+  "callClient": "Call Client",
+  "error": "Error",
+  "currentShipping": "Current Shipping",
+  "recentShipments": "Recent Shipments",
+  "location": "Colorado, USA"
 }

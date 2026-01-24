@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomBottomBar extends StatelessWidget {
   final int selectedIndex;
@@ -25,25 +26,35 @@ class CustomBottomBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildNavItem(0, FluentIcons.box_24_regular, null),
-          _buildNavItem(1, FluentIcons.home_24_filled, "Home"),
-          _buildNavItem(2, FluentIcons.mic_24_regular, null),
-          _buildNavItem(3, FluentIcons.person_24_regular, null),
+          _buildNavItem(context, 0, FluentIcons.box_24_regular, null),
+          _buildNavItem(
+            context,
+            1,
+            FluentIcons.home_24_filled,
+            AppLocalizations.of(context)!.homeLabel,
+          ),
+          _buildNavItem(context, 2, FluentIcons.mic_24_regular, null),
+          _buildNavItem(context, 3, FluentIcons.person_24_regular, null),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String? label) {
+  Widget _buildNavItem(
+    BuildContext context,
+    int index,
+    IconData icon,
+    String? label,
+  ) {
     bool isSelected = selectedIndex == index;
-    
+
     return GestureDetector(
       onTap: () => onItemSelected(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 20 : 16, 
-          vertical: 12
+          horizontal: isSelected ? 20 : 16,
+          vertical: 12,
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
@@ -66,7 +77,7 @@ class CustomBottomBar extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ),

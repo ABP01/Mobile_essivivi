@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/data/repositories/auth_repository.dart';
@@ -103,17 +102,15 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Dark Theme Colors
-    const backgroundColor = Color(0xFF0D0D0D);
-    const cardColor = Color(0xFF1F2022);
-    const textColor = Colors.white;
-    const hintColor = Colors.grey;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     // Common Input Decoration
     InputDecoration buildInputDecoration(String hint, IconData icon) {
       return InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.poppins(color: hintColor),
+        hintStyle: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
         prefixIcon: Icon(icon, color: AppColors.primary),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -121,7 +118,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -135,14 +132,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   onTap: () => Navigator.pop(context),
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      color: cardColor,
+                    decoration: BoxDecoration(
+                      color: theme.cardTheme.color,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.arrow_back_ios_new,
                       size: 20,
-                      color: textColor,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -151,30 +148,28 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 Text(
                   'Create Account',
-                  style: GoogleFonts.poppins(
-                    fontSize: 32,
+                  style: textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: textColor,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Join Essivi delivery network',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: hintColor,
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: textTheme.bodySmall?.color,
                   ),
                 ),
                 const SizedBox(height: 40),
                 
                 // Username
-                Text('Username', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w500, fontSize: 14)),
+                Text('Username', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Container(
-                  decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: theme.cardTheme.color, borderRadius: BorderRadius.circular(12)),
                   child: TextFormField(
                     controller: _usernameController,
-                    style: GoogleFonts.poppins(color: textColor),
+                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                     decoration: buildInputDecoration('Enter your username', Icons.person_outline),
                     validator: (value) => (value == null || value.isEmpty) ? 'Veuillez entrer un nom d\'utilisateur' : null,
                   ),
@@ -182,13 +177,13 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 16),
                 
                 // Email
-                Text('Email', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w500, fontSize: 14)),
+                Text('Email', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Container(
-                  decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: theme.cardTheme.color, borderRadius: BorderRadius.circular(12)),
                   child: TextFormField(
                     controller: _emailController,
-                    style: GoogleFonts.poppins(color: textColor),
+                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                     decoration: buildInputDecoration('Enter your email', Icons.email_outlined),
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Veuillez entrer un email';
@@ -200,13 +195,13 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 16),
                 
                 // Phone
-                Text('Phone Number', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w500, fontSize: 14)),
+                Text('Phone Number', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Container(
-                  decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: theme.cardTheme.color, borderRadius: BorderRadius.circular(12)),
                   child: TextFormField(
                     controller: _phoneController,
-                    style: GoogleFonts.poppins(color: textColor),
+                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                     decoration: buildInputDecoration('Enter your phone number', Icons.phone_outlined),
                     validator: (value) => (value == null || value.isEmpty) ? 'Veuillez entrer un numéro de téléphone' : null,
                   ),
@@ -214,14 +209,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 16),
                 
                 // Password
-                Text('Password', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w500, fontSize: 14)),
+                Text('Password', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Container(
-                  decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: theme.cardTheme.color, borderRadius: BorderRadius.circular(12)),
                   child: TextFormField(
                     controller: _passwordController,
                     obscureText: true,
-                    style: GoogleFonts.poppins(color: textColor),
+                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                     decoration: buildInputDecoration('Enter your password', Icons.lock_outline),
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Veuillez entrer un mot de passe';
@@ -233,21 +228,21 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 16),
                 
                 // Role selection
-                Text('Role', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w500, fontSize: 14)),
+                Text('Role', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: theme.cardTheme.color, borderRadius: BorderRadius.circular(12)),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButtonFormField<String>(
                       value: _selectedRole,
-                      dropdownColor: cardColor,
-                      style: GoogleFonts.poppins(color: textColor),
-                      icon: const Icon(Icons.arrow_drop_down, color: textColor),
+                      dropdownColor: theme.cardTheme.color,
+                      style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
+                      icon: Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
                       decoration: const InputDecoration(border: InputBorder.none, prefixIcon: Icon(Icons.badge_outlined, color: AppColors.primary)),
                       items: [
-                        DropdownMenuItem(value: 'client', child: Text('Client', style: GoogleFonts.poppins(color: textColor))),
-                        DropdownMenuItem(value: 'agent', child: Text('Agent', style: GoogleFonts.poppins(color: textColor))),
+                        DropdownMenuItem(value: 'client', child: Text('Client', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface))),
+                        DropdownMenuItem(value: 'agent', child: Text('Agent', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface))),
                       ],
                       onChanged: (value) => setState(() => _selectedRole = value!),
                     ),
@@ -261,11 +256,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _signup,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      elevation: 0,
-                    ),
+                    // Style inherited from AppTheme
                     child: _isLoading
                         ? const SizedBox(
                             height: 20,
@@ -274,8 +265,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           )
                         : Text(
                             'Sign Up',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16, 
+                            style: textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
@@ -290,13 +280,13 @@ class _SignupScreenState extends State<SignupScreen> {
                   children: [
                     Text(
                       'Already have an account? ',
-                      style: GoogleFonts.poppins(color: hintColor),
+                      style: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
                       child: Text(
                         'Login',
-                        style: GoogleFonts.poppins(
+                        style: textTheme.bodyMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),

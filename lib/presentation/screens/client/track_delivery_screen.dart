@@ -1,14 +1,16 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
+
 import 'package:essivi_mobile/data/repositories/logistics_repository.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/services/phone_service.dart';
 import 'package:essivi_mobile/services/routing_service.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 
 class TrackDeliveryScreen extends StatefulWidget {
   final int deliveryId;
@@ -36,7 +38,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
   final MapController _mapController = MapController();
   final _logisticsRepo = LogisticsRepository();
   final _routingService = RoutingService();
-  
+
   Timer? _locationTimer;
   double? _agentLatitude;
   double? _agentLongitude;
@@ -61,7 +63,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
   void _startTracking() {
     // Charger immédiatement
     _updateAgentLocation();
-    
+
     // Puis rafraîchir toutes les 5 secondes
     _locationTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       _updateAgentLocation();
@@ -71,14 +73,14 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
   Future<void> _updateAgentLocation() async {
     try {
       final locations = await _logisticsRepo.getAgentLocations();
-      
+
       if (locations.isEmpty) {
         if (mounted && _isLoading) {
           setState(() => _isLoading = false);
         }
         return;
       }
-      
+
       final agentLocation = locations.firstWhere(
         (loc) => loc['agent_id'] == widget.agentId,
         orElse: () => {},
@@ -87,11 +89,12 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
       if (agentLocation.isNotEmpty && mounted) {
         final newLat = agentLocation['latitude'] as double;
         final newLng = agentLocation['longitude'] as double;
-        
+
         // Only update route if location changed significantly
-        bool shouldUpdateRoute = _agentLatitude == null || 
-                                (newLat - _agentLatitude!).abs() > 0.0001 || 
-                                (newLng - _agentLongitude!).abs() > 0.0001;
+        bool shouldUpdateRoute =
+            _agentLatitude == null ||
+            (newLat - _agentLatitude!).abs() > 0.0001 ||
+            (newLng - _agentLongitude!).abs() > 0.0001;
 
         setState(() {
           _agentLatitude = newLat;
@@ -123,26 +126,32 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
 
     // Get real route from OSRM
     final points = await _routingService.getRoute(start, end);
-    
+
     if (mounted) {
       setState(() {
         _routePoints = points;
-        
+
         // Calculate distance based on route if available, otherwise straight line
         if (points.isNotEmpty) {
           double totalDist = 0;
           for (int i = 0; i < points.length - 1; i++) {
             totalDist += Geolocator.distanceBetween(
-              points[i].latitude, points[i].longitude,
-              points[i+1].latitude, points[i+1].longitude
+              points[i].latitude,
+              points[i].longitude,
+              points[i + 1].latitude,
+              points[i + 1].longitude,
             );
           }
           _distance = totalDist / 1000;
         } else {
-          _distance = Geolocator.distanceBetween(
-            widget.clientLatitude!, widget.clientLongitude!,
-            _agentLatitude!, _agentLongitude!,
-          ) / 1000;
+          _distance =
+              Geolocator.distanceBetween(
+                widget.clientLatitude!,
+                widget.clientLongitude!,
+                _agentLatitude!,
+                _agentLongitude!,
+              ) /
+              1000;
         }
 
         // Estimation based on distance
@@ -159,7 +168,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Impossible d\'appeler le livreur',
+              AppLocalizations.of(context)!.callError('le livreur'),
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: Colors.red,
@@ -225,7 +234,8 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                       ),
                       children: [
                         TileLayer(
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          urlTemplate:
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           userAgentPackageName: 'com.essivivi.water',
                         ),
                         // Route Line
@@ -239,15 +249,18 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                               ),
                             ],
                           )
-                        else if (widget.clientLatitude != null && 
-                                 widget.clientLongitude != null && 
-                                 _agentLatitude != null && 
-                                 _agentLongitude != null)
+                        else if (widget.clientLatitude != null &&
+                            widget.clientLongitude != null &&
+                            _agentLatitude != null &&
+                            _agentLongitude != null)
                           PolylineLayer(
                             polylines: [
                               Polyline(
                                 points: [
-                                  LatLng(widget.clientLatitude!, widget.clientLongitude!),
+                                  LatLng(
+                                    widget.clientLatitude!,
+                                    widget.clientLongitude!,
+                                  ),
                                   LatLng(_agentLatitude!, _agentLongitude!),
                                 ],
                                 strokeWidth: 3.0,
@@ -260,9 +273,13 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                         MarkerLayer(
                           markers: [
                             // Client Marker
-                            if (widget.clientLatitude != null && widget.clientLongitude != null)
+                            if (widget.clientLatitude != null &&
+                                widget.clientLongitude != null)
                               Marker(
-                                point: LatLng(widget.clientLatitude!, widget.clientLongitude!),
+                                point: LatLng(
+                                  widget.clientLatitude!,
+                                  widget.clientLongitude!,
+                                ),
                                 width: 50,
                                 height: 50,
                                 child: const Icon(
@@ -272,21 +289,28 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                                 ),
                               ),
                             // Agent Marker
-                            if (_agentLatitude != null && _agentLongitude != null)
+                            if (_agentLatitude != null &&
+                                _agentLongitude != null)
                               Marker(
-                                point: LatLng(_agentLatitude!, _agentLongitude!),
+                                point: LatLng(
+                                  _agentLatitude!,
+                                  _agentLongitude!,
+                                ),
                                 width: 50,
                                 height: 50,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Colors.blue,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
                                     boxShadow: [
-                                       BoxShadow(
-                                         color: Colors.black.withOpacity(0.2),
-                                         blurRadius: 6,
-                                       )
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 6,
+                                      ),
                                     ],
                                   ),
                                   child: const Icon(
@@ -400,7 +424,7 @@ class _TrackDeliveryScreenState extends State<TrackDeliveryScreen> {
                             onPressed: _callAgent,
                             icon: const Icon(FluentIcons.call_24_filled),
                             label: Text(
-                              'Appeler le Livreur',
+                              AppLocalizations.of(context)!.callDriver,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

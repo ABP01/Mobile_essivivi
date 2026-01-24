@@ -405,4 +405,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get errorLogin => 'Email ou mot de passe incorrect';
+
+  @override
+  String get homeLabel => 'Accueil';
+
+  @override
+  String callError(Object target) {
+    return 'Impossible d\'appeler $target';
+  }
+
+  @override
+  String get callDriver => 'Appeler le Livreur';
+
+  @override
+  String get callClient => 'Appeler le Client';
+
+  @override
+  String get error => 'Erreur';
+
+  @override
+  String get currentShipping => 'Livraison Actuelle';
+
+  @override
+  String get recentShipments => 'Livraisons Récentes';
+
+  @override
+  String get location => 'Côte d\'Ivoire';
 }

@@ -138,5 +138,20 @@
   "remove": "Retirer",
   "clearCart": "Vider le panier",
   "clearCartConfirm": "Voulez-vous vraiment vider votre panier ?",
-  "errorLogin": "Email ou mot de passe incorrect"
+  "errorLogin": "Email ou mot de passe incorrect",
+  "homeLabel": "Accueil",
+  "callError": "Impossible d'appeler {target}",
+  "@callError": {
+    "placeholders": {
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "callDriver": "Appeler le Livreur",
+  "callClient": "Appeler le Client",
+  "error": "Erreur",
+  "currentShipping": "Livraison Actuelle",
+  "recentShipments": "Livraisons Récentes",
+  "location": "Côte d'Ivoire"
 }

@@ -1,13 +1,14 @@
+import 'package:essivi_mobile/data/models/sales_models.dart';
+import 'package:essivi_mobile/data/models/user_models.dart';
+import 'package:essivi_mobile/data/repositories/sales_repository.dart';
+import 'package:essivi_mobile/data/repositories/user_repository.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/services/phone_service.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/data/repositories/sales_repository.dart';
-import 'package:essivi_mobile/data/models/sales_models.dart';
-import 'package:essivi_mobile/services/phone_service.dart';
-import 'package:essivi_mobile/data/repositories/user_repository.dart';
-import 'package:essivi_mobile/data/models/user_models.dart';
 
 class ShipmentDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> shipmentData;
@@ -37,25 +38,25 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       // Extract ID from shipment data
       final idString = widget.shipmentData['id'] as String;
       final id = int.parse(idString.replaceAll('#', ''));
-      
+
       _commande = await _salesRepo.getCommande(id);
-      
+
       final isAgent = widget.shipmentData['isAgent'] == true;
-      
+
       if (isAgent) {
         // Load client details for the agent
-         try {
-           _clientUser = await _userRepo.getUserById(_commande!.clientId);
-         } catch (e) {
-           debugPrint('Erreur chargement profil client: $e');
-         }
+        try {
+          _clientUser = await _userRepo.getUserById(_commande!.clientId);
+        } catch (e) {
+          debugPrint('Erreur chargement profil client: $e');
+        }
       } else {
         // Load agent details for the client
         if (_commande?.agentId != null) {
           try {
             _agentProfile = await _userRepo.getAgentById(_commande!.agentId!);
           } catch (agentError) {
-             debugPrint('Erreur chargement profil agent: $agentError');
+            debugPrint('Erreur chargement profil agent: $agentError');
           }
         }
       }
@@ -104,7 +105,10 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       } finally {
@@ -141,149 +145,188 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _commande == null
-              ? const Center(child: Text('Commande non trouvée'))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Status Card
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+          ? const Center(child: Text('Commande non trouvée'))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Status Card
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary,
+                          AppColors.primary.withOpacity(0.7),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Order #${_commande!.id}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
-                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Order #${_commande!.id}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _commande!.statutLabel,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
                             ),
-                            const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Details Section
+                  _buildInfoSection('Order Information', [
+                    if (isAgent && _clientUser != null)
+                      _buildInfoRow(
+                        'Client',
+                        '${_clientUser!.firstName} ${_clientUser!.lastName}'
+                                .trim()
+                                .isNotEmpty
+                            ? '${_clientUser!.firstName} ${_clientUser!.lastName}'
+                            : _clientUser!.username,
+                      ),
+                    _buildInfoRow(
+                      'Amount',
+                      '${_commande!.montant.toStringAsFixed(0)} FCFA',
+                    ),
+                    _buildInfoRow('Status', _commande!.statutLabel),
+                    _buildInfoRow(
+                      'Created',
+                      DateTime.parse(
+                        _commande!.createdAt,
+                      ).toString().substring(0, 16),
+                    ),
+                    _buildInfoRow(
+                      'Delivery Date',
+                      _commande!.dateSouhaitee.substring(0, 10),
+                    ),
+                  ]),
+                  const SizedBox(height: 24),
+
+                  // Actions
+                  if (!_commande!.isDelivered && !_commande!.isCancelled)
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.trackDelivery,
+                                arguments: {
+                                  'deliveryId': _commande!.id,
+                                  'agentId': _commande!.agentId ?? 0,
+                                  'agentName': isAgent
+                                      ? 'Client'
+                                      : (_agentProfile?.user?.fullName ??
+                                            'Livreur'),
+                                  'agentPhone': isAgent
+                                      ? (_clientUser?.phoneNumber ?? '')
+                                      : (_agentProfile?.user?.phoneNumber ??
+                                            ''),
+                                  'clientLatitude': _commande!.deliveryLatitude,
+                                  'clientLongitude':
+                                      _commande!.deliveryLongitude,
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                _commande!.statutLabel,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  FluentIcons.location_24_filled,
                                   color: Colors.white,
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Details Section
-                      _buildInfoSection(
-                        'Order Information',
-                        [
-                          if (isAgent && _clientUser != null)
-                             _buildInfoRow('Client', '${_clientUser!.firstName} ${_clientUser!.lastName}'.trim().isNotEmpty ? '${_clientUser!.firstName} ${_clientUser!.lastName}' : _clientUser!.username),
-                          _buildInfoRow('Amount', '${_commande!.montant.toStringAsFixed(0)} FCFA'),
-                          _buildInfoRow('Status', _commande!.statutLabel),
-                          _buildInfoRow('Created', DateTime.parse(_commande!.createdAt).toString().substring(0, 16)),
-                          _buildInfoRow('Delivery Date', _commande!.dateSouhaitee.substring(0, 10)),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Actions
-                      if (!_commande!.isDelivered && !_commande!.isCancelled)
-                        Column(
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context, 
-                                    AppRoutes.trackDelivery,
-                                    arguments: {
-                                      'deliveryId': _commande!.id,
-                                      'agentId': _commande!.agentId ?? 0,
-                                      'agentName': isAgent ? 'Client' : (_agentProfile?.user?.fullName ?? 'Livreur'),
-                                      'agentPhone': isAgent ? (_clientUser?.phoneNumber ?? '') : (_agentProfile?.user?.phoneNumber ?? ''),
-                                      'clientLatitude': _commande!.deliveryLatitude,
-                                      'clientLongitude': _commande!.deliveryLongitude,
-                                    },
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Suivre la Livraison',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(FluentIcons.location_24_filled, color: Colors.white),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Suivre la Livraison',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (!isAgent &&
+                            _commande!.isValidated) // Client confirms
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: _isLoading ? null : _confirmReception,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.green,
+                                side: const BorderSide(
+                                  color: Colors.green,
+                                  width: 2,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            if (!isAgent && _commande!.isValidated) // Client confirms
-                              SizedBox(
-                                width: double.infinity,
-                                child: OutlinedButton(
-                                  onPressed: _isLoading ? null : _confirmReception,
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.green,
-                                    side: const BorderSide(color: Colors.green, width: 2),
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    FluentIcons.checkmark_circle_24_regular,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Confirmer la Réception',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(FluentIcons.checkmark_circle_24_regular),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Confirmer la Réception',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                ],
                               ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
+                            ),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
       bottomNavigationBar: _buildActionButtons(),
     );
   }
@@ -317,9 +360,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
               ),
             ],
           ),
-          child: Column(
-            children: children,
-          ),
+          child: Column(children: children),
         ),
       ],
     );
@@ -355,13 +396,17 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
   Widget _buildActionButtons() {
     final status = widget.shipmentData['status'] as String;
-    final isInProgress = status == 'En cours' || status == 'In Progress' || status == 'validated' || status == 'pending';
+    final isInProgress =
+        status == 'En cours' ||
+        status == 'In Progress' ||
+        status == 'validated' ||
+        status == 'pending';
     final isAgent = widget.shipmentData['isAgent'] == true;
-    
+
     // Récupérer le nom et le numéro cible (Client ou Agent)
     String targetName;
     String targetPhone;
-    
+
     if (isAgent) {
       targetName = _clientUser?.fullName ?? _clientUser?.username ?? 'Client';
       targetPhone = _clientUser?.phoneNumber ?? '';
@@ -428,12 +473,14 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   if (targetPhone.isEmpty) {
-                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Numéro de téléphone non disponible')),
-                     );
-                     return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Numéro de téléphone non disponible'),
+                      ),
+                    );
+                    return;
                   }
-                  
+
                   try {
                     await PhoneService.makeCall(targetPhone);
                   } catch (e) {
@@ -441,7 +488,9 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'Impossible d\'appeler : $targetPhone',
+                            AppLocalizations.of(
+                              context,
+                            )!.callError(targetPhone),
                             style: GoogleFonts.poppins(),
                           ),
                           backgroundColor: Colors.red,
@@ -452,7 +501,9 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                 },
                 icon: const Icon(FluentIcons.call_24_filled),
                 label: Text(
-                  'Appeler ${isAgent ? "Client" : "Livreur"}',
+                  isAgent
+                      ? AppLocalizations.of(context)!.callClient
+                      : AppLocalizations.of(context)!.callDriver,
                   style: GoogleFonts.poppins(
                     fontSize: 12, // Reduced size to fit
                     fontWeight: FontWeight.w600,

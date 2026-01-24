@@ -405,4 +405,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorLogin => 'Invalid email or password';
+
+  @override
+  String get homeLabel => 'Home';
+
+  @override
+  String callError(Object target) {
+    return 'Unable to call $target';
+  }
+
+  @override
+  String get callDriver => 'Call Driver';
+
+  @override
+  String get callClient => 'Call Client';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get currentShipping => 'Current Shipping';
+
+  @override
+  String get recentShipments => 'Recent Shipments';
+
+  @override
+  String get location => 'Colorado, USA';
 }

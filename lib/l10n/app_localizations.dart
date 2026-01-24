@@ -886,6 +886,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid email or password'**
   String get errorLogin;
+
+  /// No description provided for @homeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeLabel;
+
+  /// No description provided for @callError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to call {target}'**
+  String callError(Object target);
+
+  /// No description provided for @callDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Driver'**
+  String get callDriver;
+
+  /// No description provided for @callClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Client'**
+  String get callClient;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @currentShipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Shipping'**
+  String get currentShipping;
+
+  /// No description provided for @recentShipments.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Shipments'**
+  String get recentShipments;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Colorado, USA'**
+  String get location;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

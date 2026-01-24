@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/presentation/widgets/custom_bottom_bar.dart';
+import 'package:essivi_mobile/presentation/widgets/shipment_item.dart';
+import 'package:essivi_mobile/presentation/widgets/shipping_card.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/services/auth_service.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/presentation/widgets/shipping_card.dart';
-import 'package:essivi_mobile/presentation/widgets/shipment_item.dart';
-import 'package:essivi_mobile/presentation/widgets/custom_bottom_bar.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
-
-import 'package:essivi_mobile/services/auth_service.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ClientHomeRedesign extends StatefulWidget {
   const ClientHomeRedesign({super.key});
@@ -49,19 +49,24 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
               children: [
                 // Header
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 10,
+                  ),
                   child: Row(
                     children: [
-                       const CircleAvatar(
+                      const CircleAvatar(
                         radius: 20,
-                        backgroundImage: AssetImage('assets/images/delivery_man.png'), // Placeholder
+                        backgroundImage: AssetImage(
+                          'assets/images/delivery_man.png',
+                        ), // Placeholder
                       ),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hello $_userName',
+                            '${AppLocalizations.of(context)!.hello(_userName)}',
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 16,
@@ -69,7 +74,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                             ),
                           ),
                           Text(
-                            'Colorado, USA',
+                            AppLocalizations.of(context)!.location,
                             style: GoogleFonts.poppins(
                               color: Colors.grey,
                               fontSize: 12,
@@ -79,19 +84,23 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                       ),
                       const Spacer(),
                       Container(
-                         padding: const EdgeInsets.all(8),
-                         decoration: const BoxDecoration(
-                           color: Color(0xFF1F2022),
-                           shape: BoxShape.circle,
-                         ),
-                         child: const Icon(FluentIcons.alert_24_regular, color: Colors.white, size: 20),
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF1F2022),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          FluentIcons.alert_24_regular,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Scrollable Content
                 Expanded(
                   child: SingleChildScrollView(
@@ -101,7 +110,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                       children: [
                         // "Current Shipping"
                         Text(
-                          'Current Shipping', 
+                          AppLocalizations.of(context)!.currentShipping,
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 18,
@@ -109,24 +118,27 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        
+
                         ShippingCard(
                           title: 'Premium Box\nPacking',
                           id: 'ID:V789456AR123',
                           onTap: () {
-                             // Navigate to tracking
-                             Navigator.pushNamed(context, AppRoutes.clientTrackingRedesign);
+                            // Navigate to tracking
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.clientTrackingRedesign,
+                            );
                           },
                         ),
-                        
+
                         const SizedBox(height: 30),
-                        
+
                         // "Recent Your Shipment"
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Recent Your Shipment',
+                              AppLocalizations.of(context)!.recentShipments,
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -134,7 +146,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                               ),
                             ),
                             Text(
-                              'View More',
+                              AppLocalizations.of(context)!.viewMore,
                               style: GoogleFonts.poppins(
                                 color: AppColors.primary,
                                 fontSize: 14,
@@ -144,7 +156,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Search
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -155,25 +167,35 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(FluentIcons.search_24_regular, color: Colors.grey),
+                              const Icon(
+                                FluentIcons.search_24_regular,
+                                color: Colors.grey,
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: TextField(
-                                  style: GoogleFonts.poppins(color: Colors.white),
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                  ),
                                   decoration: InputDecoration(
                                     hintText: 'Enter receipt number',
-                                    hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                                    hintStyle: GoogleFonts.poppins(
+                                      color: Colors.grey,
+                                    ),
                                     border: InputBorder.none,
                                   ),
                                 ),
                               ),
-                              const Icon(FluentIcons.scan_object_24_regular, color: Colors.grey),
+                              const Icon(
+                                FluentIcons.scan_object_24_regular,
+                                color: Colors.grey,
+                              ),
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // Filters
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -186,24 +208,24 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // List
                         ShipmentItem(
                           title: 'Apple 2022 MacBook Pro...',
                           id: 'ID:V789456AR123',
-                           onTap: () {},
+                          onTap: () {},
                         ),
                         ShipmentItem(
-                           title: 'Iphone 14 pro max (purple)',
-                           id: 'ID:V789456AR123',
-                           onTap: () {},
+                          title: 'Iphone 14 pro max (purple)',
+                          id: 'ID:V789456AR123',
+                          onTap: () {},
                         ),
                         ShipmentItem(
-                           title: 'Nike Air Jordan',
-                           id: 'ID:V789456AR123',
-                           onTap: () {},
+                          title: 'Nike Air Jordan',
+                          id: 'ID:V789456AR123',
+                          onTap: () {},
                         ),
 
                         const SizedBox(height: 100), // Space for bottom bar
@@ -213,7 +235,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                 ),
               ],
             ),
-            
+
             // Floating Bottom Bar
             Positioned(
               bottom: 0,

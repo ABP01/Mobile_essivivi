@@ -1,11 +1,12 @@
+import 'package:essivi_mobile/data/models/subscription_models.dart';
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/data/repositories/subscription_repository.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/data/repositories/subscription_repository.dart';
-import 'package:essivi_mobile/data/repositories/auth_repository.dart';
-import 'package:essivi_mobile/data/models/subscription_models.dart';
 
 class AbonnementScreen extends StatefulWidget {
   const AbonnementScreen({super.key});
@@ -17,10 +18,10 @@ class AbonnementScreen extends StatefulWidget {
 class _AbonnementScreenState extends State<AbonnementScreen> {
   final _subscriptionRepo = SubscriptionRepository();
   final _authRepo = AuthRepository();
-  
+
   Subscription? _currentSubscription;
   bool _isLoading = true;
-  
+
   String _selectedPlan = 'Mensuel';
   String _selectedBottleSize = '20L';
   int _bottleQuantity = 4;
@@ -51,19 +52,27 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
 
   String _getPlanLabel(String plan) {
     switch (plan) {
-      case 'hebdomadaire': return 'Hebdomadaire';
-      case 'bi_mensuel': return 'Bi-mensuel';
-      case 'mensuel': return 'Mensuel';
-      default: return 'Mensuel';
+      case 'hebdomadaire':
+        return 'Hebdomadaire';
+      case 'bi_mensuel':
+        return 'Bi-mensuel';
+      case 'mensuel':
+        return 'Mensuel';
+      default:
+        return 'Mensuel';
     }
   }
 
   String _getPlanCode(String label) {
     switch (label) {
-      case 'Hebdomadaire': return 'hebdomadaire';
-      case 'Bi-mensuel': return 'bi_mensuel';
-      case 'Mensuel': return 'mensuel';
-      default: return 'mensuel';
+      case 'Hebdomadaire':
+        return 'hebdomadaire';
+      case 'Bi-mensuel':
+        return 'bi_mensuel';
+      case 'Mensuel':
+        return 'mensuel';
+      default:
+        return 'mensuel';
     }
   }
 
@@ -81,13 +90,19 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
       if (_currentSubscription == null) {
         await _subscriptionRepo.createSubscription(subscription);
       } else {
-        await _subscriptionRepo.updateSubscription(_currentSubscription!.id!, subscription);
+        await _subscriptionRepo.updateSubscription(
+          _currentSubscription!.id!,
+          subscription,
+        );
       }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Plan mis à jour avec succès', style: GoogleFonts.poppins()),
+          content: Text(
+            'Plan mis à jour avec succès',
+            style: GoogleFonts.poppins(),
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -96,7 +111,10 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur: ${e.toString()}', style: GoogleFonts.poppins()),
+          content: Text(
+            '${AppLocalizations.of(context)!.error}: ${e.toString()}',
+            style: GoogleFonts.poppins(),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -109,13 +127,16 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
 
   Future<void> _pauseSubscription() async {
     if (_currentSubscription == null) return;
-    
+
     try {
       await _subscriptionRepo.pauseSubscription(_currentSubscription!.id!);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Abonnement mis en pause', style: GoogleFonts.poppins()),
+          content: Text(
+            'Abonnement mis en pause',
+            style: GoogleFonts.poppins(),
+          ),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -124,7 +145,10 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur: ${e.toString()}', style: GoogleFonts.poppins()),
+          content: Text(
+            '${AppLocalizations.of(context)!.error}: ${e.toString()}',
+            style: GoogleFonts.poppins(),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -144,33 +168,33 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                  onTap: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.home);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.textMain,
+                    onTap: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      } else {
+                        Navigator.pushReplacementNamed(context, AppRoutes.home);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: AppColors.textMain,
+                      ),
                     ),
                   ),
-                ),
                   const Spacer(),
                   Text(
                     'Abonnement',
@@ -208,7 +232,11 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(FluentIcons.food_24_filled, color: Colors.white, size: 32),
+                              const Icon(
+                                FluentIcons.food_24_filled,
+                                color: Colors.white,
+                                size: 32,
+                              ),
                               const SizedBox(width: 12),
                               Text(
                                 'Plan Actuel',
@@ -239,7 +267,10 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                           ),
                           const SizedBox(height: 16),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
@@ -267,11 +298,24 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildPlanOption('Hebdomadaire', '13 000 FCFA/semaine', '4 livraisons/mois'),
+                    _buildPlanOption(
+                      'Hebdomadaire',
+                      '13 000 FCFA/semaine',
+                      '4 livraisons/mois',
+                    ),
                     const SizedBox(height: 12),
-                    _buildPlanOption('Bi-mensuel', '23 500 FCFA/2 semaines', '2 livraisons/mois'),
+                    _buildPlanOption(
+                      'Bi-mensuel',
+                      '23 500 FCFA/2 semaines',
+                      '2 livraisons/mois',
+                    ),
                     const SizedBox(height: 12),
-                    _buildPlanOption('Mensuel', '41 700 FCFA/mois', '1 livraison/mois', isPopulaire: true),
+                    _buildPlanOption(
+                      'Mensuel',
+                      '41 700 FCFA/mois',
+                      '1 livraison/mois',
+                      isPopulaire: true,
+                    ),
                     const SizedBox(height: 24),
 
                     // Bottle Size Sélectionnerion
@@ -327,7 +371,10 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                                 setState(() => _bottleQuantity--);
                               }
                             },
-                            icon: const Icon(Icons.remove_circle_outline, color: AppColors.primary),
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              color: AppColors.primary,
+                            ),
                           ),
                           Text(
                             '$_bottleQuantity Bouteilles',
@@ -341,7 +388,10 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                             onPressed: () {
                               setState(() => _bottleQuantity++);
                             },
-                            icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ],
                       ),
@@ -434,7 +484,12 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
     );
   }
 
-  Widget _buildPlanOption(String title, String price, String frequency, {bool isPopulaire = false}) {
+  Widget _buildPlanOption(
+    String title,
+    String price,
+    String frequency, {
+    bool isPopulaire = false,
+  }) {
     final isSelected = _selectedPlan == title;
     return GestureDetector(
       onTap: () => setState(() => _selectedPlan = title),
@@ -466,7 +521,9 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                 color: isSelected ? AppColors.primary : Colors.transparent,
               ),
               child: isSelected
-                  ? const Center(child: Icon(Icons.check, size: 14, color: Colors.white))
+                  ? const Center(
+                      child: Icon(Icons.check, size: 14, color: Colors.white),
+                    )
                   : null,
             ),
             const SizedBox(width: 16),
@@ -487,7 +544,10 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                       if (isPopulaire) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -603,7 +663,11 @@ class _AbonnementScreenState extends State<AbonnementScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textSecondary),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 14,
+                color: AppColors.textSecondary,
+              ),
             ],
           ),
         ],

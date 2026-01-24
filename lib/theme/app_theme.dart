@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
 
 class AppTheme {
   // Light Theme Colors
-  static const Color lightPrimary = Color(0xFFFF742F);
-  static const Color lightBackground = Color(0xFFF8F9FA);
-  static const Color lightSurface = Colors.white;
-  static const Color lightTextMain = Color(0xFF1A1A1A);
-  static const Color lightTextSecondary = Color(0xFF6C757D);
+  static const Color lightPrimary = AppColors.primary;
+  static const Color lightBackground = AppColors.background;
+  static const Color lightSurface = AppColors.white;
+  static const Color lightTextMain = AppColors.textMain;
+  static const Color lightTextSecondary = AppColors.textSecondary;
   static const Color lightBorder = Color(0xFFE9ECEF);
   
   // Dark Theme Colors
-  static const Color darkPrimary = Color(0xFFFF742F);
-  static const Color darkBackground = Color(0xFF0F0F0F); // Deeper black
-  static const Color darkSurface = Color(0xFF1A1A1A); // Slightly lighter than background
-  static const Color darkTextMain = Color(0xFFF8F9FA);
-  static const Color darkTextSecondary = Color(0xFFADB5BD);
+  static const Color darkPrimary = AppColors.primary;
+  static const Color darkBackground = AppColors.darkBackground; // Now 0xFF0D0D0D
+  static const Color darkSurface = AppColors.darkSurface;       // Now 0xFF1F2022
+  static const Color darkTextMain = AppColors.white;
+  static const Color darkTextSecondary = AppColors.textSecondary;
   static const Color darkBorder = Color(0xFF2D2D2D);
 
   static ThemeData lightTheme = ThemeData(
@@ -43,10 +45,23 @@ class AppTheme {
         side: BorderSide(color: lightBorder),
       ),
     ),
-    textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: lightTextMain, fontSize: 16),
-      bodyMedium: TextStyle(color: lightTextMain, fontSize: 14),
-      bodySmall: TextStyle(color: lightTextSecondary, fontSize: 12),
+    textTheme: GoogleFonts.poppinsTextTheme(
+      const TextTheme(
+        bodyLarge: TextStyle(color: lightTextMain, fontSize: 16),
+        bodyMedium: TextStyle(color: lightTextMain, fontSize: 14),
+        bodySmall: TextStyle(color: lightTextSecondary, fontSize: 12),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: lightPrimary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        minimumSize: const Size(double.infinity, 56),
+      ),
     ),
   );
 
@@ -76,10 +91,23 @@ class AppTheme {
         side: BorderSide(color: darkBorder),
       ),
     ),
-    textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: darkTextMain, fontSize: 16),
-      bodyMedium: TextStyle(color: darkTextMain, fontSize: 14),
-      bodySmall: TextStyle(color: darkTextSecondary, fontSize: 12),
+    textTheme: GoogleFonts.poppinsTextTheme(
+      const TextTheme(
+        bodyLarge: TextStyle(color: darkTextMain, fontSize: 16),
+        bodyMedium: TextStyle(color: darkTextMain, fontSize: 14),
+        bodySmall: TextStyle(color: darkTextSecondary, fontSize: 12),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: darkPrimary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        minimumSize: const Size(double.infinity, 56),
+      ),
     ),
   );
 }

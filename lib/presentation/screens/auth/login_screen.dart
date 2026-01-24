@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
@@ -49,14 +48,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Dark Theme Colors
-    const backgroundColor = Color(0xFF0D0D0D);
-    const cardColor = Color(0xFF1F2022);
-    const textColor = Colors.white;
-    const hintColor = Colors.grey;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -74,14 +71,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
-                    color: cardColor,
+                  decoration: BoxDecoration(
+                    color: theme.cardTheme.color,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_ios_new,
                     size: 20,
-                    color: textColor,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -91,18 +88,16 @@ class _LoginScreenState extends State<LoginScreen> {
               // Welcome Text
               Text(
                 AppLocalizations.of(context)!.welcomeBack,
-                style: GoogleFonts.poppins(
-                  fontSize: 32,
+                style: textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: textColor,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 AppLocalizations.of(context)!.signInToContinue,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: hintColor,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: textTheme.bodySmall?.color,
                 ),
               ),
 
@@ -111,24 +106,23 @@ class _LoginScreenState extends State<LoginScreen> {
               // Username Field
               Text(
                 'Username',
-                style: GoogleFonts.poppins(
-                  color: textColor,
+                style: textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
-                  fontSize: 14,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: cardColor,
+                  color: theme.cardTheme.color,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
                   controller: _usernameController,
-                  style: GoogleFonts.poppins(color: textColor),
+                  style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                   decoration: InputDecoration(
                     hintText: 'Enter your username',
-                    hintStyle: GoogleFonts.poppins(color: hintColor),
+                    hintStyle: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
                     prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -139,26 +133,25 @@ class _LoginScreenState extends State<LoginScreen> {
               
               // Password Field
               Text(
-                'Password', // Should be localized ideally, but sticking to design for now
-                style: GoogleFonts.poppins(
-                  color: textColor,
+                'Password',
+                style: textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
-                  fontSize: 14,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: cardColor,
+                  color: theme.cardTheme.color,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
                   controller: _passwordController,
                   obscureText: true,
-                  style: GoogleFonts.poppins(color: textColor),
+                  style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                   decoration: InputDecoration(
                     hintText: 'Enter your password',
-                    hintStyle: GoogleFonts.poppins(color: hintColor),
+                    hintStyle: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
                     prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -175,9 +168,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: Text(
                     'Forgot Password?',
-                    style: GoogleFonts.poppins(
+                    style: textTheme.bodyMedium?.copyWith(
                       color: AppColors.primary,
-                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -203,9 +195,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: GoogleFonts.poppins(
+                          style: textTheme.bodyMedium?.copyWith(
                             color: Colors.red,
-                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -219,17 +210,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), // Pill shape like home buttons
-                    elevation: 0,
-                  ),
+                  // Style is inherited from AppTheme now!
                   child: _isLoading 
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
                         AppLocalizations.of(context)!.login,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16, 
+                        style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -245,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.dontHaveAccount,
-                    style: GoogleFonts.poppins(color: hintColor),
+                    style: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -253,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text(
                       ' ${AppLocalizations.of(context)!.signUp}',
-                      style: GoogleFonts.poppins(
+                      style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
                       ),

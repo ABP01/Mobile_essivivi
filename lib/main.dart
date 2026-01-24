@@ -1,14 +1,14 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
-import 'package:essivi_mobile/theme/app_theme.dart';
-import 'package:essivi_mobile/providers/theme_provider.dart';
 import 'package:essivi_mobile/providers/language_provider.dart';
 import 'package:essivi_mobile/providers/notification_provider.dart';
+import 'package:essivi_mobile/providers/theme_provider.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/routes/route_generator.dart';
+import 'package:essivi_mobile/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   // Capture Flutter framework errors
@@ -26,7 +26,7 @@ void main() {
   };
 
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -47,11 +47,13 @@ class MyApp extends StatelessWidget {
     return Consumer2<ThemeProvider, LanguageProvider>(
       builder: (context, themeProvider, languageProvider, child) {
         return MaterialApp(
-          title: 'Essivi Water',
+          title: 'Essivi Eau',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          themeMode: themeProvider.isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
           locale: languageProvider.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,

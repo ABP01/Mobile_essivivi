@@ -1,11 +1,11 @@
+import 'package:essivi_mobile/data/models/sales_models.dart';
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/data/repositories/sales_repository.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/data/repositories/sales_repository.dart';
-import 'package:essivi_mobile/data/repositories/auth_repository.dart';
-import 'package:essivi_mobile/data/models/sales_models.dart';
 
 class ShipmentHistoryScreen extends StatefulWidget {
   const ShipmentHistoryScreen({super.key});
@@ -17,7 +17,7 @@ class ShipmentHistoryScreen extends StatefulWidget {
 class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
   final _salesRepo = SalesRepository();
   final _authRepo = AuthRepository();
-  
+
   List<Commande> _orders = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -39,7 +39,11 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
       if (true) {
         _orders = await _salesRepo.getCommandesByClient(user.id);
         // Sort by date descending
-        _orders.sort((a, b) => DateTime.parse(b.createdAt).compareTo(DateTime.parse(a.createdAt)));
+        _orders.sort(
+          (a, b) => DateTime.parse(
+            b.createdAt,
+          ).compareTo(DateTime.parse(a.createdAt)),
+        );
       }
     } catch (e) {
       _errorMessage = e.toString();
@@ -75,31 +79,33 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Erreur: $_errorMessage'),
-                      ElevatedButton(
-                        onPressed: _loadHistory,
-                        child: const Text('Réessayer'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${AppLocalizations.of(context)!.error}: $_errorMessage',
                   ),
-                )
-              : _orders.isEmpty
-                  ? const Center(child: Text('Aucun historique'))
-                  : RefreshIndicator(
-                      onRefresh: _loadHistory,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(20),
-                        itemCount: _orders.length,
-                        itemBuilder: (context, index) {
-                          final order = _orders[index];
-                          return _buildOrderCard(order);
-                        },
-                      ),
-                    ),
+                  ElevatedButton(
+                    onPressed: _loadHistory,
+                    child: const Text('Réessayer'),
+                  ),
+                ],
+              ),
+            )
+          : _orders.isEmpty
+          ? const Center(child: Text('Aucun historique'))
+          : RefreshIndicator(
+              onRefresh: _loadHistory,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: _orders.length,
+                itemBuilder: (context, index) {
+                  final order = _orders[index];
+                  return _buildOrderCard(order);
+                },
+              ),
+            ),
     );
   }
 
@@ -142,7 +148,10 @@ class _ShipmentHistoryScreenState extends State<ShipmentHistoryScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
