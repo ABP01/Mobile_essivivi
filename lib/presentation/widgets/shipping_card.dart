@@ -90,6 +90,7 @@ class ShippingCard extends StatelessWidget {
               ),
             ),
             
+            
             // Arrow Button
             Positioned(
               right: 20,
@@ -105,6 +106,44 @@ class ShippingCard extends StatelessWidget {
                   size: 14,
                   color: AppColors.primary,
                 ),
+              ),
+            ),
+
+            // Pagination Dots (Static for now as per design)
+            Positioned(
+              bottom: 15,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 20,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                   Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

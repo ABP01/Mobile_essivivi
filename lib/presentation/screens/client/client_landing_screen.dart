@@ -79,7 +79,7 @@ class ClientLandingScreen extends StatelessWidget {
                      children: [
                        TextButton(
                          onPressed: () {
-                           Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
+                           Navigator.pushReplacementNamed(context, AppRoutes.login);
                          },
                          child: Row(
                            children: [
@@ -99,7 +99,7 @@ class ClientLandingScreen extends StatelessWidget {
                          text: 'Get Started',
                          backgroundColor: AppColors.primary,
                          onTap: () {
-                            Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
+                            Navigator.pushReplacementNamed(context, AppRoutes.login);
                          },
                        ),
                      ],

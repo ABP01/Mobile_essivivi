@@ -28,7 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    // Validate credentials using AuthService
     final userRole = await _authService.login(username, password);
 
     setState(() => _isLoading = false);
@@ -36,15 +35,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (userRole != null) {
-      // Navigate based on user role
       if (userRole == UserRole.agent) {
         Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
       } else {
-        // All other roles (client, admin, etc.) go to home for now
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
       }
     } else {
-      // Invalid credentials
       setState(() {
         _errorMessage = AppLocalizations.of(context)!.errorLogin;
       });
@@ -53,154 +49,162 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    // Dark Theme Colors
+    const backgroundColor = Color(0xFF0D0D0D);
+    const cardColor = Color(0xFF1F2022);
+    const textColor = Colors.white;
+    const hintColor = Colors.grey;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Back Button Header
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                children: [
-                  GestureDetector(
-                  onTap: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.cardColor,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: theme.textTheme.bodyLarge?.color,
-                    ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Back Button
+              GestureDetector(
+                onTap: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    Navigator.pushReplacementNamed(context, AppRoutes.clientLanding);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: cardColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new,
+                    size: 20,
+                    color: textColor,
                   ),
                 ),
-                ],
               ),
-            ),
-            // Login Form
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                Text(
-                  AppLocalizations.of(context)!.welcomeBack,
-                  style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.bodyLarge?.color,
-                  ),
-                  textAlign: TextAlign.center,
+              
+              const SizedBox(height: 40),
+
+              // Welcome Text
+              Text(
+                AppLocalizations.of(context)!.welcomeBack,
+                style: GoogleFonts.poppins(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
+              ),
               const SizedBox(height: 8),
-                Text(
-                  AppLocalizations.of(context)!.signInToContinue,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: theme.textTheme.bodySmall?.color,
-                  ),
-                  textAlign: TextAlign.center,
+              Text(
+                AppLocalizations.of(context)!.signInToContinue,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: hintColor,
                 ),
+              ),
+
               const SizedBox(height: 40),
               
               // Username Field
-              TextField(
-                controller: _usernameController,
-                style: theme.textTheme.bodyLarge,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  hintText: 'Entrez votre nom d\'utilisateur',
-                  hintStyle: theme.textTheme.bodySmall,
-                  labelStyle: theme.textTheme.bodyMedium,
-                  prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
-                  filled: true,
-                  fillColor: theme.cardColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: theme.dividerColor, width: 1.5),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: theme.dividerColor, width: 1.5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 16),
-              
-              // Password Field
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                style: theme.textTheme.bodyLarge,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.changePassword.split(' ').last, // Use part of Change Password for "Password"
-                  hintText: AppLocalizations.of(context)!.changePassword.split(' ').last,
-                  labelStyle: theme.textTheme.bodyMedium,
-                  prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
-                  filled: true,
-                  fillColor: theme.cardColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: theme.dividerColor, width: 1.5),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: theme.dividerColor, width: 1.5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              Text(
+                'Username',
+                style: GoogleFonts.poppins(
+                  color: textColor,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
                 ),
               ),
               const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TextField(
+                  controller: _usernameController,
+                  style: GoogleFonts.poppins(color: textColor),
+                  decoration: InputDecoration(
+                    hintText: 'Enter your username',
+                    hintStyle: GoogleFonts.poppins(color: hintColor),
+                    prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Password Field
+              Text(
+                'Password', // Should be localized ideally, but sticking to design for now
+                style: GoogleFonts.poppins(
+                  color: textColor,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  style: GoogleFonts.poppins(color: textColor),
+                  decoration: InputDecoration(
+                    hintText: 'Enter your password',
+                    hintStyle: GoogleFonts.poppins(color: hintColor),
+                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              
+              // Forgot Password
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    // TODO: Implement forgot password
+                  },
+                  child: Text(
+                    'Forgot Password?',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.primary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
               
               // Error Message
               if (_errorMessage != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
+                    border: Border.all(color: Colors.red.withOpacity(0.5)),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                      const Icon(Icons.error_outline, color: Colors.red, size: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _errorMessage!,
                           style: GoogleFonts.poppins(
-                            color: Colors.red.shade700,
+                            color: Colors.red,
                             fontSize: 14,
                           ),
                         ),
@@ -208,35 +212,40 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-              const SizedBox(height: 16),
-              
+
               // Login Button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: _isLoading 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                      AppLocalizations.of(context)!.login,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16, 
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), // Pill shape like home buttons
+                    elevation: 0,
+                  ),
+                  child: _isLoading 
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        AppLocalizations.of(context)!.login,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16, 
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
+                ),
               ),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
+              
+              // Sign Up Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.dontHaveAccount,
-                    style: GoogleFonts.poppins(color: theme.textTheme.bodySmall?.color),
+                    style: GoogleFonts.poppins(color: hintColor),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -246,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ' ${AppLocalizations.of(context)!.signUp}',
                       style: GoogleFonts.poppins(
                         color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -254,9 +263,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-        ),
-      ),
-          ],
         ),
       ),
     );

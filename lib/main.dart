@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          initialRoute: AppRoutes.clientLanding,
+          initialRoute: AppRoutes.splash,
           onGenerateRoute: RouteGenerator.generateRoute,
         );
       },

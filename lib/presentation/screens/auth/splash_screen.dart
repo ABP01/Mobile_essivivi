@@ -21,23 +21,32 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuth() async {
     // Petit délai pour montrer le logo
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // Déconnecter l'utilisateur s'il était connecté
-    await _authService.logout();
+    await Future.delayed(const Duration(seconds: 2));
     
     if (!mounted) return;
-    
-    // Toujours aller vers le login
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
+
+    final isAuthenticated = await _authService.isAuthenticated();
+
+    if (isAuthenticated) {
+       final role = await _authService.getCurrentUserRole();
+       if (!mounted) return;
+       
+       if (role == UserRole.agent) {
+         Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
+       } else {
+         Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
+       }
+    } else {
+      Navigator.pushReplacementNamed(context, AppRoutes.clientLanding);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: Color(0xFF0D0D0D), // Dark background for consistency
       body: Center(
-        child: CircularProgressIndicator(color: Colors.white),
+        child: CircularProgressIndicator(color: AppColors.primary),
       ),
     );
   }

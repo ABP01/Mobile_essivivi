@@ -3,7 +3,7 @@ import 'package:essivi_mobile/routes/app_routes.dart';
 
 // Auth Screens
 import 'package:essivi_mobile/presentation/screens/auth/splash_screen.dart';
-import 'package:essivi_mobile/presentation/screens/client/onboarding_screen.dart';
+
 import 'package:essivi_mobile/presentation/screens/auth/login_screen.dart';
 import 'package:essivi_mobile/presentation/screens/auth/signup_screen.dart';
 
@@ -52,7 +52,7 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 
       case AppRoutes.onboarding:
-        return MaterialPageRoute(builder: (_) => const OnboardingScreen());
+        return MaterialPageRoute(builder: (_) => const ClientLandingScreen());
       
       case AppRoutes.login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());

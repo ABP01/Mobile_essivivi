@@ -7,6 +7,8 @@ import 'package:essivi_mobile/presentation/widgets/shipment_item.dart';
 import 'package:essivi_mobile/presentation/widgets/custom_bottom_bar.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 
+import 'package:essivi_mobile/services/auth_service.dart';
+
 class ClientHomeRedesign extends StatefulWidget {
   const ClientHomeRedesign({super.key});
 
@@ -16,6 +18,23 @@ class ClientHomeRedesign extends StatefulWidget {
 
 class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
   int _selectedIndex = 1; // Start at Home
+  String _userName = 'User';
+  final _authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = await _authService.getCurrentUser();
+    if (mounted && user != null) {
+      setState(() {
+        _userName = user.firstName ?? user.username;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +52,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
                   child: Row(
                     children: [
-                      const CircleAvatar(
+                       const CircleAvatar(
                         radius: 20,
                         backgroundImage: AssetImage('assets/images/delivery_man.png'), // Placeholder
                       ),
@@ -42,7 +61,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hello Daniel',
+                            'Hello $_userName',
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 16,
@@ -82,7 +101,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
                       children: [
                         // "Current Shipping"
                         Text(
-                          'Curront Shipping', // Keeping typo from design or correcting? Design says "Curront". I will correct to "Current".
+                          'Current Shipping', 
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 18,
