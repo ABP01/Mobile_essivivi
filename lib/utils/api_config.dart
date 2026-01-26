@@ -10,22 +10,22 @@ import 'dart:io';
 
 class ApiConfig {
   // ⚠️ PRODUCTION: Mettre à true avant déploiement
-  static const bool isProduction = false;
+  static const bool isProduction = true;
 
   // Base URL for the API
   static const String _prodUrl =
-      'https://api.essivivi.com/api'; // Remplacer par l'URL de production réelle
+      'https://essivi-backend.onrender.com/api'; // Remplacer par l'URL de production réelle
 
   static String get baseUrl {
     if (isProduction) return _prodUrl;
-    
+
     // 🖥️ WINDOWS APP (Flutter Desktop)
     if (Platform.isWindows) return 'http://127.0.0.1:8000/api';
-    
+
     // 📱 ANDROID EMULATOR
-    // if (Platform.isAndroid && !kReleaseMode) return 'http://10.0.2.2:8000/api'; 
+    // if (Platform.isAndroid && !kReleaseMode) return 'http://10.0.2.2:8000/api';
     // ^ Note: Uncomment above if ONLY using Emulator.
-    
+
     // 📱 PHYSICAL DEVICE (USB Debugging / APK)
     // Remplacer par l'IP locale de votre PC (ex: 'http://192.168.1.34:8000/api')
     // Pour trouver votre IP : ouvrez un terminal et tapez `ipconfig` (Windows) ou `ifconfig` (Mac/Linux)
@@ -42,7 +42,7 @@ class ApiConfig {
   static const String localUrl =
       'http://localhost:8000/api'; // Traefik route l'API sur le port 80
   static const String productionUrl =
-      'https://api.essivivi.com/api'; // Update with actual production URL
+      'https://essivi-backend.onrender.com/api'; // Update with actual production URL
 
   // Timeout settings
   static const Duration connectTimeout = Duration(seconds: 10);

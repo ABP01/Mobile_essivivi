@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "39242343671",
+    "project_id": "soupamarket-cbc72",
+    "storage_bucket": "soupamarket-cbc72.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39242343671:android:1c2e37e9c5301b3db7dff2",
+        "android_client_info": {
+          "package_name": "com.essivivi.water"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAU2s7HDhkxZXRp6gF7RYVTsr4kkd_8-ZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -80,6 +80,7 @@ class ClientLandingScreen extends StatelessWidget {
                         Navigator.pushReplacementNamed(
                           context,
                           AppRoutes.login,
+
                         );
                       },
                       label: 'Swipe to Get Started',
