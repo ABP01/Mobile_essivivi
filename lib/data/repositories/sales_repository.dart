@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
+
+import '../../utils/api_config.dart';
 import '../datasources/api_service.dart';
 import '../models/sales_models.dart';
-import '../../utils/api_config.dart';
 
 class SalesRepository {
   final ApiService _apiService = ApiService();
@@ -11,7 +12,9 @@ class SalesRepository {
   /// Get all commandes
   Future<List<Commande>> getCommandes() async {
     try {
-      final response = await _apiService.client.get(ApiConfig.commandesEndpoint);
+      final response = await _apiService.client.get(
+        ApiConfig.commandesEndpoint,
+      );
       final List<dynamic> data = response.data;
       return data.map((json) => Commande.fromJson(json)).toList();
     } catch (e) {
@@ -22,7 +25,9 @@ class SalesRepository {
   /// Get commande by ID
   Future<Commande> getCommandeById(int id) async {
     try {
-      final response = await _apiService.client.get('${ApiConfig.commandesEndpoint}$id/');
+      final response = await _apiService.client.get(
+        '${ApiConfig.commandesEndpoint}$id/',
+      );
       return Commande.fromJson(response.data);
     } catch (e) {
       rethrow;
@@ -31,7 +36,6 @@ class SalesRepository {
 
   /// Alias for getCommandeById (for compatibility)
   Future<Commande> getCommande(int id) => getCommandeById(id);
-
 
   /// Get commandes for a specific client
   Future<List<Commande>> getCommandesByClient(int clientId) async {
@@ -120,7 +124,9 @@ class SalesRepository {
   /// Get all livraisons
   Future<List<Livraison>> getLivraisons() async {
     try {
-      final response = await _apiService.client.get(ApiConfig.livraisonsEndpoint);
+      final response = await _apiService.client.get(
+        ApiConfig.livraisonsEndpoint,
+      );
       final List<dynamic> data = response.data;
       return data.map((json) => Livraison.fromJson(json)).toList();
     } catch (e) {
@@ -131,7 +137,9 @@ class SalesRepository {
   /// Get livraison by ID
   Future<Livraison> getLivraisonById(int id) async {
     try {
-      final response = await _apiService.client.get('${ApiConfig.livraisonsEndpoint}$id/');
+      final response = await _apiService.client.get(
+        '${ApiConfig.livraisonsEndpoint}$id/',
+      );
       return Livraison.fromJson(response.data);
     } catch (e) {
       rethrow;
@@ -167,9 +175,12 @@ class SalesRepository {
       formData.fields.addAll([
         MapEntry('tournee', request.tourneeId.toString()),
         MapEntry('client', request.clientId.toString()),
-        if (request.commandeId != null) MapEntry('commande', request.commandeId.toString()),
-        if (request.gpsLat != null) MapEntry('gps_lat', request.gpsLat.toString()),
-        if (request.gpsLng != null) MapEntry('gps_lng', request.gpsLng.toString()),
+        if (request.commandeId != null)
+          MapEntry('commande', request.commandeId.toString()),
+        if (request.gpsLat != null)
+          MapEntry('gps_lat', request.gpsLat.toString()),
+        if (request.gpsLng != null)
+          MapEntry('gps_lng', request.gpsLng.toString()),
       ]);
 
       // Add photo if provided
@@ -180,7 +191,9 @@ class SalesRepository {
 
       // Add signature if provided
       if (signaturePath != null) {
-        final signatureFile = await _apiService.createMultipartFile(signaturePath);
+        final signatureFile = await _apiService.createMultipartFile(
+          signaturePath,
+        );
         formData.files.add(MapEntry('signature', signatureFile));
       }
 
@@ -207,8 +220,10 @@ class SalesRepository {
       final formData = FormData();
 
       // Add fields
-      if (gpsLat != null) formData.fields.add(MapEntry('gps_lat', gpsLat.toString()));
-      if (gpsLng != null) formData.fields.add(MapEntry('gps_lng', gpsLng.toString()));
+      if (gpsLat != null)
+        formData.fields.add(MapEntry('gps_lat', gpsLat.toString()));
+      if (gpsLng != null)
+        formData.fields.add(MapEntry('gps_lng', gpsLng.toString()));
 
       // Add photo if provided
       if (photoPath != null) {
@@ -218,7 +233,9 @@ class SalesRepository {
 
       // Add signature if provided
       if (signaturePath != null) {
-        final signatureFile = await _apiService.createMultipartFile(signaturePath);
+        final signatureFile = await _apiService.createMultipartFile(
+          signaturePath,
+        );
         formData.files.add(MapEntry('signature', signatureFile));
       }
 
@@ -244,15 +261,17 @@ class SalesRepository {
     try {
       // Check if we have files to upload
       bool hasFiles = photoPath != null || signaturePath != null;
-      
+
       dynamic requestData;
-      
+
       if (hasFiles) {
         // Use FormData when files are present
         final formData = FormData();
 
-        if (gpsLat != null) formData.fields.add(MapEntry('gps_lat', gpsLat.toString()));
-        if (gpsLng != null) formData.fields.add(MapEntry('gps_lng', gpsLng.toString()));
+        if (gpsLat != null)
+          formData.fields.add(MapEntry('gps_lat', gpsLat.toString()));
+        if (gpsLng != null)
+          formData.fields.add(MapEntry('gps_lng', gpsLng.toString()));
 
         if (photoPath != null) {
           final photoFile = await _apiService.createMultipartFile(photoPath);
@@ -260,10 +279,12 @@ class SalesRepository {
         }
 
         if (signaturePath != null) {
-          final signatureFile = await _apiService.createMultipartFile(signaturePath);
+          final signatureFile = await _apiService.createMultipartFile(
+            signaturePath,
+          );
           formData.files.add(MapEntry('signature', signatureFile));
         }
-        
+
         requestData = formData;
       } else {
         // Use JSON when no files
@@ -302,6 +323,23 @@ class SalesRepository {
   Future<void> deleteLivraison(int id) async {
     try {
       await _apiService.client.delete('${ApiConfig.livraisonsEndpoint}$id/');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Submit delivery proof (photo/signature)
+  Future<Livraison> submitDeliveryProof(
+    int deliveryId,
+    Map<String, dynamic> proofData,
+  ) async {
+    try {
+      final response = await _apiService.client.post(
+        '${ApiConfig.livraisonsEndpoint}$deliveryId/submit_proof/',
+        data: proofData,
+      );
+
+      return Livraison.fromJson(response.data);
     } catch (e) {
       rethrow;
     }

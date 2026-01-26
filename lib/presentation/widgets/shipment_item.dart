@@ -1,7 +1,6 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 class ShipmentItem extends StatelessWidget {
   final String title;
@@ -22,10 +21,8 @@ class ShipmentItem extends StatelessWidget {
     // The prompt asked to "reproduce fully", and the middle screen is Dark Mode.
     // I will assume the redesign home is Dark Mode for now, or adaptable.
     // Let's rely on the Theme context, but optimize for the look in the screenshot (Dark).
-    
+
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white; // Custom dark shade
 
     return GestureDetector(
       onTap: onTap,
@@ -33,7 +30,9 @@ class ShipmentItem extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1F2022), // Matching the dark card in screenshot
+          color: const Color(
+            0xFF1F2022,
+          ), // Matching the dark card in screenshot
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -45,7 +44,7 @@ class ShipmentItem extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                FluentIcons.box_24_regular, 
+                FluentIcons.box_24_regular,
                 color: Colors.white,
                 size: 24,
               ),
@@ -63,7 +62,7 @@ class ShipmentItem extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                   const SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     id,
                     style: GoogleFonts.poppins(
@@ -74,10 +73,7 @@ class ShipmentItem extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.white,
-            ),
+            const Icon(Icons.chevron_right, color: Colors.white),
           ],
         ),
       ),

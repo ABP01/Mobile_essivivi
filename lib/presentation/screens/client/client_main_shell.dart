@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 import 'package:essivi_mobile/providers/notification_provider.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'home_screen.dart';
-import 'settings_screen.dart';
-import 'profile_screen.dart';
 import 'notifications_screen.dart';
+import 'profile_screen.dart';
+import 'settings_screen.dart';
 
 class ClientMainShell extends StatefulWidget {
   const ClientMainShell({super.key});
@@ -82,15 +82,30 @@ class _ClientMainShellState extends State<ClientMainShell> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildNavItem(0, FluentIcons.home_24_filled, FluentIcons.home_24_regular, AppLocalizations.of(context)!.home),
-            _buildNavItem(1, FluentIcons.settings_24_filled, FluentIcons.settings_24_regular, AppLocalizations.of(context)!.settings),
-            _buildNavItem(2, FluentIcons.person_24_filled, FluentIcons.person_24_regular, AppLocalizations.of(context)!.profile),
+            _buildNavItem(
+              0,
+              FluentIcons.home_24_filled,
+              FluentIcons.home_24_regular,
+              AppLocalizations.of(context)!.home,
+            ),
+            _buildNavItem(
+              1,
+              FluentIcons.settings_24_filled,
+              FluentIcons.settings_24_regular,
+              AppLocalizations.of(context)!.settings,
+            ),
+            _buildNavItem(
+              2,
+              FluentIcons.person_24_filled,
+              FluentIcons.person_24_regular,
+              AppLocalizations.of(context)!.profile,
+            ),
             Consumer<NotificationProvider>(
               builder: (context, provider, child) {
                 return _buildNavItem(
-                  3, 
-                  FluentIcons.alert_24_filled, 
-                  FluentIcons.alert_24_regular, 
+                  3,
+                  FluentIcons.alert_24_filled,
+                  FluentIcons.alert_24_regular,
                   AppLocalizations.of(context)!.notifications,
                   badgeCount: provider.unreadCount,
                 );
@@ -102,7 +117,13 @@ class _ClientMainShellState extends State<ClientMainShell> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData selectedIcon, IconData unselectedIcon, String label, {int badgeCount = 0}) {
+  Widget _buildNavItem(
+    int index,
+    IconData selectedIcon,
+    IconData unselectedIcon,
+    String label, {
+    int badgeCount = 0,
+  }) {
     final isSelected = _selectedIndex == index;
     final theme = Theme.of(context);
 

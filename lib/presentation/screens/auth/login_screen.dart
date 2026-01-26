@@ -1,6 +1,6 @@
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  final _authRepo = AuthRepository();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -43,20 +43,21 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final userRole = await _authService.login(username, password);
+    try {
+      final user = await _authRepo.login(username, password);
 
-    setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (userRole != null) {
-      if (userRole == UserRole.agent) {
+      if (user.role == 'agent') {
         Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
       } else {
         Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
       }
-    } else {
+    } catch (e) {
       setState(() {
+        _isLoading = false;
         _errorMessage = AppLocalizations.of(context)!.errorLogin;
       });
     }

@@ -1,11 +1,10 @@
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/data/repositories/preferences_repository.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
-import 'package:essivi_mobile/data/repositories/preferences_repository.dart';
-
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,15 +14,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _authService = AuthService();
+  final _authRepo = AuthRepository();
   final _preferencesRepo = PreferencesRepository();
-  
+
   bool _notificationsEnabled = true;
   bool _emailNotifications = true;
   bool _smsNotifications = false;
   bool _darkModeEnabled = false;
   String _selectedLanguage = 'Français';
-
 
   @override
   void initState() {
@@ -121,7 +119,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildSettingsTile(
               icon: FluentIcons.lock_closed_24_regular,
               title: 'Change Password',
-              onTap: () => Navigator.pushNamed(context, AppRoutes.changePassword),
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.changePassword),
             ),
             const SizedBox(height: 24),
 
@@ -221,7 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  await _authService.logout();
+                  await _authRepo.logout();
                   if (!mounted) return;
                   Navigator.pushNamedAndRemoveUntil(
                     context,
@@ -230,7 +229,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? Colors.red.withOpacity(0.1) : Colors.red.shade50,
+                  backgroundColor: isDark
+                      ? Colors.red.withOpacity(0.1)
+                      : Colors.red.shade50,
                   foregroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -475,10 +476,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Version 1.0.0',
-              style: GoogleFonts.poppins(fontSize: 14),
-            ),
+            Text('Version 1.0.0', style: GoogleFonts.poppins(fontSize: 14)),
             const SizedBox(height: 16),
             Text(
               'Your trusted partner for clean water delivery in Togo.',
@@ -487,10 +485,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
             Text(
               '© 2024 Essivi. All rights reserved.',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),

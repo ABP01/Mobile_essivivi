@@ -1,7 +1,8 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../../utils/api_config.dart';
 import '../datasources/api_service.dart';
 import '../models/user_models.dart';
-import '../../utils/api_config.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthRepository {
   final ApiService _apiService = ApiService();
@@ -28,23 +29,14 @@ class AuthRepository {
         key: ApiConfig.refreshTokenKey,
         value: loginResponse.refresh,
       );
-      await _storage.write(
-        key: ApiConfig.isAuthenticatedKey,
-        value: 'true',
-      );
+      await _storage.write(key: ApiConfig.isAuthenticatedKey, value: 'true');
 
       // Fetch user profile
       final user = await getCurrentUser();
 
       // Store user info
-      await _storage.write(
-        key: ApiConfig.userEmailKey,
-        value: user.email,
-      );
-      await _storage.write(
-        key: ApiConfig.userRoleKey,
-        value: user.role,
-      );
+      await _storage.write(key: ApiConfig.userEmailKey, value: user.email);
+      await _storage.write(key: ApiConfig.userRoleKey, value: user.role);
 
       return user;
     } catch (e) {
@@ -163,11 +155,37 @@ class AuthRepository {
           'confirm_password': confirmPassword,
         },
       );
-      
+
       // Password changed successfully
     } catch (e) {
       rethrow;
     }
   }
-}
 
+  /// Reset password request
+  /// Sends reset email to user
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      await _apiService.client.post(
+        '${ApiConfig.baseUrl}/users/auth/password-reset/',
+        data: {'email': email},
+      );
+    } catch (e) {
+      throw Exception('Failed to send reset email: ${e.toString()}');
+    }
+  }
+
+  /// Confirm password reset with token
+  /// Returns success message
+  Future<String> confirmPasswordReset(String token, String newPassword) async {
+    try {
+      final response = await _apiService.client.post(
+        '${ApiConfig.baseUrl}/users/auth/password-reset-confirm/',
+        data: {'token': token, 'new_password': newPassword},
+      );
+      return response.data['message'] ?? 'Password reset successfully';
+    } catch (e) {
+      throw Exception('Failed to reset password: ${e.toString()}');
+    }
+  }
+}

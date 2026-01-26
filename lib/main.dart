@@ -1,7 +1,9 @@
 import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/providers/language_provider.dart';
 import 'package:essivi_mobile/providers/notification_provider.dart';
+import 'package:essivi_mobile/providers/shipment_provider.dart';
 import 'package:essivi_mobile/providers/theme_provider.dart';
+import 'package:essivi_mobile/providers/agent_provider.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/routes/route_generator.dart';
 import 'package:essivi_mobile/theme/app_theme.dart';
@@ -33,6 +35,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => ShipmentProvider()),
+        ChangeNotifierProvider(create: (_) => AgentProvider()),
       ],
       child: const MyApp(),
     ),

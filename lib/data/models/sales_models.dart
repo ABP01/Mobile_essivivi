@@ -108,6 +108,7 @@ class Livraison {
   bool get isAssigned => statutLivraison == 'assigned';
   bool get isEnRoute => statutLivraison == 'en_route';
   bool get isArriving => statutLivraison == 'arriving';
+  bool get isCancelled => false; // Not implemented in backend yet
 
   Livraison({
     required this.id,

@@ -1,15 +1,14 @@
+import 'package:essivi_mobile/data/models/sales_models.dart';
+import 'package:essivi_mobile/data/models/user_models.dart';
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/data/repositories/sales_repository.dart';
+import 'package:essivi_mobile/data/repositories/user_repository.dart';
+import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:essivi_mobile/l10n/app_localizations.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/data/repositories/auth_repository.dart';
-import 'package:essivi_mobile/data/repositories/user_repository.dart';
-import 'package:essivi_mobile/data/repositories/sales_repository.dart';
-import 'package:essivi_mobile/data/models/user_models.dart';
-import 'package:essivi_mobile/data/models/sales_models.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -22,14 +21,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _authRepo = AuthRepository();
   final _userRepo = UserRepository();
   final _salesRepo = SalesRepository();
-  final _authService = AuthService();
-  
+
   // Computed properties
   int get _totalDeliveries => _orders.length;
-  int get _activeOrders => _orders.where((o) => !o.isDelivered && o.statut != 'annulee').length;
+  int get _activeOrders =>
+      _orders.where((o) => !o.isDelivered && o.statut != 'annulee').length;
   int get _completedOrders => _orders.where((o) => o.isDelivered).length;
 
-  
   CustomUser? _user;
   ClientProfile? _clientProfile;
   List<Commande> _orders = [];
@@ -45,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (_user != null) {
         final clients = await _userRepo.getClients();
         _clientProfile = clients.firstWhere((c) => c.userId == _user!.id);
-        
+
         // Charger les commandes pour les statistiques
         _orders = await _salesRepo.getCommandesByClient(_user!.id);
       }
@@ -59,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _logout() async {
-    await _authService.logout();
+    await _authRepo.logout();
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -171,7 +169,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         const CircleAvatar(
                           radius: 50,
-                          backgroundImage: AssetImage('assets/images/delivery_man.png'),
+                          backgroundImage: AssetImage(
+                            'assets/images/delivery_man.png',
+                          ),
                         ),
                         Positioned(
                           bottom: 0,
@@ -309,7 +309,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ElevatedButton(
                   onPressed: _logout,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? Colors.red.withOpacity(0.1) : Colors.red.shade50,
+                    backgroundColor: isDark
+                        ? Colors.red.withOpacity(0.1)
+                        : Colors.red.shade50,
                     foregroundColor: Colors.red,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -340,7 +342,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, {
+  Widget _buildStatCard(
+    BuildContext context, {
     required IconData icon,
     required String value,
     required String label,
@@ -386,7 +389,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildInfoTile(BuildContext context, {
+  Widget _buildInfoTile(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String value,

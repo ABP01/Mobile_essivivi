@@ -18,11 +18,18 @@ class ApiConfig {
 
   static String get baseUrl {
     if (isProduction) return _prodUrl;
-    // Avec Traefik, l'API est accessible via le port 80 (sans port spécifique)
-    // Sur Android Emulator, utiliser 10.0.2.2
-    // Sur iOS et Desktop (Linux/Windows/Mac), utiliser localhost
-    if (Platform.isAndroid) return 'http://10.0.2.2/api';
-    return localUrl;
+    
+    // 🖥️ WINDOWS APP (Flutter Desktop)
+    if (Platform.isWindows) return 'http://127.0.0.1:8000/api';
+    
+    // 📱 ANDROID EMULATOR
+    // if (Platform.isAndroid && !kReleaseMode) return 'http://10.0.2.2:8000/api'; 
+    // ^ Note: Uncomment above if ONLY using Emulator.
+    
+    // 📱 PHYSICAL DEVICE (USB Debugging / APK)
+    // Remplacer par l'IP locale de votre PC (ex: 'http://192.168.1.34:8000/api')
+    // Pour trouver votre IP : ouvrez un terminal et tapez `ipconfig` (Windows) ou `ifconfig` (Mac/Linux)
+    return 'http://192.168.1.78:8000/api'; // Use host IP for both emulator and phone
   }
 
   static String get wsUrl {
@@ -33,7 +40,7 @@ class ApiConfig {
 
   // Alternative URLs for different environments
   static const String localUrl =
-      'http://localhost/api'; // Traefik route l'API sur le port 80
+      'http://localhost:8000/api'; // Traefik route l'API sur le port 80
   static const String productionUrl =
       'https://api.essivivi.com/api'; // Update with actual production URL
 

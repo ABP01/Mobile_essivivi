@@ -1,9 +1,9 @@
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/presentation/widgets/custom_bottom_bar.dart';
 import 'package:essivi_mobile/presentation/widgets/shipment_item.dart';
 import 'package:essivi_mobile/presentation/widgets/shipping_card.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/services/auth_service.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,7 @@ class ClientHomeRedesign extends StatefulWidget {
 class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
   int _selectedIndex = 1; // Start at Home
   String _userName = 'User';
-  final _authService = AuthService();
+  final _authRepo = AuthRepository();
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _ClientHomeRedesignState extends State<ClientHomeRedesign> {
   }
 
   Future<void> _loadUserData() async {
-    final user = await _authService.getCurrentUser();
+    final user = await _authRepo.getCurrentUser();
     if (mounted && user != null) {
       setState(() {
         _userName = user.firstName ?? user.username;

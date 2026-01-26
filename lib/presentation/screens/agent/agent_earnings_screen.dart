@@ -6,6 +6,8 @@ import 'package:essivi_mobile/data/repositories/sales_repository.dart';
 
 import 'package:essivi_mobile/data/models/sales_models.dart';
 
+import 'package:essivi_mobile/l10n/app_localizations.dart';
+
 class AgentEarningsScreen extends StatefulWidget {
   const AgentEarningsScreen({super.key});
 
@@ -58,7 +60,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'My Earnings',
+          AppLocalizations.of(context)!.earnings,
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -88,7 +90,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Total Earnings',
+                          AppLocalizations.of(context)!.totalEarnings,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.9),
@@ -106,9 +108,9 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            _buildStatChip('${_deliveries.length} Deliveries'),
+                            _buildStatChip('${_deliveries.length} ${AppLocalizations.of(context)!.deliveries}'),
                             const SizedBox(width: 8),
-                            _buildStatChip('This Month'),
+                            _buildStatChip(AppLocalizations.of(context)!.thisMonth),
                           ],
                         ),
                       ],
@@ -121,7 +123,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
                     children: [
                       Expanded(
                         child: _buildStatCard(
-                          'Today',
+                          AppLocalizations.of(context)!.today,
                           '0 FCFA',
                           FluentIcons.calendar_today_24_regular,
                           Colors.blue,
@@ -130,7 +132,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildStatCard(
-                          'This Week',
+                          AppLocalizations.of(context)!.thisWeek,
                           '${(_totalEarnings * 0.3).toStringAsFixed(0)} FCFA',
                           FluentIcons.calendar_24_regular,
                           Colors.green,
@@ -142,7 +144,7 @@ class _AgentEarningsScreenState extends State<AgentEarningsScreen> {
 
                   // Recent Deliveries
                   Text(
-                    'Recent Deliveries',
+                    AppLocalizations.of(context)!.recentOrders,
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

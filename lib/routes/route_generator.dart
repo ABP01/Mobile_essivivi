@@ -6,17 +6,18 @@ import 'package:essivi_mobile/presentation/screens/agent/bottle_inventory_screen
 import 'package:essivi_mobile/presentation/screens/agent/delivery_proof_screen.dart';
 import 'package:essivi_mobile/presentation/screens/auth/forgot_password_screen.dart';
 import 'package:essivi_mobile/presentation/screens/auth/login_screen.dart';
+import 'package:essivi_mobile/presentation/screens/auth/reset_password_screen.dart';
 import 'package:essivi_mobile/presentation/screens/auth/signup_screen.dart';
 // Auth Screens
 import 'package:essivi_mobile/presentation/screens/auth/splash_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/bottle_return_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/cart_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/change_password_screen.dart';
-import 'package:essivi_mobile/presentation/screens/client/client_home_screen_redesign.dart';
+import 'package:essivi_mobile/presentation/screens/client/client_home_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/client_landing_screen.dart';
 // Shells
 import 'package:essivi_mobile/presentation/screens/client/client_main_shell.dart';
-import 'package:essivi_mobile/presentation/screens/client/client_tracking_screen_redesign.dart';
+import 'package:essivi_mobile/presentation/screens/client/client_tracking_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/create_order_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/edit_profile_screen.dart';
 import 'package:essivi_mobile/presentation/screens/client/help_center_screen.dart';
@@ -54,6 +55,14 @@ class RouteGenerator {
 
       case AppRoutes.forgotPassword:
         return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+
+      case AppRoutes.resetPassword:
+        final token = args is Map<String, dynamic>
+            ? args['token'] as String?
+            : null;
+        return MaterialPageRoute(
+          builder: (_) => ResetPasswordScreen(token: token),
+        );
 
       // Client Routes
       case AppRoutes.home:
@@ -150,7 +159,7 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const AgentEarningsScreen());
 
       case AppRoutes.agentProfile:
-        return MaterialPageRoute(builder: (_) => const AgentProfileScreen());
+        return MaterialPageRoute(builder: (_) => AgentProfileScreen());
 
       case AppRoutes.bottleInventory:
         return MaterialPageRoute(builder: (_) => const BottleInventoryScreen());
@@ -169,11 +178,12 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const ClientLandingScreen());
 
       case AppRoutes.clientHomeRedesign:
-        return MaterialPageRoute(builder: (_) => const ClientHomeRedesign());
+        return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
 
       case AppRoutes.clientTrackingRedesign:
         return MaterialPageRoute(
-          builder: (_) => const ClientTrackingRedesign(),
+          builder: (_) => const ClientTrackingScreen(),
+          settings: settings, // Pass arguments
         );
 
       // Default Route (404)

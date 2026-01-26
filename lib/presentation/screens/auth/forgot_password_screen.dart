@@ -1,3 +1,4 @@
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
+  final _authRepo = AuthRepository();
   bool _isLoading = false;
   String? _message;
 
@@ -29,10 +31,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     try {
-      // TODO: Implement actual reset password API call
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+      await _authRepo.requestPasswordReset(email);
       setState(() {
         _message = 'Un email de réinitialisation a été envoyé à $email.';
+      });
+
+      // Navigate to reset password screen after 2 seconds
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.pushReplacementNamed(
+            context,
+            '/reset-password',
+            arguments: {'email': email},
+          );
+        }
       });
     } catch (e) {
       setState(() {
