@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:essivi_mobile/data/repositories/auth_repository.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,21 +22,21 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkAuth() async {
     // 🚀 Optimisation: Démarrage immédiat sans délai artificiel de 2s.
     // L'expérience est fluide : si le tel est rapide, l'app s'ouvre instantanément.
-    
+
     try {
       final isAuthenticated = await _authRepo.isAuthenticated();
 
       if (!mounted) return;
 
       if (isAuthenticated) {
-         final role = await _authRepo.getUserRole();
-         if (!mounted) return;
-         
-         if (role == 'agent') {
-           Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
-         } else {
-           Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
-         }
+        final role = await _authRepo.getUserRole();
+        if (!mounted) return;
+
+        if (role == 'agent') {
+          Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
+        } else {
+          Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
+        }
       } else {
         Navigator.pushReplacementNamed(context, AppRoutes.clientLanding);
       }
@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // ✅ Correction: Fond blanc pour matcher le "launch_background.xml" natif et éviter le flash noir/blanc.
-      backgroundColor: Colors.white, 
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -63,7 +63,19 @@ class _SplashScreenState extends State<SplashScreen> {
               width: 180,
               height: 180,
               errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.water_drop, size: 100, color: AppColors.primary);
+                debugPrint('Erreur chargement logo: $error');
+                debugPrint('Stack trace: $stackTrace');
+                return Container(
+                  width: 180,
+                  height: 180,
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: Text(
+                      'Logo non trouvé',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                );
               },
             ),
             const SizedBox(height: 48),
