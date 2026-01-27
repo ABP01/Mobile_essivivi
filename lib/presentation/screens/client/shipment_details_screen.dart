@@ -3,10 +3,10 @@ import 'package:essivi_mobile/data/models/user_models.dart';
 import 'package:essivi_mobile/data/repositories/sales_repository.dart';
 import 'package:essivi_mobile/data/repositories/user_repository.dart';
 import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/presentation/widgets/tracking/order_status_stepper.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/services/phone_service.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/presentation/widgets/tracking/order_status_stepper.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -237,58 +237,63 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   if (!_commande!.isDelivered && !_commande!.isCancelled)
                     Column(
                       children: [
-                        if (_commande!.statut == 'en_cours' || _commande!.statut == 'pending' || _commande!.statut == 'validated')
+                        if (_commande!.statut == 'en_cours' ||
+                            _commande!.statut == 'pending' ||
+                            _commande!.statut == 'validated')
                           SizedBox(
                             width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.trackDelivery,
-                                arguments: {
-                                  'deliveryId': _commande!.id,
-                                  'agentId': _commande!.agentId ?? 0,
-                                  'agentName': isAgent
-                                      ? 'Client'
-                                      : (_agentProfile?.user?.fullName ??
-                                            'Livreur'),
-                                  'agentPhone': isAgent
-                                      ? (_clientUser?.phoneNumber ?? '')
-                                      : (_agentProfile?.user?.phoneNumber ??
-                                            ''),
-                                  'clientLatitude': _commande!.deliveryLatitude,
-                                  'clientLongitude':
-                                      _commande!.deliveryLongitude,
-                                },
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  FluentIcons.location_24_filled,
-                                  color: Colors.white,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.trackDelivery,
+                                  arguments: {
+                                    'deliveryId': _commande!.id,
+                                    'agentId': _commande!.agentId ?? 0,
+                                    'agentName': isAgent
+                                        ? 'Client'
+                                        : (_agentProfile?.user?.fullName ??
+                                              'Livreur'),
+                                    'agentPhone': isAgent
+                                        ? (_clientUser?.phoneNumber ?? '')
+                                        : (_agentProfile?.user?.phoneNumber ??
+                                              ''),
+                                    'clientLatitude':
+                                        _commande!.deliveryLatitude,
+                                    'clientLongitude':
+                                        _commande!.deliveryLongitude,
+                                  },
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Suivre la Livraison',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    FluentIcons.location_24_filled,
                                     color: Colors.white,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Suivre la Livraison',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        )
+                          )
                         else
                           SizedBox(
                             width: double.infinity,

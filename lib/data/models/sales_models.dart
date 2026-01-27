@@ -41,8 +41,12 @@ class Commande {
       dateSouhaitee: json['date_souhaitee'] as String,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
-      deliveryLatitude: json['delivery_latitude'] != null ? double.tryParse(json['delivery_latitude'].toString()) : null,
-      deliveryLongitude: json['delivery_longitude'] != null ? double.tryParse(json['delivery_longitude'].toString()) : null,
+      deliveryLatitude: json['delivery_latitude'] != null
+          ? double.tryParse(json['delivery_latitude'].toString())
+          : null,
+      deliveryLongitude: json['delivery_longitude'] != null
+          ? double.tryParse(json['delivery_longitude'].toString())
+          : null,
       clientPhone: json['client_phone'] as String?,
       agentPhone: json['agent_phone'] as String?,
       livraisons: (json['livraisons'] as List<dynamic>?)
@@ -109,7 +113,7 @@ class Livraison {
   // Added getters for UI compatibility
   bool get isDelivered => preuveValidee;
   String get createdAt => timestamp;
-  
+
   // Status helpers
   bool get isAssigned => statutLivraison == 'assigned';
   bool get isEnRoute => statutLivraison == 'en_route';
@@ -140,8 +144,12 @@ class Livraison {
       commandeId: json['commande'] as int?,
       clientId: json['client'] as int,
       statutLivraison: json['statut_livraison'] as String? ?? 'assigned',
-      gpsLat: json['gps_lat'] != null ? (json['gps_lat'] as num).toDouble() : null,
-      gpsLng: json['gps_lng'] != null ? (json['gps_lng'] as num).toDouble() : null,
+      gpsLat: json['gps_lat'] != null
+          ? (json['gps_lat'] as num).toDouble()
+          : null,
+      gpsLng: json['gps_lng'] != null
+          ? (json['gps_lng'] as num).toDouble()
+          : null,
       photoPreuve: json['photo_preuve'] as String?,
       signature: json['signature'] as String?,
       preuveValidee: json['preuve_validee'] as bool? ?? false,
@@ -211,10 +219,7 @@ class UpdateCommandeRequest {
   final String? statut;
   final int? agentId;
 
-  UpdateCommandeRequest({
-    this.statut,
-    this.agentId,
-  });
+  UpdateCommandeRequest({this.statut, this.agentId});
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};

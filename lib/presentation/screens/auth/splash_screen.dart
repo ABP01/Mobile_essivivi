@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,10 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
             // Add your logo or splash content here
             const Text(
               'Essivivi',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             const CircularProgressIndicator(),
