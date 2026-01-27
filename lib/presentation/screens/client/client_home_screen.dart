@@ -1,11 +1,12 @@
+import 'package:essivi_mobile/data/models/user_models.dart'; // CustomUser
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/presentation/widgets/cards/live_map_card.dart';
+import 'package:essivi_mobile/presentation/widgets/cards/shipment_card.dart';
+import 'package:essivi_mobile/providers/shipment_provider.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/providers/shipment_provider.dart';
-import 'package:essivi_mobile/data/repositories/auth_repository.dart';
-import 'package:essivi_mobile/data/models/user_models.dart'; // CustomUser
-import 'package:essivi_mobile/presentation/widgets/cards/shipment_card.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
 
 class ClientHomeScreen extends StatefulWidget {
   const ClientHomeScreen({super.key});
@@ -26,16 +27,16 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
   Future<void> _loadData() async {
     try {
-       final user = await AuthRepository().getCurrentUser();
-       if (mounted) {
-         setState(() {
-           _user = user;
-         });
-         // Load shipments
-         Provider.of<ShipmentProvider>(context, listen: false).loadShipments();
-       }
-    } catch(e) {
-       // Handle error
+      final user = await AuthRepository().getCurrentUser();
+      if (mounted) {
+        setState(() {
+          _user = user;
+        });
+        // Load shipments
+        Provider.of<ShipmentProvider>(context, listen: false).loadShipments();
+      }
+    } catch (e) {
+      // Handle error
     }
   }
 
@@ -43,7 +44,10 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     setState(() {
       _selectedFilter = filter;
     });
-    Provider.of<ShipmentProvider>(context, listen: false).loadShipments(status: filter == 'All' ? null : filter);
+    Provider.of<ShipmentProvider>(
+      context,
+      listen: false,
+    ).loadShipments(status: filter == 'All' ? null : filter);
   }
 
   @override
@@ -81,7 +85,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             ),
                           ),
                           Text(
-                            _user?.email ?? "Lomé, Togo", // CustomUser has no address in basic model, ClientProfile does.
+                            _user?.email ??
+                                "Lomé, Togo", // CustomUser has no address in basic model, ClientProfile does.
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.6),
                               fontSize: 14,
@@ -97,22 +102,36 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.notifications_none, color: Colors.white),
+                      icon: const Icon(
+                        Icons.notifications_none,
+                        color: Colors.white,
+                      ),
                       onPressed: () {
-                         Navigator.pushNamed(context, AppRoutes.notifications);
+                        Navigator.pushNamed(context, AppRoutes.notifications);
                       },
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 30),
-              
+
               const Text(
                 "Current Shipping",
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
-              
+
+              LiveMapCard(
+                onOpenMap: () {
+                  Navigator.pushNamed(context, AppRoutes.tracking);
+                },
+              ),
+              const SizedBox(height: 16),
+
               // Current Shipment Card
               Consumer<ShipmentProvider>(
                 builder: (context, provider, child) {
@@ -128,35 +147,63 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         borderRadius: BorderRadius.circular(24),
                       ),
                       alignment: Alignment.center,
-                      child: const Text("No active shipments", style: TextStyle(color: Colors.white)),
+                      child: const Text(
+                        "No active shipments",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     );
                   }
                   return CurrentShipmentCard(
                     shipment: current,
                     onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.clientTrackingRedesign, arguments: current);
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.trackDelivery,
+                        arguments: {
+                          'deliveryId':
+                              current?.livraisons?.firstOrNull?.id ?? 0,
+                          'agentId':
+                              current
+                                  ?.livraisons
+                                  ?.firstOrNull
+                                  ?.agentAllocated ??
+                              0,
+                          'agentName':
+                              'Agent Name', // Placeholder until available
+                          'agentPhone': '+228...',
+                          'clientLatitude': 6.1375, // Placeholder
+                          'clientLongitude': 1.2125, // Placeholder
+                        },
+                      );
                     },
                   );
                 },
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     "Recent Your Shipment",
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   TextButton(
                     onPressed: () {},
-                    child: const Text("View More", style: TextStyle(color: Colors.white54)),
-                  )
+                    child: const Text(
+                      "View More",
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               // Search & Filter
               Row(
                 children: [
@@ -167,13 +214,21 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         filled: true,
                         fillColor: AppColors.darkSurface,
                         hintText: 'Enter receipt number',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                        hintStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.white54,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 0,
+                        ),
                       ),
                     ),
                   ),
@@ -182,29 +237,39 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppColors.darkSurface,
-                      shape: BoxShape.circle, 
-                      borderRadius: BorderRadius.circular(16)
+                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.qr_code_scanner, color: Colors.white),
+                    child: const Icon(
+                      Icons.qr_code_scanner,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              
+
               // Filter Tabs
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: ['All', 'Pending', 'On Delivery', 'Delivered'].map((filter) {
+                  children: ['All', 'Pending', 'On Delivery', 'Delivered'].map((
+                    filter,
+                  ) {
                     final isSelected = _selectedFilter == filter;
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: GestureDetector(
                         onTap: () => _onFilterChanged(filter),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary : AppColors.darkSurface,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.darkSurface,
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Text(
@@ -221,7 +286,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // List
               Consumer<ShipmentProvider>(
                 builder: (context, provider, child) {
@@ -234,7 +299,26 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       return RecentShipmentTile(
                         shipment: shipment,
                         onTap: () {
-                           Navigator.pushNamed(context, AppRoutes.clientTrackingRedesign, arguments: shipment);
+                          // Navigate to details or tracking
+                          if (shipment.statut == 'en_cours' &&
+                              (shipment.livraisons?.isNotEmpty ?? false)) {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.trackDelivery,
+                              arguments: {
+                                'deliveryId': shipment.livraisons!.first.id,
+                                'agentId':
+                                    shipment.livraisons!.first.agentAllocated ??
+                                    0,
+                                'agentName': 'Agent', // Need fetch
+                                'agentPhone': '',
+                                'clientLatitude': 6.1375,
+                                'clientLongitude': 1.2125,
+                              },
+                            );
+                          } else {
+                            // Show details
+                          }
                         },
                       );
                     },
@@ -254,8 +338,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       margin: const EdgeInsets.all(20),
       height: 70,
       decoration: BoxDecoration(
-         color: AppColors.darkSurface,
-         borderRadius: BorderRadius.circular(40),
+        color: AppColors.darkSurface,
+        borderRadius: BorderRadius.circular(40),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -269,14 +353,20 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   }
 
   Widget _navItem(IconData icon, String label, bool isActive) {
-     return Row(
-       children: [
-          Icon(icon, color: isActive ? AppColors.primary : Colors.white54),
-          if (isActive) ...[
-            const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))
-          ]
-       ],
-     );
+    return Row(
+      children: [
+        Icon(icon, color: isActive ? AppColors.primary : Colors.white54),
+        if (isActive) ...[
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ],
+    );
   }
 }

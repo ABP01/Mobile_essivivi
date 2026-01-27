@@ -222,11 +222,24 @@ class FirebaseMessagingService {
 
   /// Sauvegarde le token FCM dans Appwrite
   Future<void> _saveFCMTokenToAppwrite(String token) async {
+    // Vérifier si l'utilisateur est connecté
+    if (!(await _appwriteService.isLoggedIn())) {
+      debugPrint('Utilisateur non connecté, sauvegarde du token FCM ignorée');
+      return;
+    }
+
     try {
       await _appwriteService.subscribeToPushNotifications(token);
       debugPrint('✅ Token FCM sauvegardé dans Appwrite');
     } catch (e) {
       debugPrint('❌ Erreur sauvegarde token: $e');
+    }
+  }
+
+  /// Sauvegarde le token FCM si disponible et utilisateur connecté
+  Future<void> saveFCMToken() async {
+    if (_fcmToken != null) {
+      await _saveFCMTokenToAppwrite(_fcmToken!);
     }
   }
 

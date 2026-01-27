@@ -1,12 +1,15 @@
 import 'package:appwrite/models.dart' as models;
 import 'package:flutter/foundation.dart';
 
+import '../data/repositories/auth_repository.dart';
 import '../services/appwrite_service.dart';
+import '../services/firebase_messaging_service.dart';
 
 /// 🔐 Provider pour gérer l'authentification avec Appwrite
 /// Gère l'état de connexion, OTP, sessions, etc.
 class AppwriteAuthProvider extends ChangeNotifier {
   final AppwriteService _appwriteService = AppwriteService();
+  final AuthRepository _authRepo = AuthRepository();
 
   // État de l'authentification
   bool _isAuthenticated = false;
@@ -29,6 +32,25 @@ class AppwriteAuthProvider extends ChangeNotifier {
       final isLoggedIn = await _appwriteService.isLoggedIn();
       if (isLoggedIn) {
         _currentUser = await _appwriteService.getCurrentUser();
+
+        // Ensure we have Django tokens (Sync Appwrite -> Django)
+        final hasDjangoToken = await _authRepo.isAuthenticated();
+        if (!hasDjangoToken) {
+          debugPrint(
+            'Appwrite logged in but no Django token. Attempting sync...',
+          );
+          try {
+            final jwt = await _appwriteService.createJWT();
+            await _authRepo.appwriteLogin(jwt.jwt);
+            debugPrint('Backend session synced successfully');
+          } catch (e) {
+            debugPrint('Failed to sync backend session: $e');
+            // We might want to logout if we can't sync, but for offline support
+            // we might keep Appwrite session. For now, we assume success or
+            // subsequent API calls will fail and trigger refresh/logout strings.
+          }
+        }
+
         _isAuthenticated = true;
       }
     } catch (e) {
@@ -84,16 +106,24 @@ class AppwriteAuthProvider extends ChangeNotifier {
         otp: otp,
       );
 
+      // Authenticate with Backend using Appwrite JWT
+      final jwtToken = await _appwriteService.createJWT();
+      await _authRepo.appwriteLogin(jwtToken.jwt);
+
       // Récupérer les infos utilisateur
       _currentUser = await _appwriteService.getCurrentUser();
       _isAuthenticated = true;
       _pendingUserId = null;
 
+      // Sauvegarder le token FCM si disponible
+      final messagingService = FirebaseMessagingService();
+      await messagingService.saveFCMToken();
+
       _setLoading(false);
       notifyListeners();
       return true;
     } catch (e) {
-      _setError('Code OTP invalide: ${e.toString()}');
+      _setError('Code OTP invalide ou erreur backend: ${e.toString()}');
       _setLoading(false);
       return false;
     }
@@ -140,8 +170,16 @@ class AppwriteAuthProvider extends ChangeNotifier {
     try {
       await _appwriteService.loginWithEmail(email: email, password: password);
 
+      // Authenticate with Backend using Appwrite JWT
+      final jwtToken = await _appwriteService.createJWT();
+      await _authRepo.appwriteLogin(jwtToken.jwt);
+
       _currentUser = await _appwriteService.getCurrentUser();
       _isAuthenticated = true;
+
+      // Sauvegarder le token FCM si disponible
+      final messagingService = FirebaseMessagingService();
+      await messagingService.saveFCMToken();
 
       _setLoading(false);
       notifyListeners();

@@ -6,6 +6,7 @@ import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/services/phone_service.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:essivi_mobile/presentation/widgets/tracking/order_status_stepper.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -200,6 +201,9 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   ),
                   const SizedBox(height: 24),
 
+                  OrderStatusStepper(status: _commande!.statut),
+                  const SizedBox(height: 24),
+
                   // Details Section
                   _buildInfoSection('Order Information', [
                     if (isAgent && _clientUser != null)
@@ -233,8 +237,9 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   if (!_commande!.isDelivered && !_commande!.isCancelled)
                     Column(
                       children: [
-                        SizedBox(
-                          width: double.infinity,
+                        if (_commande!.statut == 'en_cours' || _commande!.statut == 'pending' || _commande!.statut == 'validated')
+                          SizedBox(
+                            width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
                               Navigator.pushNamed(
@@ -283,7 +288,22 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                               ],
                             ),
                           ),
-                        ),
+                        )
+                        else
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.orderFeedback,
+                                  arguments: _commande!.id.toString(),
+                                );
+                              },
+                              icon: const Icon(Icons.rate_review_outlined),
+                              label: const Text('Évaluer la livraison'),
+                            ),
+                          ),
                         const SizedBox(height: 16),
                         if (!isAgent &&
                             _commande!.isValidated) // Client confirms

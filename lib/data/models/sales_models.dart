@@ -13,6 +13,7 @@ class Commande {
   final double? deliveryLongitude;
   final String? clientPhone;
   final String? agentPhone;
+  final List<Livraison>? livraisons;
 
   Commande({
     required this.id,
@@ -27,6 +28,7 @@ class Commande {
     this.deliveryLongitude,
     this.clientPhone,
     this.agentPhone,
+    this.livraisons,
   });
 
   factory Commande.fromJson(Map<String, dynamic> json) {
@@ -43,6 +45,9 @@ class Commande {
       deliveryLongitude: json['delivery_longitude'] != null ? double.tryParse(json['delivery_longitude'].toString()) : null,
       clientPhone: json['client_phone'] as String?,
       agentPhone: json['agent_phone'] as String?,
+      livraisons: (json['livraisons'] as List<dynamic>?)
+          ?.map((e) => Livraison.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -99,6 +104,7 @@ class Livraison {
   final String timestamp;
   final String? clientPhone;
   final String? agentPhone;
+  final int? agentAllocated;
 
   // Added getters for UI compatibility
   bool get isDelivered => preuveValidee;
@@ -124,6 +130,7 @@ class Livraison {
     required this.timestamp,
     this.clientPhone,
     this.agentPhone,
+    this.agentAllocated,
   });
 
   factory Livraison.fromJson(Map<String, dynamic> json) {
@@ -141,6 +148,7 @@ class Livraison {
       timestamp: json['timestamp'] as String,
       clientPhone: json['client_phone'] as String?,
       agentPhone: json['agent_phone'] as String?,
+      agentAllocated: json['agent_allocated'] as int?,
     );
   }
 
@@ -157,6 +165,7 @@ class Livraison {
       'signature': signature,
       'preuve_validee': preuveValidee,
       'timestamp': timestamp,
+      'agent_allocated': agentAllocated,
     };
   }
 

@@ -6,6 +6,7 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
+  static const String phoneLogin = '/phone-login';
 
   // Client Routes
   static const String home = '/home';
@@ -25,6 +26,10 @@ class AppRoutes {
   static const String bottleReturn = '/bottle-return';
   static const String subscription = '/subscription';
   static const String waterQuality = '/water-quality';
+  static const String addressBook = '/address-book';
+  static const String wallet = '/wallet';
+  static const String payment = '/payment';
+  static const String orderFeedback = '/order-feedback';
 
   // Redesign Routes
   static const String clientLanding = '/client-landing';
@@ -38,4 +43,9 @@ class AppRoutes {
   static const String agentProfile = '/agent-profile';
   static const String bottleInventory = '/bottle-inventory';
   static const String deliveryProof = '/delivery-proof';
+  static const String agentMap = '/agent-map';
+  static const String agentDeliveryDetails = '/agent-delivery-details';
+  static const String agentSettings = '/agent-settings';
+  static const String agentHistory = '/agent-history';
+  static const String agentAvailability = '/agent-availability';
 }

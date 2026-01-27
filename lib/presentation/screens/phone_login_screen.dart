@@ -1,3 +1,4 @@
+import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -254,7 +255,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   OutlinedButton.icon(
                     onPressed: () {
                       // Naviguer vers l'écran de connexion par email
-                      Navigator.pushNamed(context, '/email-login');
+                      Navigator.pushNamed(context, AppRoutes.login);
                     },
                     icon: const Icon(Icons.email),
                     label: const Text('Connexion par email'),
@@ -325,7 +326,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     if (success) {
       if (mounted) {
         // Connexion réussie ! Naviguer vers l'accueil
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
       }
     }
   }

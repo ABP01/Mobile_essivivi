@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../utils/api_config.dart';
@@ -8,9 +9,11 @@ class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
 
+  Dio get client => _dio;
   late Dio _dio;
   final _storage = const FlutterSecureStorage();
   bool _isRefreshing = false;
+  Completer<void>? _refreshCompleter;
 
   ApiService._internal() {
     _dio = Dio(
@@ -39,8 +42,32 @@ class ApiService {
         },
         onError: (DioException e, handler) async {
           // Handle 401 Unauthorized - Token expired
-          if (e.response?.statusCode == 401 && !_isRefreshing) {
+          if (e.response?.statusCode == 401) {
+            
+            // If verification is already in progress, wait for it
+            if (_isRefreshing) {
+               try {
+                 await _refreshCompleter!.future;
+                 // Retry with new token
+                 final newToken = await _storage.read(key: ApiConfig.accessTokenKey);
+                 e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+                 final cloneReq = await _dio.request(
+                    e.requestOptions.path,
+                    options: Options(
+                      method: e.requestOptions.method,
+                      headers: e.requestOptions.headers,
+                    ),
+                    data: e.requestOptions.data,
+                    queryParameters: e.requestOptions.queryParameters,
+                 );
+                 return handler.resolve(cloneReq);
+               } catch (_) {
+                 return handler.next(e);
+               }
+            }
+
             _isRefreshing = true;
+            _refreshCompleter = Completer<void>();
             
             try {
               // Try to refresh the token
@@ -64,6 +91,9 @@ class ApiService {
                     value: newAccessToken,
                   );
 
+                  _isRefreshing = false;
+                  _refreshCompleter!.complete();
+
                   // Retry the original request with new token
                   e.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
                   final cloneReq = await _dio.request(
@@ -76,7 +106,6 @@ class ApiService {
                     queryParameters: e.requestOptions.queryParameters,
                   );
                   
-                  _isRefreshing = false;
                   return handler.resolve(cloneReq);
                 }
               }
@@ -85,7 +114,11 @@ class ApiService {
               await _storage.delete(key: ApiConfig.accessTokenKey);
               await _storage.delete(key: ApiConfig.refreshTokenKey);
               await _storage.delete(key: ApiConfig.isAuthenticatedKey);
+              
               _isRefreshing = false;
+              if (!_refreshCompleter!.isCompleted) {
+                 _refreshCompleter!.completeError(refreshError);
+              }
             }
             
             _isRefreshing = false;
@@ -118,8 +151,6 @@ class ApiService {
       ),
     );
   }
-
-  Dio get client => _dio;
 
   /// Helper method to handle multipart file uploads
   Future<FormData> createFormData(Map<String, dynamic> data) async {

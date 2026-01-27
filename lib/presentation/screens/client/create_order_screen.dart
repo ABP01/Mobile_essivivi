@@ -1,13 +1,14 @@
+import 'package:essivi_mobile/data/models/cart_models.dart';
+import 'package:essivi_mobile/data/models/sales_models.dart';
+import 'package:essivi_mobile/data/repositories/auth_repository.dart';
+import 'package:essivi_mobile/data/repositories/sales_repository.dart';
+import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/services/cart_service.dart';
+import 'package:essivi_mobile/theme/app_colors.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:essivi_mobile/theme/app_colors.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
-import 'package:essivi_mobile/data/repositories/sales_repository.dart';
-import 'package:essivi_mobile/data/repositories/auth_repository.dart';
-import 'package:essivi_mobile/data/models/sales_models.dart';
-import 'package:essivi_mobile/services/cart_service.dart';
-import 'package:essivi_mobile/data/models/cart_models.dart';
+
 import 'select_location_screen.dart';
 
 class CreateOrderScreen extends StatefulWidget {
@@ -24,12 +25,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   String _deliveryTime = '9:00 AM - 12:00 PM';
   String _paymentMethod = 'Cash on Delivery';
   bool _isLoading = false;
-  
+
   // Position de livraison
   double? _deliveryLatitude;
   double? _deliveryLongitude;
   String? _deliveryAddress;
-  
+
   final _salesRepo = SalesRepository();
   final _authRepo = AuthRepository();
 
@@ -69,7 +70,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
     try {
       debugPrint('🔵 Début création commande...');
-      
+
       // Get current user
       final user = await _authRepo.getCurrentUser();
       debugPrint('🔵 User récupéré: ${user.id}');
@@ -86,13 +87,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         deliveryLatitude: _deliveryLatitude,
         deliveryLongitude: _deliveryLongitude,
       );
-      
+
       debugPrint('🔵 Request créée: ${request.toJson()}');
 
       // Submit to backend
       final commande = await _salesRepo.createCommande(request);
       debugPrint('✅ Commande créée avec succès! ID: ${commande.id}');
-      
+
       // Si la commande vient du panier, on le vide
       await CartService().clearCart();
 
@@ -103,7 +104,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     } catch (e) {
       debugPrint('❌ Erreur création commande: $e');
       if (!mounted) return;
-      
+
       // Show error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -136,33 +137,33 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                  onTap: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.home);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.textMain,
+                    onTap: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      } else {
+                        Navigator.pushReplacementNamed(context, AppRoutes.home);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: AppColors.textMain,
+                      ),
                     ),
                   ),
-                ),
                   const Spacer(),
                   Text(
                     'Nouvelle Commande',
@@ -178,7 +179,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     builder: (context, snapshot) {
                       final count = snapshot.data ?? 0;
                       return GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.cart),
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.cart),
                         child: Stack(
                           children: [
                             Container(
@@ -255,9 +257,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       children: [
                         Expanded(child: _buildBottleSizeCard('5L', '500 FCFA')),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildBottleSizeCard('10L', '1,000 FCFA')),
+                        Expanded(
+                          child: _buildBottleSizeCard('10L', '1,000 FCFA'),
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildBottleSizeCard('20L', '2,000 FCFA')),
+                        Expanded(
+                          child: _buildBottleSizeCard('20L', '2,000 FCFA'),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -294,7 +300,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 setState(() => _quantity--);
                               }
                             },
-                            icon: const Icon(Icons.remove_circle_outline, color: AppColors.primary, size: 32),
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              color: AppColors.primary,
+                              size: 32,
+                            ),
                           ),
                           Column(
                             children: [
@@ -319,7 +329,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             onPressed: () {
                               setState(() => _quantity++);
                             },
-                            icon: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 32),
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              color: AppColors.primary,
+                              size: 32,
+                            ),
                           ),
                         ],
                       ),
@@ -342,7 +356,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           context: context,
                           initialDate: _selectedDate,
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 30)),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 30),
+                          ),
                         );
                         if (date != null) {
                           setState(() => _selectedDate = date);
@@ -363,7 +379,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(FluentIcons.calendar_24_regular, color: AppColors.primary),
+                            const Icon(
+                              FluentIcons.calendar_24_regular,
+                              color: AppColors.primary,
+                            ),
                             const SizedBox(width: 16),
                             Text(
                               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
@@ -374,7 +393,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                               ),
                             ),
                             const Spacer(),
-                            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
                           ],
                         ),
                       ),
@@ -408,11 +431,20 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildPaymentMethod('Paiement à la livraison', FluentIcons.money_24_regular),
+                    _buildPaymentMethod(
+                      'Paiement à la livraison',
+                      FluentIcons.money_24_regular,
+                    ),
                     const SizedBox(height: 12),
-                    _buildPaymentMethod('Mobile Money', FluentIcons.phone_24_regular),
+                    _buildPaymentMethod(
+                      'Mobile Money',
+                      FluentIcons.phone_24_regular,
+                    ),
                     const SizedBox(height: 12),
-                    _buildPaymentMethod('Carte Bancaire', FluentIcons.payment_24_regular),
+                    _buildPaymentMethod(
+                      'Carte Bancaire',
+                      FluentIcons.payment_24_regular,
+                    ),
                     const SizedBox(height: 24),
 
                     // Lieu de Livraison
@@ -451,7 +483,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: _deliveryLatitude != null ? AppColors.primary : Colors.grey.shade200,
+                            color: _deliveryLatitude != null
+                                ? AppColors.primary
+                                : Colors.grey.shade200,
                             width: 2,
                           ),
                           boxShadow: [
@@ -466,7 +500,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           children: [
                             Icon(
                               FluentIcons.location_24_regular,
-                              color: _deliveryLatitude != null ? AppColors.primary : Colors.grey,
+                              color: _deliveryLatitude != null
+                                  ? AppColors.primary
+                                  : Colors.grey,
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -474,11 +510,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _deliveryAddress ?? 'Sélectionner sur la carte',
+                                    _deliveryAddress ??
+                                        'Sélectionner sur la carte',
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
-                                      fontWeight: _deliveryAddress != null ? FontWeight.w600 : FontWeight.normal,
-                                      color: _deliveryAddress != null ? AppColors.textMain : AppColors.textSecondary,
+                                      fontWeight: _deliveryAddress != null
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                      color: _deliveryAddress != null
+                                          ? AppColors.textMain
+                                          : AppColors.textSecondary,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -495,7 +536,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 ],
                               ),
                             ),
-                            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
                           ],
                         ),
                       ),
@@ -508,7 +553,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.3),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,7 +616,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.primary,
-                              side: const BorderSide(color: AppColors.primary, width: 2),
+                              side: const BorderSide(
+                                color: AppColors.primary,
+                                width: 2,
+                              ),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -663,7 +713,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               price,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: isSelected ? Colors.white.withOpacity(0.9) : AppColors.textSecondary,
+                color: isSelected
+                    ? Colors.white.withOpacity(0.9)
+                    : AppColors.textSecondary,
               ),
             ),
           ],
@@ -689,7 +741,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         child: Row(
           children: [
             Icon(
-              isSelected ? FluentIcons.radio_button_24_filled : FluentIcons.radio_button_24_regular,
+              isSelected
+                  ? FluentIcons.radio_button_24_filled
+                  : FluentIcons.radio_button_24_regular,
               color: isSelected ? AppColors.primary : Colors.grey,
             ),
             const SizedBox(width: 12),
@@ -724,7 +778,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         child: Row(
           children: [
             Icon(
-              isSelected ? FluentIcons.radio_button_24_filled : FluentIcons.radio_button_24_regular,
+              isSelected
+                  ? FluentIcons.radio_button_24_filled
+                  : FluentIcons.radio_button_24_regular,
               color: isSelected ? AppColors.primary : Colors.grey,
             ),
             const SizedBox(width: 12),
@@ -817,7 +873,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     }
   }
 
-
   void _showOrderConfirmation(BuildContext context) {
     showDialog(
       context: context,
@@ -826,7 +881,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(FluentIcons.checkmark_circle_24_filled, color: Colors.green, size: 64),
+            const Icon(
+              FluentIcons.checkmark_circle_24_filled,
+              color: Colors.green,
+              size: 64,
+            ),
             const SizedBox(height: 16),
             Text(
               'Commande Passée !',
@@ -845,6 +904,26 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, AppRoutes.payment);
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Choisir un paiement',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

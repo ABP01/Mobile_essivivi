@@ -1,5 +1,6 @@
 import 'package:essivi_mobile/l10n/app_localizations.dart';
 import 'package:essivi_mobile/providers/agent_provider.dart';
+import 'package:essivi_mobile/providers/client_provider.dart';
 import 'package:essivi_mobile/providers/appwrite_auth_provider.dart';
 import 'package:essivi_mobile/providers/language_provider.dart';
 import 'package:essivi_mobile/providers/notification_provider.dart';
@@ -62,6 +63,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => ShipmentProvider()),
         ChangeNotifierProvider(create: (_) => AgentProvider()),
+        ChangeNotifierProvider(create: (_) => ClientProvider()),
         ChangeNotifierProvider(create: (_) => AppwriteAuthProvider()),
         Provider(create: (_) => AppwriteService()),
         Provider(create: (_) => FirebaseMessagingService()),
@@ -132,9 +134,7 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.isDarkMode
-              ? ThemeMode.dark
-              : ThemeMode.light,
+          themeMode: ThemeMode.dark, // Force Dark Mode to match ClientLandingScreen aesthetic globally
           locale: languageProvider.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,

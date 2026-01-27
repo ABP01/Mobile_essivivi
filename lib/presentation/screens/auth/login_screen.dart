@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (user.role == 'agent') {
         Navigator.pushReplacementNamed(context, AppRoutes.agentDashboard);
       } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.clientHomeRedesign);
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
       }
     } catch (e) {
       setState(() {
@@ -163,6 +163,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
+
+              // Phone Login
+              Center(
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.phoneLogin);
+                  },
+                  icon: const Icon(Icons.phone_android, size: 18),
+                  label: const Text('Connexion par téléphone'),
+                ),
+              ),
 
               // Password Field
               Text(

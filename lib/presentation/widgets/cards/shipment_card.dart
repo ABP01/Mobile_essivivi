@@ -119,7 +119,7 @@ class RecentShipmentTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2C), // Dark Card Color
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -139,8 +139,8 @@ class RecentShipmentTile extends StatelessWidget {
               children: [
                 Text(
                   "Order #${shipment.id}",
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -149,7 +149,7 @@ class RecentShipmentTile extends StatelessWidget {
                 Text(
                   "ID: ${shipment.id}",
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 13,
                   ),
                 ),

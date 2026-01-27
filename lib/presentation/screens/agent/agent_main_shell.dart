@@ -1,5 +1,6 @@
 import 'package:essivi_mobile/presentation/screens/agent/agent_dashboard.dart';
 import 'package:essivi_mobile/presentation/screens/agent/agent_profile_screen.dart';
+import 'package:essivi_mobile/presentation/screens/agent/agent_map_screen.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -15,12 +16,7 @@ class _AgentMainShellState extends State<AgentMainShell> {
 
   static final List<Widget> _pages = <Widget>[
     AgentDashboard(), // The real robust dashboard
-    Center(
-      child: Text(
-        "Deliveries Map Placeholder",
-        style: TextStyle(color: Colors.white),
-      ),
-    ),
+    AgentMapScreen(), // Real Map Screen
     AgentProfileScreen(),
   ];
 

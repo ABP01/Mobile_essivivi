@@ -1,4 +1,5 @@
 import 'package:essivi_mobile/l10n/app_localizations.dart';
+import 'package:essivi_mobile/presentation/widgets/cards/earnings_summary_card.dart';
 import 'package:essivi_mobile/providers/agent_provider.dart';
 import 'package:essivi_mobile/routes/app_routes.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
@@ -209,6 +210,11 @@ class _AgentDashboardState extends State<AgentDashboard> {
                                       ],
                                     ),
                                     const SizedBox(height: 20),
+                                    EarningsSummaryCard(
+                                      dailyEarnings: earnedToday,
+                                      weeklyEarnings: earnedToday * 5,
+                                      tripCount: completedCount,
+                                    ),
                                     Row(
                                       children: [
                                         Expanded(

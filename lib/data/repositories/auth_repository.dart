@@ -44,6 +44,39 @@ class AuthRepository {
     }
   }
 
+  /// Exchange Appwrite JWT for Django tokens
+  /// Returns CustomUser on success
+  Future<CustomUser> appwriteLogin(String jwt) async {
+    try {
+      final response = await _apiService.client.post(
+        ApiConfig.appwriteLoginEndpoint,
+        data: {'jwt': jwt},
+      );
+
+      // Extract tokens
+      final data = response.data;
+      final accessToken = data['access'];
+      final refreshToken = data['refresh'];
+      final userData = data['user']; // Assuming the endpoint returns user object too
+
+      // Store tokens
+      await _storage.write(
+        key: ApiConfig.accessTokenKey,
+        value: accessToken,
+      );
+      await _storage.write(
+        key: ApiConfig.refreshTokenKey,
+        value: refreshToken,
+      );
+      await _storage.write(key: ApiConfig.isAuthenticatedKey, value: 'true');
+
+      // Return user
+      return CustomUser.fromJson(userData);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Signup new user
   Future<CustomUser> signup(SignupRequest signupRequest) async {
     try {

@@ -8,6 +8,7 @@ class CustomUser {
   final String? phoneNumber;
   final String? firstName;
   final String? lastName;
+  final String? photo;
 
   CustomUser({
     required this.id,
@@ -17,6 +18,7 @@ class CustomUser {
     this.phoneNumber,
     this.firstName,
     this.lastName,
+    this.photo,
   });
 
   factory CustomUser.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class CustomUser {
       phoneNumber: json['phone_number'] as String?,
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
+      photo: json['photo'] as String?,
     );
   }
 
@@ -40,6 +43,7 @@ class CustomUser {
       'phone_number': phoneNumber,
       'first_name': firstName,
       'last_name': lastName,
+      'photo': photo,
     };
   }
 
@@ -67,7 +71,7 @@ class AgentProfile {
   final double? longitude;
   final String? identificationNumber;
   final String? tricyclePlate;
-  
+
   // Nested user object if included in response
   final CustomUser? user;
 
@@ -92,16 +96,24 @@ class AgentProfile {
   factory AgentProfile.fromJson(Map<String, dynamic> json) {
     return AgentProfile(
       id: json['id'] as int,
-      userId: json['user'] is int ? json['user'] as int : (json['user'] as Map<String, dynamic>)['id'] as int,
+      userId: json['user'] is int
+          ? json['user'] as int
+          : (json['user'] as Map<String, dynamic>)['id'] as int,
       photo: json['photo'] as String?,
       dateEmbauche: json['date_embauche'] as String?,
       tricycleId: json['tricycle'] as int?,
       zoneAssignee: json['zone_assignee'] as String?,
-      latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
-      longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
+      latitude: json['latitude'] != null
+          ? (json['latitude'] as num).toDouble()
+          : null,
+      longitude: json['longitude'] != null
+          ? (json['longitude'] as num).toDouble()
+          : null,
       identificationNumber: json['identification_number'] as String?,
       tricyclePlate: json['tricycle_plate'] as String?,
-      user: json['user'] is Map<String, dynamic> ? CustomUser.fromJson(json['user'] as Map<String, dynamic>) : null,
+      user: json['user'] is Map<String, dynamic>
+          ? CustomUser.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -132,7 +144,7 @@ class ClientProfile {
   final double? gpsLat;
   final double? gpsLng;
   final double solde;
-  
+
   // Nested user object if included in response
   final CustomUser? user;
 
@@ -151,14 +163,22 @@ class ClientProfile {
   factory ClientProfile.fromJson(Map<String, dynamic> json) {
     return ClientProfile(
       id: json['id'] as int,
-      userId: json['user'] is int ? json['user'] as int : (json['user'] as Map<String, dynamic>)['id'] as int,
+      userId: json['user'] is int
+          ? json['user'] as int
+          : (json['user'] as Map<String, dynamic>)['id'] as int,
       nomPointVente: json['nom_point_vente'] as String,
       nomProprietaire: json['nom_proprietaire'] as String?,
       adresse: json['adresse'] as String?,
-      gpsLat: json['gps_lat'] != null ? (json['gps_lat'] as num).toDouble() : null,
-      gpsLng: json['gps_lng'] != null ? (json['gps_lng'] as num).toDouble() : null,
+      gpsLat: json['gps_lat'] != null
+          ? (json['gps_lat'] as num).toDouble()
+          : null,
+      gpsLng: json['gps_lng'] != null
+          ? (json['gps_lng'] as num).toDouble()
+          : null,
       solde: (json['solde'] as num).toDouble(),
-      user: json['user'] is Map<String, dynamic> ? CustomUser.fromJson(json['user'] as Map<String, dynamic>) : null,
+      user: json['user'] is Map<String, dynamic>
+          ? CustomUser.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -183,16 +203,10 @@ class LoginRequest {
   final String username;
   final String password;
 
-  LoginRequest({
-    required this.username,
-    required this.password,
-  });
+  LoginRequest({required this.username, required this.password});
 
   Map<String, dynamic> toJson() {
-    return {
-      'username': username,
-      'password': password,
-    };
+    return {'username': username, 'password': password};
   }
 }
 
@@ -201,10 +215,7 @@ class LoginResponse {
   final String access;
   final String refresh;
 
-  LoginResponse({
-    required this.access,
-    required this.refresh,
-  });
+  LoginResponse({required this.access, required this.refresh});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
