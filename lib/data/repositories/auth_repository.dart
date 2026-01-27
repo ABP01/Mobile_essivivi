@@ -57,17 +57,12 @@ class AuthRepository {
       final data = response.data;
       final accessToken = data['access'];
       final refreshToken = data['refresh'];
-      final userData = data['user']; // Assuming the endpoint returns user object too
+      final userData =
+          data['user']; // Assuming the endpoint returns user object too
 
       // Store tokens
-      await _storage.write(
-        key: ApiConfig.accessTokenKey,
-        value: accessToken,
-      );
-      await _storage.write(
-        key: ApiConfig.refreshTokenKey,
-        value: refreshToken,
-      );
+      await _storage.write(key: ApiConfig.accessTokenKey, value: accessToken);
+      await _storage.write(key: ApiConfig.refreshTokenKey, value: refreshToken);
       await _storage.write(key: ApiConfig.isAuthenticatedKey, value: 'true');
 
       // Return user
@@ -80,12 +75,43 @@ class AuthRepository {
   /// Signup new user
   Future<CustomUser> signup(SignupRequest signupRequest) async {
     try {
-      await _apiService.client.post(
+      final response = await _apiService.client.post(
         ApiConfig.signupEndpoint,
         data: signupRequest.toJson(),
       );
 
-      // After signup, login automatically
+      // If the backend returns the tokens and user (as our Django RegisterView does),
+      // store them and return the created user instead of calling login again.
+      final data = response.data;
+
+      if (data is Map<String, dynamic>) {
+        final access = data['access'] as String?;
+        final refresh = data['refresh'] as String?;
+        final userData = data['user'];
+
+        if (access != null &&
+            refresh != null &&
+            userData is Map<String, dynamic>) {
+          await _storage.write(key: ApiConfig.accessTokenKey, value: access);
+          await _storage.write(key: ApiConfig.refreshTokenKey, value: refresh);
+          await _storage.write(
+            key: ApiConfig.isAuthenticatedKey,
+            value: 'true',
+          );
+
+          // Store user info if available
+          final email = userData['email'] as String?;
+          final role = userData['role'] as String?;
+          if (email != null)
+            await _storage.write(key: ApiConfig.userEmailKey, value: email);
+          if (role != null)
+            await _storage.write(key: ApiConfig.userRoleKey, value: role);
+
+          return CustomUser.fromJson(userData as Map<String, dynamic>);
+        }
+      }
+
+      // Fallback: call login to retrieve tokens/profile
       return await login(signupRequest.username, signupRequest.password);
     } catch (e) {
       rethrow;

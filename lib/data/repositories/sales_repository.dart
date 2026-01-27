@@ -11,14 +11,37 @@ class SalesRepository {
 
   /// Get all commandes
   Future<List<Commande>> getCommandes() async {
-    try {
-      final response = await _apiService.client.get(
-        ApiConfig.commandesEndpoint,
-      );
-      final List<dynamic> data = response.data;
-      return data.map((json) => Commande.fromJson(json)).toList();
-    } catch (e) {
-      rethrow;
+    const int maxAttempts = 3;
+    int attempt = 0;
+    int delayMs = 500;
+
+    while (true) {
+      try {
+        final response = await _apiService.client.get(
+          ApiConfig.commandesEndpoint,
+        );
+        final dynamic raw = response.data;
+        final List<dynamic> data = raw is List
+            ? raw
+            : (raw is Map && raw['results'] is List)
+            ? raw['results'] as List<dynamic>
+            : (raw is Map && raw['data'] is List)
+            ? raw['data'] as List<dynamic>
+            : [];
+        return data.map((json) => Commande.fromJson(json)).toList();
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (status == 502 && attempt < maxAttempts - 1) {
+          await Future.delayed(Duration(milliseconds: delayMs));
+          attempt += 1;
+          delayMs *= 2;
+          continue;
+        }
+
+        if (status == 502) return <Commande>[];
+
+        rethrow;
+      }
     }
   }
 
@@ -29,7 +52,12 @@ class SalesRepository {
         '${ApiConfig.commandesEndpoint}$id/',
       );
       return Commande.fromJson(response.data);
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 502) {
+        throw Exception(
+          'Service temporairement indisponible. Réessayez plus tard.',
+        );
+      }
       rethrow;
     }
   }
@@ -39,43 +67,112 @@ class SalesRepository {
 
   /// Get commandes for a specific client
   Future<List<Commande>> getCommandesByClient(int clientId) async {
-    try {
-      final response = await _apiService.client.get(
-        ApiConfig.commandesEndpoint,
-        queryParameters: {'client': clientId},
-      );
-      final List<dynamic> data = response.data;
-      return data.map((json) => Commande.fromJson(json)).toList();
-    } catch (e) {
-      rethrow;
+    const int maxAttempts = 3;
+    int attempt = 0;
+    int delayMs = 500;
+
+    while (true) {
+      try {
+        final response = await _apiService.client.get(
+          ApiConfig.commandesEndpoint,
+          queryParameters: {'client': clientId},
+        );
+        final dynamic raw = response.data;
+        final List<dynamic> data = raw is List
+            ? raw
+            : (raw is Map && raw['results'] is List)
+            ? raw['results'] as List<dynamic>
+            : (raw is Map && raw['data'] is List)
+            ? raw['data'] as List<dynamic>
+            : [];
+        return data.map((json) => Commande.fromJson(json)).toList();
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (status == 502 && attempt < maxAttempts - 1) {
+          await Future.delayed(Duration(milliseconds: delayMs));
+          attempt += 1;
+          delayMs *= 2;
+          continue;
+        }
+
+        if (status == 502) return <Commande>[];
+
+        rethrow;
+      }
     }
   }
 
   /// Get commandes for a specific agent
   Future<List<Commande>> getCommandesByAgent(int agentId) async {
-    try {
-      final response = await _apiService.client.get(
-        ApiConfig.commandesEndpoint,
-        queryParameters: {'agent': agentId},
-      );
-      final List<dynamic> data = response.data;
-      return data.map((json) => Commande.fromJson(json)).toList();
-    } catch (e) {
-      rethrow;
+    const int maxAttempts = 3;
+    int attempt = 0;
+    int delayMs = 500;
+
+    while (true) {
+      try {
+        final response = await _apiService.client.get(
+          ApiConfig.commandesEndpoint,
+          queryParameters: {'agent': agentId},
+        );
+        final dynamic raw = response.data;
+        final List<dynamic> data = raw is List
+            ? raw
+            : (raw is Map && raw['results'] is List)
+            ? raw['results'] as List<dynamic>
+            : (raw is Map && raw['data'] is List)
+            ? raw['data'] as List<dynamic>
+            : [];
+        return data.map((json) => Commande.fromJson(json)).toList();
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (status == 502 && attempt < maxAttempts - 1) {
+          await Future.delayed(Duration(milliseconds: delayMs));
+          attempt += 1;
+          delayMs *= 2;
+          continue;
+        }
+
+        if (status == 502) return <Commande>[];
+
+        rethrow;
+      }
     }
   }
 
   /// Get commandes by status
   Future<List<Commande>> getCommandesByStatus(String status) async {
-    try {
-      final response = await _apiService.client.get(
-        ApiConfig.commandesEndpoint,
-        queryParameters: {'statut': status},
-      );
-      final List<dynamic> data = response.data;
-      return data.map((json) => Commande.fromJson(json)).toList();
-    } catch (e) {
-      rethrow;
+    const int maxAttempts = 3;
+    int attempt = 0;
+    int delayMs = 500;
+
+    while (true) {
+      try {
+        final response = await _apiService.client.get(
+          ApiConfig.commandesEndpoint,
+          queryParameters: {'statut': status},
+        );
+        final dynamic raw = response.data;
+        final List<dynamic> data = raw is List
+            ? raw
+            : (raw is Map && raw['results'] is List)
+            ? raw['results'] as List<dynamic>
+            : (raw is Map && raw['data'] is List)
+            ? raw['data'] as List<dynamic>
+            : [];
+        return data.map((json) => Commande.fromJson(json)).toList();
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (status == 502 && attempt < maxAttempts - 1) {
+          await Future.delayed(Duration(milliseconds: delayMs));
+          attempt += 1;
+          delayMs *= 2;
+          continue;
+        }
+
+        if (status == 502) return <Commande>[];
+
+        rethrow;
+      }
     }
   }
 
@@ -87,7 +184,12 @@ class SalesRepository {
         data: request.toJson(),
       );
       return Commande.fromJson(response.data);
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 502) {
+        throw Exception(
+          'Service temporairement indisponible. Réessayez plus tard.',
+        );
+      }
       rethrow;
     }
   }
@@ -100,7 +202,12 @@ class SalesRepository {
         data: request.toJson(),
       );
       return Commande.fromJson(response.data);
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 502) {
+        throw Exception(
+          'Service temporairement indisponible. Réessayez plus tard.',
+        );
+      }
       rethrow;
     }
   }
@@ -114,7 +221,12 @@ class SalesRepository {
   Future<void> deleteCommande(int id) async {
     try {
       await _apiService.client.delete('${ApiConfig.commandesEndpoint}$id/');
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 502) {
+        throw Exception(
+          'Service temporairement indisponible. Réessayez plus tard.',
+        );
+      }
       rethrow;
     }
   }
@@ -123,14 +235,37 @@ class SalesRepository {
 
   /// Get all livraisons
   Future<List<Livraison>> getLivraisons() async {
-    try {
-      final response = await _apiService.client.get(
-        ApiConfig.livraisonsEndpoint,
-      );
-      final List<dynamic> data = response.data;
-      return data.map((json) => Livraison.fromJson(json)).toList();
-    } catch (e) {
-      rethrow;
+    const int maxAttempts = 3;
+    int attempt = 0;
+    int delayMs = 500;
+
+    while (true) {
+      try {
+        final response = await _apiService.client.get(
+          ApiConfig.livraisonsEndpoint,
+        );
+        final dynamic raw = response.data;
+        final List<dynamic> data = raw is List
+            ? raw
+            : (raw is Map && raw['results'] is List)
+            ? raw['results'] as List<dynamic>
+            : (raw is Map && raw['data'] is List)
+            ? raw['data'] as List<dynamic>
+            : [];
+        return data.map((json) => Livraison.fromJson(json)).toList();
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (status == 502 && attempt < maxAttempts - 1) {
+          await Future.delayed(Duration(milliseconds: delayMs));
+          attempt += 1;
+          delayMs *= 2;
+          continue;
+        }
+
+        if (status == 502) return <Livraison>[];
+
+        rethrow;
+      }
     }
   }
 
@@ -141,22 +276,50 @@ class SalesRepository {
         '${ApiConfig.livraisonsEndpoint}$id/',
       );
       return Livraison.fromJson(response.data);
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 502) {
+        throw Exception(
+          'Service temporairement indisponible. Réessayez plus tard.',
+        );
+      }
       rethrow;
     }
   }
 
   /// Get livraisons for a specific tournee
   Future<List<Livraison>> getLivraisonsByTournee(int tourneeId) async {
-    try {
-      final response = await _apiService.client.get(
-        ApiConfig.livraisonsEndpoint,
-        queryParameters: {'tournee': tourneeId},
-      );
-      final List<dynamic> data = response.data;
-      return data.map((json) => Livraison.fromJson(json)).toList();
-    } catch (e) {
-      rethrow;
+    const int maxAttempts = 3;
+    int attempt = 0;
+    int delayMs = 500;
+
+    while (true) {
+      try {
+        final response = await _apiService.client.get(
+          ApiConfig.livraisonsEndpoint,
+          queryParameters: {'tournee': tourneeId},
+        );
+        final dynamic raw = response.data;
+        final List<dynamic> data = raw is List
+            ? raw
+            : (raw is Map && raw['results'] is List)
+            ? raw['results'] as List<dynamic>
+            : (raw is Map && raw['data'] is List)
+            ? raw['data'] as List<dynamic>
+            : [];
+        return data.map((json) => Livraison.fromJson(json)).toList();
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (status == 502 && attempt < maxAttempts - 1) {
+          await Future.delayed(Duration(milliseconds: delayMs));
+          attempt += 1;
+          delayMs *= 2;
+          continue;
+        }
+
+        if (status == 502) return <Livraison>[];
+
+        rethrow;
+      }
     }
   }
 
