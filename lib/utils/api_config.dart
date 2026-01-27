@@ -87,6 +87,10 @@ class ApiConfig {
   // User preferences endpoints
   static const String preferencesEndpoint = '/users/preferences/';
 
+  // Appwrite endpoints (server side) - used to sync FCM token to backend
+  static const String appwriteSaveFcmTokenEndpoint =
+      '/auth/appwrite/save-fcm-token/';
+
   // Abonnements endpoints
   static const String subscriptionsEndpoint = '/sales/subscriptions/';
 

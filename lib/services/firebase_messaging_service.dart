@@ -4,6 +4,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../data/datasources/api_service.dart';
+import '../utils/api_config.dart';
 import 'appwrite_service.dart';
 
 /// 🔔 Service de gestion des notifications push Firebase Cloud Messaging
@@ -45,6 +47,17 @@ class FirebaseMessagingService {
         // Sauvegarder le token dans Appwrite
         if (_fcmToken != null) {
           await _saveFCMTokenToAppwrite(_fcmToken!);
+          // Also save token to backend (Django) so server-side FCM send works
+          try {
+            final apiService = ApiService();
+            await apiService.client.post(
+              ApiConfig.appwriteSaveFcmTokenEndpoint,
+              data: {'fcm_token': _fcmToken},
+            );
+            debugPrint('✅ Token FCM sauvegardé aussi dans le backend');
+          } catch (e) {
+            debugPrint('⚠️ Erreur sauvegarde token sur backend: $e');
+          }
         }
 
         // Configurer les handlers de messages

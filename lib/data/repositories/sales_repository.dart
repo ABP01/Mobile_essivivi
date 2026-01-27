@@ -469,11 +469,20 @@ class SalesRepository {
   }
 
   /// Update delivery status (en_route, arriving, etc.)
-  Future<Livraison> updateDeliveryStatus(int id, String status) async {
+  Future<Livraison> updateDeliveryStatus(
+    int id,
+    String status, {
+    double? gpsLat,
+    double? gpsLng,
+  }) async {
     try {
+      final data = {'statut_livraison': status};
+      if (gpsLat != null) data['gps_lat'] = gpsLat.toString();
+      if (gpsLng != null) data['gps_lng'] = gpsLng.toString();
+
       final response = await _apiService.client.post(
         '${ApiConfig.livraisonsEndpoint}$id/update_status/',
-        data: {'statut_livraison': status},
+        data: data,
       );
 
       return Livraison.fromJson(response.data);

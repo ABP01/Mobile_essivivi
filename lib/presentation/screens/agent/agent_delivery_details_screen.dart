@@ -1,29 +1,110 @@
 import 'package:essivi_mobile/data/models/sales_models.dart';
+import 'package:essivi_mobile/data/repositories/sales_repository.dart';
+import 'package:essivi_mobile/presentation/screens/agent/delivery_proof_screen.dart';
 import 'package:essivi_mobile/presentation/widgets/cards/delivery_proof_card.dart';
 import 'package:essivi_mobile/presentation/widgets/layout/custom_app_bar.dart';
-import 'package:essivi_mobile/routes/app_routes.dart';
+import 'package:essivi_mobile/services/location_service.dart';
 import 'package:essivi_mobile/theme/app_colors.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AgentDeliveryDetailsScreen extends StatelessWidget {
+class AgentDeliveryDetailsScreen extends StatefulWidget {
   final Livraison? livraison;
+  final SalesRepository? salesRepo;
+  final LocationService? locationService;
 
-  const AgentDeliveryDetailsScreen({super.key, this.livraison});
+  const AgentDeliveryDetailsScreen({
+    super.key,
+    this.livraison,
+    this.salesRepo,
+    this.locationService,
+  });
+
+  @override
+  State<AgentDeliveryDetailsScreen> createState() =>
+      _AgentDeliveryDetailsScreenState();
+}
+
+class _AgentDeliveryDetailsScreenState
+    extends State<AgentDeliveryDetailsScreen> {
+  final SalesRepository _salesRepo = SalesRepository();
+  Livraison? _livraison;
+  bool _isLoading = false;
+  bool _deliveredLocally = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _livraison = widget.livraison;
+  }
+
+  Future<void> _updateStatus(
+    String status, {
+    double? gpsLat,
+    double? gpsLng,
+  }) async {
+    if (_livraison == null) return;
+    setState(() => _isLoading = true);
+    try {
+      final updated = await _salesRepo.updateDeliveryStatus(
+        _livraison!.id,
+        status,
+        gpsLat: gpsLat,
+        gpsLng: gpsLng,
+      );
+      setState(() {
+        _livraison = updated;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Statut mis à jour: $status')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur mise à jour statut: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _confirmDelivery({
+    String? photoPath,
+    String? signaturePath,
+    double? gpsLat,
+    double? gpsLng,
+  }) async {
+    if (_livraison == null) return;
+    setState(() => _isLoading = true);
+    try {
+      final updated = await _salesRepo.submitProof(
+        id: _livraison!.id,
+        photoPath: photoPath,
+        signaturePath: signaturePath,
+        gpsLat: gpsLat,
+        gpsLng: gpsLng,
+      );
+      setState(() {
+        _livraison = updated;
+        _deliveredLocally = true;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Livraison confirmée')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur confirmation: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (livraison == null) {
-      // Fallback or error state
-      return const Scaffold(
-        appBar: CustomAppBar(title: 'Détails'),
-        body: Center(child: Text('Aucune donnée de livraison')),
-      );
-    }
-
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final livraison = _livraison ?? widget.livraison;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -46,7 +127,7 @@ class AgentDeliveryDetailsScreen extends StatelessWidget {
                   const Icon(Icons.info_outline, color: Colors.orange),
                   const SizedBox(width: 12),
                   Text(
-                    livraison!.statutLivraison?.toUpperCase() ?? 'EN ATTENTE',
+                    livraison?.statutLivraison?.toUpperCase() ?? 'EN ATTENTE',
                     style: const TextStyle(
                       color: Colors.orange,
                       fontWeight: FontWeight.bold,
@@ -84,14 +165,14 @@ class AgentDeliveryDetailsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Client #${livraison!.clientId}',
+                          'Client #${livraison?.clientId ?? ''}',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          livraison!.clientPhone ?? '+228...',
+                          livraison?.clientPhone ?? '+228...',
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -145,7 +226,7 @@ class AgentDeliveryDetailsScreen extends StatelessWidget {
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              'Lat: ${livraison!.gpsLat ?? 'N/A'}, Lng: ${livraison!.gpsLng ?? 'N/A'}',
+                              'Lat: ${livraison?.gpsLat ?? 'N/A'}, Lng: ${livraison?.gpsLng ?? 'N/A'}',
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],
@@ -174,43 +255,163 @@ class AgentDeliveryDetailsScreen extends StatelessWidget {
 
             DeliveryProofCard(
               timestamp: DateTime.now(),
-              onTapPhoto: () {
-                Navigator.pushNamed(context, AppRoutes.deliveryProof);
+              onTapPhoto: () async {
+                // Open proof screen and await capture result
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DeliveryProofScreen(
+                      deliveryId: '${livraison?.id ?? ''}',
+                      clientName: 'Client #${livraison?.clientId ?? ''}',
+                      address:
+                          'Lat:${livraison?.gpsLat ?? 'N/A'}, Lng:${livraison?.gpsLng ?? 'N/A'}',
+                    ),
+                  ),
+                );
+
+                if (result != null && result is Map<String, dynamic>) {
+                  final gpsValidated = result['gpsValidated'] == true;
+                  final photoTaken = result['photoTaken'] == true;
+                  final signatureCaptured = result['signatureCaptured'] == true;
+                  if (result['submitted'] == true) {
+                    // Backend already processed proof; refresh livraison
+                    try {
+                      final refreshed = await _salesRepo.getLivraisonById(
+                        livraison!.id,
+                      );
+                      setState(() {
+                        _livraison = refreshed;
+                        _deliveredLocally = refreshed.preuveValidee;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Preuve envoyée')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Erreur rafraîchissement: ${e.toString()}',
+                          ),
+                        ),
+                      );
+                    }
+                  } else if (gpsValidated || photoTaken || signatureCaptured) {
+                    // Submit without files (fallback)
+                    await _confirmDelivery();
+                  }
+                }
               },
-              onTapSignature: () {
-                Navigator.pushNamed(context, AppRoutes.deliveryProof);
+              onTapSignature: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DeliveryProofScreen(
+                      deliveryId: '${livraison?.id ?? ''}',
+                      clientName: 'Client #${livraison?.clientId ?? ''}',
+                      address:
+                          'Lat:${livraison?.gpsLat ?? 'N/A'}, Lng:${livraison?.gpsLng ?? 'N/A'}',
+                    ),
+                  ),
+                );
+
+                if (result != null && result is Map<String, dynamic>) {
+                  if (result['submitted'] == true) {
+                    try {
+                      final refreshed = await _salesRepo.getLivraisonById(
+                        livraison!.id,
+                      );
+                      setState(() {
+                        _livraison = refreshed;
+                        _deliveredLocally = refreshed.preuveValidee;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Preuve envoyée')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Erreur rafraîchissement: ${e.toString()}',
+                          ),
+                        ),
+                      );
+                    }
+                  } else if (result['gpsValidated'] == true ||
+                      result['photoTaken'] == true ||
+                      result['signatureCaptured'] == true) {
+                    await _confirmDelivery();
+                  }
+                }
               },
-              onSubmit: () {
-                Navigator.pushNamed(context, AppRoutes.deliveryProof);
+              onSubmit: () async {
+                await _confirmDelivery();
               },
               actionLabel: 'Confirmer la preuve',
             ),
             const SizedBox(height: 24),
 
             // Actions
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to proof screen
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          (livraison == null ||
+                              (livraison?.statutLivraison == 'en_route'))
+                          ? null
+                          : () => _updateStatus('en_route'),
+                      child: const Text('En route'),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'Confirmer Livraison',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          (livraison == null ||
+                              (livraison?.statutLivraison == 'arriving'))
+                          ? null
+                          : () => _updateStatus('arriving'),
+                      child: const Text("J'arrive"),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed:
+                      (livraison == null ||
+                          _deliveredLocally ||
+                          (livraison?.statutLivraison == 'delivered') ||
+                          (livraison?.preuveValidee == true))
+                      ? null
+                      : () async {
+                          await _confirmDelivery();
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _deliveredLocally
+                        ? Colors.grey
+                        : Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Text(
+                    _deliveredLocally ? 'Livrée' : 'Confirmer Livraison',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

@@ -85,7 +85,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const ClientMainShell(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -93,7 +93,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const ProfileScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -101,7 +101,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const EditProfileScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -109,7 +109,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const SettingsScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -117,7 +117,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const ChangePasswordScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -125,7 +125,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const NotificationsScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -133,7 +133,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const TrackingScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -143,7 +143,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             OrdersListScreen(status: status),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -151,7 +151,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const CreateOrderScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -159,7 +159,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const CartScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -175,7 +175,7 @@ class RouteGenerator {
                 clientLatitude: args['clientLatitude'],
                 clientLongitude: args['clientLongitude'],
               ),
-              allowedRoles: const ['client', 'admin', 'gestionnaire'],
+              allowedRoles: const ['client'],
             ),
           );
         }
@@ -188,7 +188,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const ShipmentHistoryScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -218,7 +218,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const HelpCenterScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -226,7 +226,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const BottleReturnScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -234,7 +234,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const AbonnementScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -242,7 +242,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const WaterQualityScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -250,7 +250,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const AddressBookScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -258,7 +258,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const WalletScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -266,7 +266,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const PaymentScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -275,7 +275,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             OrderFeedbackScreen(orderId: orderId),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -383,7 +383,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const ClientHomeScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
         );
 
@@ -391,7 +391,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => _buildWithRoleCheck(
             const ClientTrackingScreen(),
-            allowedRoles: const ['client', 'admin', 'gestionnaire'],
+            allowedRoles: const ['client'],
           ),
           settings: settings, // Pass arguments
         );

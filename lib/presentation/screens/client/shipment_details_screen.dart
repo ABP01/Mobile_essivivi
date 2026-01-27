@@ -347,6 +347,102 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                               ),
                             ),
                           ),
+                        const SizedBox(height: 12),
+                        // Cancel button: only visible to client and only if no agent assigned
+                        if (!isAgent &&
+                            !_commande!.isCancelled &&
+                            !_commande!.isDelivered &&
+                            _commande!.agentId == null)
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text(
+                                            'Annuler la commande',
+                                          ),
+                                          content: const Text(
+                                            'Voulez-vous annuler cette commande ?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(ctx, false),
+                                              child: const Text('Non'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(ctx, true),
+                                              child: const Text('Oui'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirm == true) {
+                                        setState(() => _isLoading = true);
+                                        try {
+                                          await _salesRepo.deleteCommande(
+                                            _commande!.id,
+                                          );
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Commande annulée avec succès.',
+                                                ),
+                                                backgroundColor: Colors.green,
+                                              ),
+                                            );
+                                            Navigator.pop(context);
+                                          }
+                                        } catch (e) {
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Erreur annulation: $e',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } finally {
+                                          if (mounted)
+                                            setState(() => _isLoading = false);
+                                        }
+                                      }
+                                    },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                side: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Annuler la commande',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                 ],
