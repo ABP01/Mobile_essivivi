@@ -46,8 +46,20 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
 
     // Sinon, essayer d'obtenir la position actuelle
     try {
+      // Vérifier si les services de localisation sont activés
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Activez les services de localisation pour une meilleure précision',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 3),
+          ),
+        );
         setState(() {
           _selectedPosition = _defaultPosition;
           _isLoading = false;
@@ -55,13 +67,44 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
         return;
       }
 
+      // Vérifier et demander les permissions
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Permission de localisation refusée. Utilisation de la position par défaut.',
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+          setState(() {
+            _selectedPosition = _defaultPosition;
+            _isLoading = false;
+          });
+          return;
+        }
       }
 
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Permission de localisation refusée définitivement. Activez-la dans les paramètres.',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Paramètres',
+              onPressed: () => Geolocator.openAppSettings(),
+            ),
+          ),
+        );
         setState(() {
           _selectedPosition = _defaultPosition;
           _isLoading = false;
@@ -69,12 +112,35 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
         return;
       }
 
-      Position position = await Geolocator.getCurrentPosition();
+      // Obtenir la position avec une meilleure précision
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+
       setState(() {
         _selectedPosition = LatLng(position.latitude, position.longitude);
+        _selectedAddress = 'Position actuelle détectée';
         _isLoading = false;
       });
+
+      // Centrer la carte sur la position
+      _mapController.move(_selectedPosition!, 15);
+
     } catch (e) {
+      debugPrint('Erreur lors de l\'obtention de la position: $e');
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Impossible d\'obtenir votre position. Utilisation de la position par défaut.',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: Colors.orange,
+        ),
+      );
+
       setState(() {
         _selectedPosition = _defaultPosition;
         _isLoading = false;
@@ -100,34 +166,125 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
   }
 
   void _getCurrentLocation() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      Position position = await Geolocator.getCurrentPosition();
+      // Vérifier si les services de localisation sont activés
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Activez les services de localisation dans les paramètres',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.orange,
+            action: SnackBarAction(
+              label: 'Paramètres',
+              onPressed: () => Geolocator.openLocationSettings(),
+            ),
+          ),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Vérifier et demander les permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Permission de localisation requise',
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Permission refusée. Activez-la dans les paramètres de l\'app.',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Paramètres',
+              onPressed: () => Geolocator.openAppSettings(),
+            ),
+          ),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Obtenir la position avec haute précision
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 15),
+      );
+
       final newPosition = LatLng(position.latitude, position.longitude);
-      
+
       setState(() {
         _selectedPosition = newPosition;
-        _selectedAddress = 'Position actuelle';
+        _selectedAddress = 'Votre position actuelle';
+        _isLoading = false;
       });
 
-      _mapController.move(newPosition, 15);
-    } catch (e) {
-      debugPrint('Error getting location: $e');
-      
-      setState(() {
-        _selectedPosition = _defaultPosition;
-        _selectedAddress = 'Position par défaut (Lomé)';
-      });
-      
-      _mapController.move(_defaultPosition, 15);
-      
+      // Centrer la carte sur la nouvelle position
+      _mapController.move(newPosition, 16);
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'GPS non disponible, utilisation de la position par défaut',
+            'Position actuelle obtenue avec succès',
             style: GoogleFonts.poppins(),
           ),
-          backgroundColor: Colors.orange,
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+    } catch (e) {
+      debugPrint('Erreur lors de l\'obtention de la position actuelle: $e');
+
+      setState(() {
+        _selectedPosition = _defaultPosition;
+        _selectedAddress = 'Position par défaut (Lomé)';
+        _isLoading = false;
+      });
+
+      _mapController.move(_defaultPosition, 14);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Erreur GPS. Utilisation de la position par défaut.',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: Colors.red,
         ),
       );
     }

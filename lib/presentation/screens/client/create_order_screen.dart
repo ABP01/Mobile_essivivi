@@ -780,12 +780,34 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         ),
         child: Column(
           children: [
-            Icon(
-              product.category == 'water'
-                  ? FluentIcons.drop_24_filled
-                  : FluentIcons.food_24_filled,
-              color: isSelected ? Colors.white : AppColors.primary,
-              size: 32,
+            // Afficher l'image du produit si elle existe, sinon l'icône
+            Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                    ? null
+                    : (isSelected ? Colors.white.withOpacity(0.2) : AppColors.primary.withOpacity(0.1)),
+                image: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(product.imageUrl!),
+                        fit: BoxFit.cover,
+                        onError: (exception, stackTrace) {
+                          // En cas d'erreur de chargement, afficher l'icône
+                        },
+                      )
+                    : null,
+              ),
+              child: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                  ? null // L'image sera affichée via DecorationImage
+                  : Icon(
+                      product.category == 'water'
+                          ? FluentIcons.drop_24_filled
+                          : FluentIcons.food_24_filled,
+                      color: isSelected ? Colors.white : AppColors.primary,
+                      size: 24,
+                    ), // Icône de fallback
             ),
             const SizedBox(height: 8),
             Text(
