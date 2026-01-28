@@ -904,7 +904,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color = Colors.orange;
         break;
       default:
-        icon = FluentIcons.package_24_filled;
+        icon = FluentIcons.box_24_filled;
         color = AppColors.primary;
     }
 
