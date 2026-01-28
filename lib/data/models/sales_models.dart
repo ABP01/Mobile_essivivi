@@ -251,6 +251,7 @@ class CreateCommandeRequest {
   final int? agentId;
   final double? deliveryLatitude;
   final double? deliveryLongitude;
+  final List<Map<String, dynamic>>? itemsData;
 
   CreateCommandeRequest({
     required this.clientId,
@@ -259,10 +260,11 @@ class CreateCommandeRequest {
     this.agentId,
     this.deliveryLatitude,
     this.deliveryLongitude,
+    this.itemsData,
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final data = {
       'client': clientId,
       'montant': montant,
       'date_souhaitee': dateSouhaitee,
@@ -271,6 +273,12 @@ class CreateCommandeRequest {
       'delivery_latitude': deliveryLatitude,
       'delivery_longitude': deliveryLongitude,
     };
+
+    if (itemsData != null && itemsData!.isNotEmpty) {
+      data['items_data'] = itemsData;
+    }
+
+    return data;
   }
 }
 

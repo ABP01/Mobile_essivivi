@@ -31,8 +31,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   double? _deliveryLongitude;
   String? _deliveryAddress;
 
-  // Selected product
-  Product? _selectedProduct;
+  // Selected products (support multiple items)
+  List<Map<String, dynamic>> _selectedItems = [];
   List<Product> _availableProducts = [];
 
   final _salesRepo = SalesRepository();
@@ -45,20 +45,53 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     if (args is Map<String, dynamic>) {
       if (args.containsKey('cartItems')) {
         final items = args['cartItems'] as List<CartItem>;
-        if (items.isNotEmpty) {
-          setState(() {
-            _selectedBottleSize = items[0].bottleSize;
-            _quantity = items[0].quantity;
-          });
-        }
-      } else if (args.containsKey('initialBottleSize')) {
-        setState(() {
-          _selectedBottleSize = args['initialBottleSize'] as String;
-        });
+        // Convert cart items to selected items
+        _selectedItems = items.map((cartItem) {
+          // Find product by name (assuming bottleSize matches product name)
+          final product = _availableProducts.firstWhere(
+            (p) => p.name == cartItem.bottleSize,
+            orElse: () => Product(
+              id: 0, // Fallback, will be updated when products load
+              name: cartItem.bottleSize,
+              category: 'water',
+              unit: 'bottle',
+              quantityPerUnit: 1,
+              price: cartItem.unitPrice,
+              isActive: true,
+              createdAt: '',
+              updatedAt: '',
+            ),
+          );
+          return {'product': product.id, 'quantity': cartItem.quantity};
+        }).toList();
       } else if (args.containsKey('selectedProduct')) {
+        final product = args['selectedProduct'] as Product;
         setState(() {
-          _selectedProduct = args['selectedProduct'] as Product;
-          _selectedBottleSize = _selectedProduct!.name;
+          _selectedItems = [
+            {'product': product.id, 'quantity': _quantity},
+          ];
+        });
+      } else if (args.containsKey('initialBottleSize')) {
+        final bottleSize = args['initialBottleSize'] as String;
+        // Find product by name
+        final product = _availableProducts.firstWhere(
+          (p) => p.name == bottleSize,
+          orElse: () => Product(
+            id: 0,
+            name: bottleSize,
+            category: 'water',
+            unit: 'bottle',
+            quantityPerUnit: 1,
+            price: CartItem.getPriceForSize(bottleSize),
+            isActive: true,
+            createdAt: '',
+            updatedAt: '',
+          ),
+        );
+        setState(() {
+          _selectedItems = [
+            {'product': product.id, 'quantity': _quantity},
+          ];
         });
       }
     }
@@ -71,6 +104,33 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       setState(() {
         _availableProducts = products;
       });
+
+      // Update selected items with correct product IDs if they were set before products loaded
+      if (_selectedItems.isNotEmpty &&
+          _selectedItems.any((item) => item['product'] == 0)) {
+        setState(() {
+          _selectedItems = _selectedItems.map((item) {
+            if (item['product'] == 0) {
+              // Find product by name from the first item (assuming bottleSize was stored)
+              final bottleSize = item['bottleSize'] as String? ?? '20L';
+              Product? product;
+              if (_availableProducts.isNotEmpty) {
+                product = _availableProducts.firstWhere(
+                  (p) => p.name == bottleSize,
+                  orElse: () => _availableProducts.firstWhere(
+                    (p) => p.category == 'water',
+                    orElse: () => _availableProducts.first,
+                  ),
+                );
+              }
+              if (product != null) {
+                return {'product': product.id, 'quantity': item['quantity']};
+              }
+            }
+            return item;
+          }).toList();
+        });
+      }
     } catch (e) {
       // Handle error - maybe show a message
       debugPrint('Error loading products: $e');
@@ -78,6 +138,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   Future<void> _submitOrder() async {
+    if (_selectedItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner au moins un produit'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     if (_deliveryLatitude == null || _deliveryLongitude == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -108,6 +178,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         dateSouhaitee: _selectedDate.toIso8601String(),
         deliveryLatitude: _deliveryLatitude,
         deliveryLongitude: _deliveryLongitude,
+        itemsData: _selectedItems.isNotEmpty ? _selectedItems : null,
       );
 
       debugPrint('🔵 Request créée: ${request.toJson()}');
@@ -142,12 +213,35 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   double _calculateTotalAmount() {
-    if (_selectedProduct != null) {
-      return _selectedProduct!.price * _quantity;
+    double total = 0.0;
+    for (final item in _selectedItems) {
+      final productId = item['product'] as int;
+      final quantity = item['quantity'] as int;
+
+      final product = _availableProducts.firstWhere(
+        (p) => p.id == productId,
+        orElse: () => Product(
+          id: productId,
+          name: 'Unknown',
+          category: 'water',
+          unit: 'bottle',
+          quantityPerUnit: 1,
+          price: 2000.0, // Default price
+          isActive: true,
+          createdAt: '',
+          updatedAt: '',
+        ),
+      );
+
+      total += product.price * quantity;
     }
-    // Fallback to old logic
-    double unitPrice = CartItem.getPriceForSize(_selectedBottleSize);
-    return unitPrice * _quantity;
+
+    // Fallback if no items selected
+    if (_selectedItems.isEmpty) {
+      return CartItem.getPriceForSize(_selectedBottleSize) * _quantity;
+    }
+
+    return total;
   }
 
   @override
@@ -325,9 +419,19 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         children: [
                           IconButton(
                             onPressed: () {
-                              if (_quantity > 1) {
-                                setState(() => _quantity--);
-                              }
+                              setState(() {
+                                if (_selectedItems.isNotEmpty) {
+                                  // Decrease quantity of first selected item
+                                  if (_selectedItems[0]['quantity'] > 1) {
+                                    _selectedItems[0]['quantity']--;
+                                  }
+                                } else {
+                                  // Decrease global quantity
+                                  if (_quantity > 1) {
+                                    _quantity--;
+                                  }
+                                }
+                              });
                             },
                             icon: const Icon(
                               Icons.remove_circle_outline,
@@ -338,7 +442,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           Column(
                             children: [
                               Text(
-                                '$_quantity',
+                                '${_selectedItems.isNotEmpty ? _selectedItems[0]['quantity'] : _quantity}',
                                 style: GoogleFonts.poppins(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -356,7 +460,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           ),
                           IconButton(
                             onPressed: () {
-                              setState(() => _quantity++);
+                              setState(() {
+                                if (_selectedItems.isNotEmpty) {
+                                  // Increase quantity of first selected item
+                                  _selectedItems[0]['quantity']++;
+                                } else {
+                                  // Increase global quantity
+                                  _quantity++;
+                                }
+                              });
                             },
                             icon: const Icon(
                               Icons.add_circle_outline,
@@ -598,9 +710,40 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          _buildSummaryRow('Taille', _selectedBottleSize),
-                          _buildSummaryRow('Quantité', '$_quantity bouteilles'),
-                          _buildSummaryRow('Prix Unitaire', _getPrice()),
+                          if (_selectedItems.isNotEmpty) ...[
+                            ..._selectedItems.map((item) {
+                              final productId = item['product'] as int;
+                              final quantity = item['quantity'] as int;
+                              final product = _availableProducts.firstWhere(
+                                (p) => p.id == productId,
+                                orElse: () => Product(
+                                  id: productId,
+                                  name: 'Unknown',
+                                  category: 'water',
+                                  unit: 'bottle',
+                                  quantityPerUnit: 1,
+                                  price: 2000.0,
+                                  isActive: true,
+                                  createdAt: '',
+                                  updatedAt: '',
+                                ),
+                              );
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: _buildSummaryRow(
+                                  '${product.name} (${quantity}x)',
+                                  '${(product.price * quantity).toInt()} FCFA',
+                                ),
+                              );
+                            }),
+                          ] else ...[
+                            _buildSummaryRow('Taille', _selectedBottleSize),
+                            _buildSummaryRow(
+                              'Quantité',
+                              '$_quantity bouteilles',
+                            ),
+                            _buildSummaryRow('Prix Unitaire', _getPrice()),
+                          ],
                           const Divider(height: 24),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -754,10 +897,18 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   Widget _buildProductCard(Product product) {
-    final isSelected = _selectedProduct?.id == product.id;
+    final isSelected = _selectedItems.any(
+      (item) => item['product'] == product.id,
+    );
     return GestureDetector(
       onTap: () => setState(() {
-        _selectedProduct = product;
+        if (isSelected) {
+          // Remove product if already selected
+          _selectedItems.removeWhere((item) => item['product'] == product.id);
+        } else {
+          // Add product with current quantity
+          _selectedItems.add({'product': product.id, 'quantity': _quantity});
+        }
         _selectedBottleSize = product.name;
       }),
       child: Container(
@@ -786,28 +937,36 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               width: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: product.imageUrl != null && product.imageUrl!.isNotEmpty
-                    ? null
-                    : (isSelected ? Colors.white.withOpacity(0.2) : AppColors.primary.withOpacity(0.1)),
-                image: product.imageUrl != null && product.imageUrl!.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(product.imageUrl!),
-                        fit: BoxFit.cover,
-                        onError: (exception, stackTrace) {
-                          // En cas d'erreur de chargement, afficher l'icône
-                        },
-                      )
-                    : null,
+                color: isSelected
+                    ? Colors.white.withOpacity(0.2)
+                    : AppColors.primary.withOpacity(0.1),
               ),
               child: product.imageUrl != null && product.imageUrl!.isNotEmpty
-                  ? null // L'image sera affichée via DecorationImage
+                  ? ClipOval(
+                      child: Image.network(
+                        product.imageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          // En cas d'erreur de chargement, afficher l'icône
+                          return Icon(
+                            product.category == 'water'
+                                ? FluentIcons.drop_24_filled
+                                : FluentIcons.food_24_filled,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.primary,
+                            size: 24,
+                          );
+                        },
+                      ),
+                    )
                   : Icon(
                       product.category == 'water'
                           ? FluentIcons.drop_24_filled
                           : FluentIcons.food_24_filled,
                       color: isSelected ? Colors.white : AppColors.primary,
                       size: 24,
-                    ), // Icône de fallback
+                    ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -940,37 +1099,95 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   String _getPrice() {
-    switch (_selectedBottleSize) {
-      case '5L':
-        return '500 FCFA';
-      case '10L':
-        return '1,000 FCFA';
-      case '20L':
-        return '2,000 FCFA';
-      default:
-        return '0 FCFA';
+    if (_selectedItems.isNotEmpty) {
+      final productId = _selectedItems[0]['product'] as int;
+      final product = _availableProducts.firstWhere(
+        (p) => p.id == productId,
+        orElse: () => Product(
+          id: 0,
+          name: 'Unknown',
+          category: 'water',
+          unit: 'bottle',
+          quantityPerUnit: 1,
+          price: 2000.0,
+          isActive: true,
+          createdAt: '',
+          updatedAt: '',
+        ),
+      );
+      return '${product.price.toInt()} FCFA';
     }
+    return '0 FCFA';
   }
 
   double _getPriceValue() {
-    return CartItem.getPriceForSize(_selectedBottleSize);
+    if (_selectedItems.isNotEmpty) {
+      final productId = _selectedItems[0]['product'] as int;
+      final product = _availableProducts.firstWhere(
+        (p) => p.id == productId,
+        orElse: () => Product(
+          id: 0,
+          name: 'Unknown',
+          category: 'water',
+          unit: 'bottle',
+          quantityPerUnit: 1,
+          price: 2000.0,
+          isActive: true,
+          createdAt: '',
+          updatedAt: '',
+        ),
+      );
+      return product.price;
+    }
+    return 0.0;
   }
 
   Future<void> _addToCart() async {
-    final cartService = CartService();
-    final item = CartItem(
-      bottleSize: _selectedBottleSize,
-      quantity: _quantity,
-      unitPrice: _getPriceValue(),
-    );
+    if (_selectedItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner au moins un produit'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
 
-    await cartService.addToCart(item);
+    final cartService = CartService();
+
+    for (final item in _selectedItems) {
+      final productId = item['product'] as int;
+      final quantity = item['quantity'] as int;
+
+      final product = _availableProducts.firstWhere(
+        (p) => p.id == productId,
+        orElse: () => Product(
+          id: productId,
+          name: 'Unknown',
+          category: 'water',
+          unit: 'bottle',
+          quantityPerUnit: 1,
+          price: 2000.0,
+          isActive: true,
+          createdAt: '',
+          updatedAt: '',
+        ),
+      );
+
+      final cartItem = CartItem(
+        bottleSize: product.name,
+        quantity: quantity,
+        unitPrice: product.price,
+      );
+
+      await cartService.addToCart(cartItem);
+    }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Ajouté au panier : $_quantity × $_selectedBottleSize',
+            '${_selectedItems.length} produit(s) ajouté(s) au panier',
             style: GoogleFonts.poppins(),
           ),
           backgroundColor: AppColors.primary,
