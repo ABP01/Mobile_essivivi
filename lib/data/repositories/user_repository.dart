@@ -323,4 +323,21 @@ class UserRepository {
       rethrow;
     }
   }
+  /// Recharge wallet (Simulation)
+  Future<Map<String, dynamic>> rechargeWallet(double amount) async {
+    try {
+      final response = await _apiService.client.post(
+        'users/wallet/recharge/',
+        data: {'amount': amount},
+      );
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 502) {
+        throw Exception(
+          'Service temporairement indisponible. Réessayez plus tard.',
+        );
+      }
+      rethrow;
+    }
+  }
 }

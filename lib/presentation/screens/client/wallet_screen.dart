@@ -22,10 +22,69 @@ class _WalletScreenState extends State<WalletScreen> {
     });
   }
 
+  void _showRechargeDialog(BuildContext context) {
+    final TextEditingController amountController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Recharger le solde', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Entrez le montant à recharger (Simulation)', style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Montant (FCFA)',
+                border: OutlineInputBorder(),
+                suffixText: 'FCFA',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final amount = double.tryParse(amountController.text);
+              if (amount != null && amount > 0) {
+                Navigator.pop(context); // Close dialog
+                
+                final success = await Provider.of<ClientProvider>(context, listen: false)
+                    .rechargeWallet(amount);
+                
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success ? 'Solde rechargé avec succès' : 'Erreur lors du rechargement',
+                      ),
+                      backgroundColor: success ? Colors.green : Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+            ),
+            child: const Text('Recharger'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    // final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -35,10 +94,9 @@ class _WalletScreenState extends State<WalletScreen> {
       ),
       body: Consumer<ClientProvider>(
         builder: (context, provider, child) {
-          // Use mocked balance if profile is null for now, 
-          // in real integration 'provider.clientProfile?.solde' would be used.
-          // Since we didn't fully implement schema extraction in ClientProvider yet:
-          double balance = provider.clientProfile?.solde ?? 0.0;
+          // Use real data from provider
+          final double balance = provider.clientProfile?.solde ?? 0.0;
+          final bool isLoading = provider.isLoading;
           
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -75,25 +133,22 @@ class _WalletScreenState extends State<WalletScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '${balance.toStringAsFixed(0)} FCFA',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      isLoading 
+                        ? const Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator(color: Colors.white))
+                        : Text(
+                            '${balance.toStringAsFixed(0)} FCFA',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
-                                // TODO: Integration payment gateway
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Comming soon: Mobile Money Integration')),
-                                );
-                              },
+                              onPressed: () => _showRechargeDialog(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: AppColors.primary,
@@ -128,7 +183,8 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Empty State or Mock List
+                // Empty State or Mock List (Backend doesnt have transaction history endpoint yet)
+                // Leaving this as mock UI for now as history is secondary to balance
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32.0),

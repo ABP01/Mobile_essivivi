@@ -31,6 +31,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   double? _deliveryLongitude;
   String? _deliveryAddress;
 
+  // Selected product
+  Product? _selectedProduct;
+  List<Product> _availableProducts = [];
+
   final _salesRepo = SalesRepository();
   final _authRepo = AuthRepository();
 
@@ -51,7 +55,25 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         setState(() {
           _selectedBottleSize = args['initialBottleSize'] as String;
         });
+      } else if (args.containsKey('selectedProduct')) {
+        setState(() {
+          _selectedProduct = args['selectedProduct'] as Product;
+          _selectedBottleSize = _selectedProduct!.name;
+        });
       }
+    }
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    try {
+      final products = await _salesRepo.getProducts();
+      setState(() {
+        _availableProducts = products;
+      });
+    } catch (e) {
+      // Handle error - maybe show a message
+      debugPrint('Error loading products: $e');
     }
   }
 
@@ -120,6 +142,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   double _calculateTotalAmount() {
+    if (_selectedProduct != null) {
+      return _selectedProduct!.price * _quantity;
+    }
+    // Fallback to old logic
     double unitPrice = CartItem.getPriceForSize(_selectedBottleSize);
     return unitPrice * _quantity;
   }
@@ -243,9 +269,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Bottle Size Selection
+                    // Product Selection
                     Text(
-                      'Choisir la Taille',
+                      'Choisir le Produit',
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -253,19 +279,22 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(child: _buildBottleSizeCard('5L', '500 FCFA')),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildBottleSizeCard('10L', '1,000 FCFA'),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildBottleSizeCard('20L', '2,000 FCFA'),
-                        ),
-                      ],
-                    ),
+                    _availableProducts.isEmpty
+                        ? const Center(child: CircularProgressIndicator())
+                        : SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: _availableProducts.map((product) {
+                                return Row(
+                                  children: [
+                                    _buildProductCard(product),
+                                    if (_availableProducts.last != product)
+                                      const SizedBox(width: 12),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ),
                     const SizedBox(height: 24),
 
                     // Quantity
@@ -713,6 +742,68 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               price,
               style: GoogleFonts.poppins(
                 fontSize: 14,
+                color: isSelected
+                    ? Colors.white.withOpacity(0.9)
+                    : AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductCard(Product product) {
+    final isSelected = _selectedProduct?.id == product.id;
+    return GestureDetector(
+      onTap: () => setState(() {
+        _selectedProduct = product;
+        _selectedBottleSize = product.name;
+      }),
+      child: Container(
+        width: 120,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.grey.shade200,
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(
+              product.category == 'water'
+                  ? FluentIcons.drop_24_filled
+                  : FluentIcons.food_24_filled,
+              color: isSelected ? Colors.white : AppColors.primary,
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              product.name,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : AppColors.textMain,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${product.price.toInt()} FCFA',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
                 color: isSelected
                     ? Colors.white.withOpacity(0.9)
                     : AppColors.textSecondary,

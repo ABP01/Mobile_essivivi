@@ -3,9 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/user_models.dart';
 import '../data/repositories/auth_repository.dart';
+import '../data/repositories/user_repository.dart';
 
 class ClientProvider with ChangeNotifier {
   final AuthRepository _authRepo = AuthRepository();
+  final UserRepository _userRepo = UserRepository();
   
   bool _isLoading = false;
   String? _error;
@@ -26,26 +28,20 @@ class ClientProvider with ChangeNotifier {
     try {
       final user = await _authRepo.getCurrentUser();
       
-      // We assume the backend User model might have the profile attached 
-      // or we fetch it separately/extract it.
-      // Based on models, CustomUser doesn't directly link ClientProfile 
-      // but 'MeSerializer' in backend returns it. 
-      // Let's assume getCurrentUser returns the full object with profile if available
-      // or we might need a specific endpoint to fetching profile.
-      // For now, let's look at `getCurrentUser` in AuthRepo. 
-      // It calls `meEndpoint`.
-      
-      // The `CustomUser` model in Dart (Step 130) doesn't have a `clientProfile` field. 
-      // We might need to extend it or fetch profile separately.
-      // However, looking at the code, it seems we might need to cast or parse the response manually 
-      // if CustomUser doesn't hold it. 
-      // Actually, let's assume for now we use the 'me' endpoint data to populate this.
+      if (user != null) {
+        // Fetch real client profile
+        try {
+          final clients = await _userRepo.getClients();
+          if (clients.isNotEmpty) {
+            _clientProfile = clients.first;
+          }
+        } catch (e) {
+          debugPrint('Error fetching client profile: $e');
+        }
+      }
       
       // For the address book, we load from local storage
       await _loadLocalAddresses();
-      
-      // Attempt to load profile (mocking extraction since CustomUser doesn't have it explicitly typed)
-      // In a real scenario, we would update CustomUser model to include clientProfile
       
     } catch (e) {
       debugPrint('Client data error: $e');
@@ -53,6 +49,30 @@ class ClientProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> rechargeWallet(double amount) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      
+      await _userRepo.rechargeWallet(amount);
+      
+      // Refresh profile to get new balance
+      final clients = await _userRepo.getClients();
+      if (clients.isNotEmpty) {
+        _clientProfile = clients.first;
+      }
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      return false;
     }
   }
 

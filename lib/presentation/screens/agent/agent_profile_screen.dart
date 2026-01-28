@@ -83,7 +83,7 @@ class _AgentProfileScreenState extends State<AgentProfileScreen> {
                       const Spacer(),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.settings);
+                          Navigator.pushNamed(context, AppRoutes.agentSettings);
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),

@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Commande> _recentOrders = [];
   CustomUser? _currentUser;
+  List<Product> _products = [];
 
   @override
   void initState() {
@@ -47,6 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       // Load user profile
       _currentUser = await _authRepo.getCurrentUser();
+      
+      // Load products
+      _products = await _salesRepo.getProducts();
       
       if (_currentUser != null) {
         // Load recent orders for this client
@@ -122,9 +126,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Header
                     Row(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 24,
-                          backgroundImage: AssetImage('assets/images/delivery_man.png'), // Placeholder
+                          backgroundImage: _currentUser?.photo != null
+                              ? NetworkImage(_currentUser!.photo!) as ImageProvider
+                              : const AssetImage('assets/images/delivery_man.png'),
                         ),
                         const SizedBox(width: 12),
                         Column(
@@ -254,18 +260,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildProductCard(context, '5L', '500 FCFA', FluentIcons.drop_24_filled, Colors.lightBlue),
-                          const SizedBox(width: 16),
-                          _buildProductCard(context, '10L', '1,000 FCFA', FluentIcons.drop_24_filled, Colors.blue),
-                          const SizedBox(width: 16),
-                          _buildProductCard(context, '20L', '2,000 FCFA', FluentIcons.drop_24_filled, AppColors.primary),
-                        ],
-                      ),
-                    ),
+                    _products.isEmpty
+                        ? const Center(child: CircularProgressIndicator())
+                        : SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: _products.map((product) {
+                                return Row(
+                                  children: [
+                                    _buildDynamicProductCard(context, product),
+                                    if (_products.last != product) const SizedBox(width: 16),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ),
                     const SizedBox(height: 24),
 
                     // New Order Button
@@ -752,6 +761,86 @@ class _HomeScreenState extends State<HomeScreen> {
               price,
               style: GoogleFonts.poppins(
                 fontSize: 14,
+                color: theme.textTheme.bodySmall?.color,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDynamicProductCard(BuildContext context, Product product) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Choose icon and color based on category
+    IconData icon;
+    Color color;
+    switch (product.category) {
+      case 'water':
+        icon = FluentIcons.drop_24_filled;
+        color = Colors.lightBlue;
+        break;
+      case 'drink':
+        icon = FluentIcons.food_24_filled;
+        color = Colors.orange;
+        break;
+      default:
+        icon = FluentIcons.box_24_filled;
+        color = AppColors.primary;
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.createOrder,
+          arguments: {'selectedProduct': product},
+        );
+      },
+      child: Container(
+        width: 140,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? theme.cardColor : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              product.name,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: theme.textTheme.bodyLarge?.color,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${product.price.toInt()} FCFA',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
                 color: theme.textTheme.bodySmall?.color,
                 fontWeight: FontWeight.w500,
               ),

@@ -36,7 +36,9 @@ class AgentProvider with ChangeNotifier {
     return date.year == now.year && date.month == now.month && date.day == now.day;
   }).length;
 
-  double get earnedToday => completedTodayCount * 500.0; // Mock calculation
+  static const double _commissionPerDelivery = 500.0;
+
+  double get earnedToday => completedTodayCount * _commissionPerDelivery;
   
   // Getters
   bool get isLoading => _isLoading;
@@ -65,6 +67,11 @@ class AgentProvider with ChangeNotifier {
           
           // Initial availability state from profile (mocked logic as availability might be local or server side)
            _isAvailable = _locationService.isTracking;
+           
+           // AUTO-ACTIVATE: Mettre l'agent en ligne automatiquement
+           if (!_isAvailable) {
+             toggleAvailability(true);
+           }
         } catch (e) {
           debugPrint('Agent profile warning: $e');
           _error = 'Erreur lors du chargement du profil agent: $e';
@@ -110,7 +117,12 @@ class AgentProvider with ChangeNotifier {
 
     try {
       if (_isAvailable) {
-        await _locationService.startTracking(_currentUser!.id);
+        if (_agentProfile != null) {
+          await _locationService.startTracking(_agentProfile!.id);
+        } else {
+          debugPrint('Cannot start tracking: Agent profile not found');
+          // Try fetching profile first?
+        }
       } else {
         await _locationService.stopTracking();
       }

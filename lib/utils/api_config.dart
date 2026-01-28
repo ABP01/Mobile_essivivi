@@ -70,6 +70,7 @@ class ApiConfig {
   // Sales endpoints
   static const String commandesEndpoint = '/sales/commandes/';
   static const String livraisonsEndpoint = '/sales/livraisons/';
+  static const String productsEndpoint = '/sales/products/';
 
   // Dashboard endpoints
   static const String dashboardStatsEndpoint = '/dashboard/stats/';

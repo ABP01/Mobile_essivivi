@@ -1,5 +1,65 @@
 /// Sales-related data models matching the Django backend structure
 
+class Product {
+  final int id;
+  final String name;
+  final String category;
+  final String unit;
+  final int quantityPerUnit;
+  final double price;
+  final String? description;
+  final String? imageUrl;
+  final bool isActive;
+  final String createdAt;
+  final String updatedAt;
+
+  Product({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.unit,
+    required this.quantityPerUnit,
+    required this.price,
+    this.description,
+    this.imageUrl,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      category: json['category'] as String,
+      unit: json['unit'] as String,
+      quantityPerUnit: json['quantity_per_unit'] as int,
+      price: double.parse(json['price'].toString()),
+      description: json['description'] as String?,
+      imageUrl: json['image_url'] as String?,
+      isActive: json['is_active'] as bool,
+      createdAt: json['created_at'] as String,
+      updatedAt: json['updated_at'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category,
+      'unit': unit,
+      'quantity_per_unit': quantityPerUnit,
+      'price': price,
+      'description': description,
+      'image_url': imageUrl,
+      'is_active': isActive,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+    };
+  }
+}
+
 class Commande {
   final int id;
   final int clientId;
